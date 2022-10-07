@@ -1,0 +1,7 @@
+.idea
+coverage
+node_modules
+src
+tests
+
+vite.config.ts

@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "es2022",
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    "noImplicitOverride": true,
+
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "sourceMap": true,
+    "declaration": true,
+
+    "lib": ["es2022"],
+
+    "rootDir": "./src",
+    "outDir": "./dist"
+  },
+  "include": [
+    "./src"
+  ],
+  "exclude": ["./dist",
+    "vite.config.ts",
+    "./tests", "./**/*.spec.ts"]
+}

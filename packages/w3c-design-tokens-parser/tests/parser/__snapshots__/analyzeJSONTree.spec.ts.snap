@@ -1,0 +1,343 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`analyzeTree > should parse a token tree of raw values of all types 1`] = `
+{
+  "groups": [
+    [
+      {
+        "childrenCount": 15,
+        "description": undefined,
+        "extensions": undefined,
+        "path": [],
+        "tokenType": undefined,
+      },
+    ],
+    [],
+  ],
+  "tokenTree": {
+    "borderToken": {
+      "$type": "border",
+      "$value": {
+        "color": "#676767",
+        "style": "solid",
+        "width": "1px",
+      },
+    },
+    "colorToken": {
+      "$type": "color",
+      "$value": "#a82222",
+    },
+    "cubicBezierToken": {
+      "$type": "cubicBezier",
+      "$value": [
+        0,
+        1,
+        1,
+        0,
+      ],
+    },
+    "dimensionToken": {
+      "$type": "dimension",
+      "$value": "12px",
+    },
+    "durationToken": {
+      "$type": "duration",
+      "$value": "1s",
+    },
+    "fontFamilyToken": {
+      "$type": "fontFamily",
+      "$value": "Arial",
+    },
+    "gradientToken": {
+      "$type": "gradient",
+      "$value": [
+        {
+          "color": "#000000",
+          "position": 0,
+        },
+        {
+          "color": "#ffffff",
+          "position": 1,
+        },
+      ],
+    },
+    "numberFontWeightToken": {
+      "$type": "fontWeight",
+      "$value": 700,
+    },
+    "numberToken": {
+      "$type": "number",
+      "$value": 12,
+    },
+    "shadowToken": {
+      "$type": "shadow",
+      "$value": {
+        "blur": "3px",
+        "color": "#000000",
+        "offsetX": "1px",
+        "offsetY": "2px",
+        "spread": "4px",
+      },
+    },
+    "stringFontWeightToken": {
+      "$type": "fontWeight",
+      "$value": "bold",
+    },
+    "stringToken": {
+      "$type": "string",
+      "$value": "hello",
+    },
+    "strokeStyleToken": {
+      "$type": "strokeStyle",
+      "$value": "solid",
+    },
+    "transitionToken": {
+      "$type": "transition",
+      "$value": {
+        "delay": "0s",
+        "duration": "1s",
+        "timingFunction": [
+          0,
+          0.1,
+          0.7,
+          0.5,
+        ],
+      },
+    },
+    "typographyToken": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "Arial",
+        "fontSize": "12px",
+        "fontWeight": "bold",
+        "letterSpacing": "1px",
+        "lineHeight": 1.5,
+      },
+    },
+  },
+  "tokens": [
+    [
+      {
+        "description": undefined,
+        "extensions": undefined,
+        "path": [
+          "borderToken",
+        ],
+        "type": "border",
+        "value": {
+          "raw": {
+            "color": "#676767",
+            "style": "solid",
+            "width": "1px",
+          },
+          "toReferences": [],
+        },
+      },
+      {
+        "description": undefined,
+        "extensions": undefined,
+        "path": [
+          "colorToken",
+        ],
+        "type": "color",
+        "value": {
+          "raw": "#a82222",
+          "toReferences": [],
+        },
+      },
+      {
+        "description": undefined,
+        "extensions": undefined,
+        "path": [
+          "cubicBezierToken",
+        ],
+        "type": "cubicBezier",
+        "value": {
+          "raw": [
+            0,
+            1,
+            1,
+            0,
+          ],
+          "toReferences": [],
+        },
+      },
+      {
+        "description": undefined,
+        "extensions": undefined,
+        "path": [
+          "dimensionToken",
+        ],
+        "type": "dimension",
+        "value": {
+          "raw": "12px",
+          "toReferences": [],
+        },
+      },
+      {
+        "description": undefined,
+        "extensions": undefined,
+        "path": [
+          "durationToken",
+        ],
+        "type": "duration",
+        "value": {
+          "raw": "1s",
+          "toReferences": [],
+        },
+      },
+      {
+        "description": undefined,
+        "extensions": undefined,
+        "path": [
+          "fontFamilyToken",
+        ],
+        "type": "fontFamily",
+        "value": {
+          "raw": "Arial",
+          "toReferences": [],
+        },
+      },
+      {
+        "description": undefined,
+        "extensions": undefined,
+        "path": [
+          "stringFontWeightToken",
+        ],
+        "type": "fontWeight",
+        "value": {
+          "raw": "bold",
+          "toReferences": [],
+        },
+      },
+      {
+        "description": undefined,
+        "extensions": undefined,
+        "path": [
+          "numberFontWeightToken",
+        ],
+        "type": "fontWeight",
+        "value": {
+          "raw": 700,
+          "toReferences": [],
+        },
+      },
+      {
+        "description": undefined,
+        "extensions": undefined,
+        "path": [
+          "gradientToken",
+        ],
+        "type": "gradient",
+        "value": {
+          "raw": [
+            {
+              "color": "#000000",
+              "position": 0,
+            },
+            {
+              "color": "#ffffff",
+              "position": 1,
+            },
+          ],
+          "toReferences": [],
+        },
+      },
+      {
+        "description": undefined,
+        "extensions": undefined,
+        "path": [
+          "numberToken",
+        ],
+        "type": "number",
+        "value": {
+          "raw": 12,
+          "toReferences": [],
+        },
+      },
+      {
+        "description": undefined,
+        "extensions": undefined,
+        "path": [
+          "shadowToken",
+        ],
+        "type": "shadow",
+        "value": {
+          "raw": {
+            "blur": "3px",
+            "color": "#000000",
+            "offsetX": "1px",
+            "offsetY": "2px",
+            "spread": "4px",
+          },
+          "toReferences": [],
+        },
+      },
+      {
+        "description": undefined,
+        "extensions": undefined,
+        "path": [
+          "stringToken",
+        ],
+        "type": "string",
+        "value": {
+          "raw": "hello",
+          "toReferences": [],
+        },
+      },
+      {
+        "description": undefined,
+        "extensions": undefined,
+        "path": [
+          "strokeStyleToken",
+        ],
+        "type": "strokeStyle",
+        "value": {
+          "raw": "solid",
+          "toReferences": [],
+        },
+      },
+      {
+        "description": undefined,
+        "extensions": undefined,
+        "path": [
+          "transitionToken",
+        ],
+        "type": "transition",
+        "value": {
+          "raw": {
+            "delay": "0s",
+            "duration": "1s",
+            "timingFunction": [
+              0,
+              0.1,
+              0.7,
+              0.5,
+            ],
+          },
+          "toReferences": [],
+        },
+      },
+      {
+        "description": undefined,
+        "extensions": undefined,
+        "path": [
+          "typographyToken",
+        ],
+        "type": "typography",
+        "value": {
+          "raw": {
+            "fontFamily": "Arial",
+            "fontSize": "12px",
+            "fontWeight": "bold",
+            "letterSpacing": "1px",
+            "lineHeight": 1.5,
+          },
+          "toReferences": [],
+        },
+      },
+    ],
+    [],
+  ],
+}
+`;

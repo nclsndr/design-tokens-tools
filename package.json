@@ -1,0 +1,13 @@
+{
+  "name": "w3c-design-tokens-tools",
+  "version": "1.0.0",
+  "description": "Monorepo for W3C Design Tokens Tools",
+  "private": true,
+  "author": "Nico Andre<hello@nclsndr.com>",
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "license": "MIT"
+}
