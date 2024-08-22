@@ -1,9 +1,9 @@
-import { JSONValue, JSONValuePath } from '../definitions/JSONDefinitions.js';
+import { type JSON } from 'design-tokens-format-module';
 
 export function traverseJSONValue(
-  JSONValue: JSONValue,
-  callback: (data: JSONValue, path: JSONValuePath) => boolean | void,
-  path: JSONValuePath = [],
+  JSONValue: JSON.Value,
+  callback: (data: JSON.Value, path: JSON.ValuePath) => boolean | void,
+  path: JSON.ValuePath = [],
 ) {
   if (JSONValue === undefined) throw new Error('JSONValue is undefined');
   const shouldDive = callback(JSONValue, path) ?? true;

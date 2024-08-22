@@ -1,14 +1,10 @@
-import {
-  JSONArray,
-  JSONObject,
-  JSONValuePath,
-} from '../definitions/JSONDefinitions.js';
+import { type JSON } from 'design-tokens-format-module';
 
 // Forked from dset > https://github.com/lukeed/dset/blame/master/src/index.js
 
 export function deepSetJSONValue(
-  host: JSONObject | JSONArray,
-  path: JSONValuePath,
+  host: JSON.Object | JSON.Array,
+  path: JSON.ValuePath,
   value: unknown,
 ) {
   const pathLength = path.length;

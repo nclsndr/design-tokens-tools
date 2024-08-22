@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
+import { type JSON } from 'design-tokens-format-module';
+
 import { getJSONValue } from '../../src/utils/getJSONValue';
-import { JSONValuePath } from '../../src/definitions/JSONDefinitions';
 
 describe.concurrent('getJSONValue', () => {
   it('should return a truthy value at the object given path', () => {
@@ -82,7 +83,7 @@ describe.concurrent('getJSONValue', () => {
     expect(value).toBe(42);
   });
   it('should return a value at the object given path with mixed types', () => {
-    const object = {
+    const object: JSON.Object = {
       a: [{ c: 42 }, { d: 32 }],
     };
 
@@ -110,7 +111,7 @@ describe.concurrent('getJSONValue', () => {
       },
     };
 
-    const path: JSONValuePath = [];
+    const path: JSON.ValuePath = [];
     const value = getJSONValue(object, path);
 
     expect(value).toBe(object);

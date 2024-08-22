@@ -1,19 +1,20 @@
-import { StringToken } from '../../src/definitions/tokenTypes/string';
-import { CubicBezierToken } from '../../src/definitions/tokenTypes/cubicBezier';
-import { TransitionToken } from '../../src/definitions/tokenTypes/transition';
-import { DimensionToken } from '../../src/definitions/tokenTypes/dimension';
-import { GradientToken } from '../../src/definitions/tokenTypes/gradient';
-import { ColorToken } from '../../src/definitions/tokenTypes/color';
-import { NumberToken } from '../../src/definitions/tokenTypes/number';
-import { FontWeightToken } from '../../src/definitions/tokenTypes/fontWeight';
-import { FontFamilyToken } from '../../src/definitions/tokenTypes/fontFamily';
-import { BorderToken } from '../../src/definitions/tokenTypes/border';
-import { DurationToken } from '../../src/definitions/tokenTypes/duration';
-import { TypographyToken } from '../../src/definitions/tokenTypes/typography';
-import { StrokeStyleToken } from '../../src/definitions/tokenTypes/strokeStyle';
-import { ShadowToken } from '../../src/definitions/tokenTypes/shadow';
+import {
+  CubicBezier,
+  Transition,
+  Dimension,
+  Gradient,
+  Color,
+  Number,
+  FontWeight,
+  FontFamily,
+  Border,
+  Duration,
+  Typography,
+  StrokeStyle,
+  Shadow,
+} from 'design-tokens-format-module';
 
-export const borderToken: BorderToken = {
+export const borderToken: Border.Token = {
   $type: 'border',
   $value: {
     color: '#676767',
@@ -21,35 +22,35 @@ export const borderToken: BorderToken = {
     width: '1px',
   },
 };
-export const colorToken: ColorToken = {
+export const colorToken: Color.Token = {
   $type: 'color',
   $value: '#a82222',
 };
-export const cubicBezierToken: CubicBezierToken = {
+export const cubicBezierToken: CubicBezier.Token = {
   $type: 'cubicBezier',
   $value: [0, 1, 1, 0],
 };
-export const dimensionToken: DimensionToken = {
+export const dimensionToken: Dimension.Token = {
   $type: 'dimension',
   $value: '12px',
 };
-export const durationToken: DurationToken = {
+export const durationToken: Duration.Token = {
   $type: 'duration',
   $value: '1s',
 };
-export const fontFamilyToken: FontFamilyToken = {
+export const fontFamilyToken: FontFamily.Token = {
   $type: 'fontFamily',
   $value: 'Arial',
 };
-export const stringFontWeightToken: FontWeightToken = {
+export const stringFontWeightToken: FontWeight.Token = {
   $type: 'fontWeight',
   $value: 'bold',
 };
-export const numberFontWeightToken: FontWeightToken = {
+export const numberFontWeightToken: FontWeight.Token = {
   $type: 'fontWeight',
   $value: 700,
 };
-export const gradientToken: GradientToken = {
+export const gradientToken: Gradient.Token = {
   $type: 'gradient',
   $value: [
     {
@@ -62,11 +63,11 @@ export const gradientToken: GradientToken = {
     },
   ],
 };
-export const numberToken: NumberToken = {
+export const numberToken: Number.Token = {
   $type: 'number',
   $value: 12,
 };
-export const shadowToken: ShadowToken = {
+export const shadowToken: Shadow.Token = {
   $type: 'shadow',
   $value: {
     color: '#000000',
@@ -76,15 +77,11 @@ export const shadowToken: ShadowToken = {
     spread: '4px',
   },
 };
-export const stringToken: StringToken = {
-  $type: 'string',
-  $value: 'hello',
-};
-export const strokeStyleToken: StrokeStyleToken = {
+export const strokeStyleToken: StrokeStyle.Token = {
   $type: 'strokeStyle',
   $value: 'solid',
 };
-export const transitionToken: TransitionToken = {
+export const transitionToken: Transition.Token = {
   $type: 'transition',
   $value: {
     duration: '1s',
@@ -92,7 +89,7 @@ export const transitionToken: TransitionToken = {
     timingFunction: [0, 0.1, 0.7, 0.5],
   },
 };
-export const typographyToken: TypographyToken = {
+export const typographyToken: Typography.Token = {
   $type: 'typography',
   $value: {
     fontFamily: 'Arial',

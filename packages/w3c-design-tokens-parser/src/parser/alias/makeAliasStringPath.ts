@@ -1,6 +1,5 @@
-import { JSONValuePath } from '../../definitions/JSONDefinitions.js';
-import { ALIAS_PATH_SEPARATOR } from '../../definitions/AliasSignature.js';
+import { type JSON, ALIAS_PATH_SEPARATOR } from 'design-tokens-format-module';
 
-export function makeAliasStringPath(path: JSONValuePath) {
+export function makeAliasStringPath(path: JSON.ValuePath) {
   return `{${path.join(ALIAS_PATH_SEPARATOR)}}`;
 }

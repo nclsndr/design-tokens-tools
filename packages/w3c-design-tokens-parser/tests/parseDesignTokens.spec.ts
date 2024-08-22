@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { DesignTokenTree } from '../src/definitions/tokenTypes';
+import { JSONTokenTree } from 'design-tokens-format-module';
 
-import { parseDesignTokens } from '../src/parseDesignTokens';
+import { parseDesignTokens } from '../src/parseDesignTokens.js';
 
 describe('parseDesignTokens', () => {
   it.only('should parse token tree with top level aliases', () => {
-    const tree: DesignTokenTree = {
+    const tree: JSONTokenTree = {
       base: {
         blue: {
           $type: 'color',
@@ -54,7 +54,7 @@ describe('parseDesignTokens', () => {
     // );
   });
   it.todo('should parse two tokens referencing a third one', () => {
-    const tree: DesignTokenTree = {
+    const tree: JSONTokenTree = {
       base: {
         blue: {
           $type: 'color',
@@ -76,7 +76,7 @@ describe('parseDesignTokens', () => {
     const treeState = parseDesignTokens(tree);
   });
   it.todo('should parse token tree with nested aliases', () => {
-    const tree: DesignTokenTree = {
+    const tree: JSONTokenTree = {
       base: {
         color: {
           $type: 'color',
@@ -133,7 +133,7 @@ describe('parseDesignTokens', () => {
     console.log('treeState.getErrors():', treeState.getErrors());
   });
   it.todo('should parse token tree with errors', () => {
-    const tree: DesignTokenTree = {
+    const tree: JSONTokenTree = {
       invalid: {
         // @ts-expect-error
         $type: 'unknown',

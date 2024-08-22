@@ -1,15 +1,10 @@
 import { Result } from '@swan-io/boxed';
+import { Color } from 'design-tokens-format-module';
+
 import { ValidationError } from '../../utils/validationError.js';
-import { TokenSignature } from '../TokenSignature.js';
-import { WithAliasValueSignature } from '../AliasSignature.js';
 import { AnalyzedValue } from '../../parser/internals/AnalyzedToken.js';
 import { AnalyzerContext } from '../../parser/internals/AnalyzerContext.js';
 import { withAlias } from '../withAlias.js';
-
-export type ColorRawValue = `#${string}`;
-export type ColorValue = WithAliasValueSignature<ColorRawValue>;
-
-export type ColorToken = TokenSignature<'color', ColorValue>;
 
 export const hexadecimalColorValuePattern =
   '^#(?:[0-9A-Fa-f]{8}|[0-9A-Fa-f]{6})$';
@@ -17,7 +12,7 @@ export const hexadecimalColorValuePattern =
 export function parseColorStringRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<AnalyzedValue<ColorRawValue>, ValidationError[]> {
+): Result<AnalyzedValue<Color.RawValue>, ValidationError[]> {
   if (typeof value !== 'string') {
     return Result.Error([
       new ValidationError({
@@ -41,7 +36,7 @@ export function parseColorStringRawValue(
     ]);
   }
   return Result.Ok({
-    raw: value as ColorRawValue,
+    raw: value as Color.RawValue,
     toReferences: [],
   });
 }

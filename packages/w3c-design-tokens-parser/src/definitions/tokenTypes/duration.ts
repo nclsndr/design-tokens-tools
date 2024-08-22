@@ -1,23 +1,17 @@
 import { Result } from '@swan-io/boxed';
+import { Duration } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
-import { TokenSignature } from '../TokenSignature.js';
-import { WithAliasValueSignature } from '../AliasSignature.js';
 import { AnalyzedValue } from '../../parser/internals/AnalyzedToken.js';
 import { AnalyzerContext } from '../../parser/internals/AnalyzerContext.js';
 import { withAlias } from '../withAlias.js';
-
-export type DurationRawValue = `${number}ms` | `${number}s`;
-export type DurationValue = WithAliasValueSignature<DurationRawValue>;
-
-export type DurationToken = TokenSignature<'duration', DurationValue>;
 
 export const durationValuePattern = '^(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:ms|s)$';
 
 export function parseDurationStringRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<AnalyzedValue<DurationValue>, ValidationError[]> {
+): Result<AnalyzedValue<Duration.Value>, ValidationError[]> {
   if (typeof value !== 'string') {
     return Result.Error([
       new ValidationError({
@@ -41,7 +35,7 @@ export function parseDurationStringRawValue(
     ]);
   }
   return Result.Ok({
-    raw: value as DurationRawValue,
+    raw: value as Duration.RawValue,
     toReferences: [],
   });
 }

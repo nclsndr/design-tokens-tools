@@ -1,8 +1,7 @@
-import { TokenTypeName } from '../../definitions/tokenTypes.js';
-import { JSONValuePath } from '../../definitions/JSONDefinitions.js';
+import { type JSON, TokenTypeName } from 'design-tokens-format-module';
 
 export type AnalyzedGroup = {
-  path: JSONValuePath;
+  path: JSON.ValuePath;
   childrenCount: number;
   tokenType: TokenTypeName | undefined;
   description: string | undefined;

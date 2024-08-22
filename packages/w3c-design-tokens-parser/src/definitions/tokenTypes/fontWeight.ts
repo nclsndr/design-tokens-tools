@@ -1,10 +1,9 @@
-import { WithAliasValueSignature } from '../AliasSignature.js';
-import { TokenSignature } from '../TokenSignature.js';
+import { Result } from '@swan-io/boxed';
+import { FontWeight } from 'design-tokens-format-module';
+
 import { AnalyzerContext } from '../../parser/internals/AnalyzerContext.js';
 import { AnalyzedValue } from '../../parser/internals/AnalyzedToken.js';
 import { ValidationError } from '../../utils/validationError.js';
-import { Result } from '@swan-io/boxed';
-
 import { withAlias } from '../withAlias.js';
 
 export const fontWeightValues = [
@@ -38,15 +37,10 @@ export const fontWeightValues = [
   'ultra-black',
 ] as const;
 
-export type FontWeightRawValue = (typeof fontWeightValues)[number];
-export type FontWeightValue = WithAliasValueSignature<FontWeightRawValue>;
-
-export type FontWeightToken = TokenSignature<'fontWeight', FontWeightValue>;
-
 export function parseFontWeightRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<AnalyzedValue<FontWeightValue>, ValidationError[]> {
+): Result<AnalyzedValue<FontWeight.Value>, ValidationError[]> {
   if (typeof value !== 'string' && typeof value !== 'number') {
     return Result.Error([
       new ValidationError({
@@ -74,7 +68,7 @@ export function parseFontWeightRawValue(
   }
 
   return Result.Ok({
-    raw: value as FontWeightRawValue,
+    raw: value as FontWeight.RawValue,
     toReferences: [],
   });
 }

@@ -1,4 +1,4 @@
-import { JSONValuePath } from '../definitions/JSONDefinitions.js';
+import { type JSON } from 'design-tokens-format-module';
 import { JSONPath } from '../utils/JSONPath.js';
 import { ReferenceResolutionTrace } from '../parser/internals/ReferenceResolutionTrace.js';
 
@@ -12,9 +12,9 @@ export class Reference {
   readonly #isFullyResolved: boolean;
 
   constructor(
-    fromTreePath: JSONValuePath,
-    fromValuePath: JSONValuePath,
-    toTreePath: JSONValuePath,
+    fromTreePath: JSON.ValuePath,
+    fromValuePath: JSON.ValuePath,
+    toTreePath: JSON.ValuePath,
     resolutionTraces: Array<ReferenceResolutionTrace>,
   ) {
     this.#fromTreePath = JSONPath.fromJSONValuePath(fromTreePath);

@@ -1,9 +1,9 @@
 import { Result } from '@swan-io/boxed';
+import { AliasValue } from 'design-tokens-format-module';
 
 import { AnalyzedValue } from '../parser/internals/AnalyzedToken.js';
 import { ValidationError } from '../utils/validationError.js';
 import { AnalyzerContext } from '../parser/internals/AnalyzerContext.js';
-import { AliasValueSignature } from './AliasSignature.js';
 import { captureAliasPath } from '../parser/alias/captureAliasPath.js';
 import { parseAliasValue } from '../parser/alias/parseAliasValue.js';
 
@@ -16,7 +16,7 @@ export function withAlias<
 ): (
   value: unknown,
   ctx: AnalyzerContext,
-) => Result<R | AnalyzedValue<AliasValueSignature>, E | ValidationError[]> {
+) => Result<R | AnalyzedValue<AliasValue>, E | ValidationError[]> {
   return (value: unknown, ctx: AnalyzerContext) => {
     return parseAliasValue(value, ctx)
       .map((value) => ({

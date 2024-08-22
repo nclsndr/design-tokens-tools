@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { DesignTokenTree } from '../../src/definitions/tokenTypes';
-import { buildTokenTree } from '../../src/state/buildTokenTree';
+import { JSONTokenTree } from 'design-tokens-format-module';
+
 import {
   borderToken,
   colorToken,
@@ -13,16 +13,16 @@ import {
   numberToken,
   shadowToken,
   stringFontWeightToken,
-  stringToken,
   strokeStyleToken,
   transitionToken,
   typographyToken,
 } from '../_fixtures/tokens';
+import { buildTokenTree } from '../../src/state/buildTokenTree';
 
 describe('TokenState', () => {
   describe('getJSONToken', () => {
     it('should parse a token tree of raw values of all types', () => {
-      const tokens: DesignTokenTree = {
+      const tokens: JSONTokenTree = {
         borderToken,
         colorToken,
         cubicBezierToken,
@@ -34,7 +34,6 @@ describe('TokenState', () => {
         gradientToken,
         numberToken,
         shadowToken,
-        stringToken,
         strokeStyleToken,
         transitionToken,
         typographyToken,
@@ -103,7 +102,7 @@ describe('TokenState', () => {
       ]);
     });
     it('should parse a token tree of alias values', () => {
-      const tokens: DesignTokenTree = {
+      const tokens: JSONTokenTree = {
         borderToken,
         dimensionToken,
         colorToken,

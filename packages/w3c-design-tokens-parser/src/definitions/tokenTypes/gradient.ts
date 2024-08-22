@@ -1,23 +1,14 @@
 import { Result } from '@swan-io/boxed';
 
-import { WithAliasValueSignature } from '../AliasSignature.js';
-import { ColorValue, parseAliasableColorValue } from './color.js';
-import { TokenSignature } from '../TokenSignature.js';
+import { parseAliasableColorValue } from './color.js';
 import { AnalyzerContext } from '../../parser/internals/AnalyzerContext.js';
 import { AnalyzedValue } from '../../parser/internals/AnalyzedToken.js';
 import { ValidationError } from '../../utils/validationError.js';
 import { makeParseObject } from '../../parser/internals/parseObject.js';
-import { NumberValue, parseAliasableNumberValue } from './number.js';
+import { parseAliasableNumberValue } from './number.js';
 import { clamp } from '../../utils/clamp.js';
 import { withAlias } from '../withAlias.js';
-
-type RawGradientValue = Array<{
-  color: ColorValue;
-  position: NumberValue;
-}>;
-export type GradientValue = WithAliasValueSignature<RawGradientValue>;
-
-export type GradientToken = TokenSignature<'gradient', GradientValue>;
+import { Gradient } from 'design-tokens-format-module';
 
 const parseSingleGradientRawValue = makeParseObject({
   color: {
@@ -38,7 +29,7 @@ const parseSingleGradientRawValue = makeParseObject({
 function parseGradientRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<AnalyzedValue<GradientValue>, Array<ValidationError>> {
+): Result<AnalyzedValue<Gradient.RawValue>, Array<ValidationError>> {
   if (!Array.isArray(value)) {
     return Result.Error([
       new ValidationError({
@@ -52,7 +43,7 @@ function parseGradientRawValue(
   }
 
   const errors: Array<ValidationError> = [];
-  const final: AnalyzedValue<RawGradientValue> = { raw: [], toReferences: [] };
+  const final: AnalyzedValue<Gradient.RawValue> = { raw: [], toReferences: [] };
 
   for (const [i, s] of value.entries()) {
     parseSingleGradientRawValue(s, {

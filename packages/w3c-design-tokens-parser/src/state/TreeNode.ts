@@ -1,14 +1,15 @@
-import { JSONValuePath } from '../definitions/JSONDefinitions.js';
+import { type JSON } from 'design-tokens-format-module';
+
 import { ANALYZER_PATH_SEPARATOR } from '../parser/internals/AnalyzerContext.js';
 
 export class TreeNode {
-  #arrayPath: JSONValuePath;
+  #arrayPath: JSON.ValuePath;
   #stringPath: string;
   #description: string | undefined;
   #extensions: Record<string, any> | undefined;
 
   constructor(
-    path: JSONValuePath,
+    path: JSON.ValuePath,
     description?: string,
     extensions?: Record<string, any>,
   ) {
@@ -19,7 +20,7 @@ export class TreeNode {
     this.#stringPath = path.join(ANALYZER_PATH_SEPARATOR);
   }
 
-  get path() {
+  get path(): JSON.ValuePath {
     return this.#arrayPath;
   }
   get stringPath() {
@@ -36,7 +37,7 @@ export class TreeNode {
     return this.#arrayPath.length === 0;
   }
 
-  matchPath(path: JSONValuePath) {
+  matchPath(path: JSON.ValuePath) {
     return this.#stringPath === path.join(ANALYZER_PATH_SEPARATOR);
   }
 }

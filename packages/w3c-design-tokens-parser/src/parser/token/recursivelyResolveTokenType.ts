@@ -1,14 +1,13 @@
 import { Option, Result } from '@swan-io/boxed';
-
 import {
-  JSONObject,
-  JSONValuePath,
-} from '../../definitions/JSONDefinitions.js';
-import { TokenTypeName } from '../../definitions/tokenTypes.js';
+  type JSON,
+  ALIAS_PATH_SEPARATOR,
+  matchIsToken,
+} from 'design-tokens-format-module';
+
+import { TokenTypeName } from 'design-tokens-format-module';
 import { ValidationError } from '../../utils/validationError.js';
 import { getJSONValue } from '../../utils/getJSONValue.js';
-import { matchIsTokenSignature } from '../../definitions/TokenSignature.js';
-import { ALIAS_PATH_SEPARATOR } from '../../definitions/AliasSignature.js';
 import { captureAliasPath } from '../alias/captureAliasPath.js';
 import { recursivelyResolveTokenTypeFromParents } from './recursivelyResolveTokenTypeFromParents.js';
 import { parseTokenTypeName } from '../../definitions/parseTokenTypeName.js';
@@ -16,19 +15,19 @@ import { parseTokenTypeName } from '../../definitions/parseTokenTypeName.js';
 export type ResolutionType = 'explicit' | 'alias' | 'parent';
 
 export function recursivelyResolveTokenType(
-  jsonTokenTree: JSONObject,
-  path: JSONValuePath,
+  jsonTokenTree: JSON.Object,
+  path: JSON.ValuePath,
 ): Result<
   {
     resolution: ResolutionType;
     resolvedType: TokenTypeName;
-    paths: Array<JSONValuePath>;
+    paths: Array<JSON.ValuePath>;
   },
   Array<ValidationError>
 > {
   const maybeToken = getJSONValue(jsonTokenTree, path);
 
-  if (matchIsTokenSignature(maybeToken)) {
+  if (matchIsToken(maybeToken)) {
     // $type is explicitly defined
     if ('$type' in maybeToken) {
       return parseTokenTypeName(maybeToken.$type, {
@@ -49,8 +48,8 @@ export function recursivelyResolveTokenType(
       captureAliasPath(maybeToken.$value)
         // check whether the alias is a valid token
         .match({
-          Some: (p): Option<JSONValuePath> => {
-            if (matchIsTokenSignature(getJSONValue(jsonTokenTree, p))) {
+          Some: (p): Option<JSON.ValuePath> => {
+            if (matchIsToken(getJSONValue(jsonTokenTree, p))) {
               return Option.Some(p);
             }
             return Option.None();

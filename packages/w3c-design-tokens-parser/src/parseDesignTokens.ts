@@ -1,9 +1,13 @@
+import {
+  TokenTypeName,
+  JSONTokenTree,
+  type JSON,
+} from 'design-tokens-format-module';
+
 import { buildTokenTree } from './state/buildTokenTree.js';
 import { TreeState } from './state/TreeState.js';
-import { JSONValuePath } from './definitions/JSONDefinitions.js';
 import { TokenState } from './state/TokenState.js';
 import { GroupState } from './state/GroupState.js';
-import { DesignTokenTree, TokenTypeName } from './definitions/tokenTypes.js';
 import { deepSetJSONValue } from './utils/deepSetJSONValue.js';
 
 class Token {
@@ -121,7 +125,7 @@ class TokenTree {
       .filter((tokenState) => tokenState.type === type)
       .map((tokenState) => new Token(tokenState));
   }
-  getToken(path: JSONValuePath) {
+  getToken(path: JSON.ValuePath) {
     return this.#treeState.tokenStates
       .get(path)
       .map((tokenState) => new Token(tokenState));
@@ -132,14 +136,14 @@ class TokenTree {
       (groupState) => new Group(groupState),
     );
   }
-  getGroup(path: JSONValuePath) {
+  getGroup(path: JSON.ValuePath) {
     return this.#treeState.groupStates
       .get(path)
       .map((groupState) => new Group(groupState));
   }
 
   toJSON() {
-    const acc: DesignTokenTree = {};
+    const acc: JSONTokenTree = {};
     for (const group of this.#treeState.groupStates.nodes) {
       if (group.path.length === 0) {
         Object.entries(group.getJSONProperties()).forEach(([key, value]) => {

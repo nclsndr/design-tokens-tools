@@ -1,12 +1,12 @@
-import { JSONValuePath } from '../definitions/JSONDefinitions.js';
+import { type JSON } from 'design-tokens-format-module';
 
 export class ValidationError extends Error {
   type: 'Type' | 'Value' | 'Computation';
   isCritical: boolean;
-  treePath: JSONValuePath;
+  treePath: JSON.ValuePath;
   nodeKey: '$type' | '$value' | '$description' | '$extensions' | undefined;
-  valuePath: JSONValuePath;
-  referenceToTreePath: JSONValuePath | undefined;
+  valuePath: JSON.ValuePath;
+  referenceToTreePath: JSON.ValuePath | undefined;
 
   constructor({
     type,
@@ -19,10 +19,10 @@ export class ValidationError extends Error {
   }: {
     type: 'Type' | 'Value' | 'Computation';
     message: string;
-    treePath: JSONValuePath;
+    treePath: JSON.ValuePath;
     nodeKey?: '$type' | '$value' | '$description' | '$extensions' | undefined;
-    valuePath?: JSONValuePath | undefined;
-    referenceToTreePath?: JSONValuePath;
+    valuePath?: JSON.ValuePath | undefined;
+    referenceToTreePath?: JSON.ValuePath;
     isCritical?: boolean;
   }) {
     super(message);
@@ -35,7 +35,15 @@ export class ValidationError extends Error {
     this.isCritical = isCritical ?? false;
   }
 
-  toJSON() {
+  toJSON(): {
+    type: 'Type' | 'Value' | 'Computation';
+    isCritical: boolean;
+    treePath: JSON.ValuePath;
+    nodeKey: '$type' | '$value' | '$description' | '$extensions' | undefined;
+    valuePath: JSON.ValuePath;
+    referenceToTreePath: JSON.ValuePath | undefined;
+    message: string;
+  } {
     return {
       type: this.type,
       isCritical: this.isCritical,

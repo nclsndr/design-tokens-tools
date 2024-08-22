@@ -1,22 +1,23 @@
-import {
-  JSONObject,
-  JSONValuePath,
-} from '../../definitions/JSONDefinitions.js';
 import { Result } from '@swan-io/boxed';
-import { TokenTypeName, tokenTypeNames } from '../../definitions/tokenTypes.js';
+import {
+  TokenTypeName,
+  type JSON,
+  tokenTypeNames,
+  matchIsTokenTypeName,
+  ALIAS_PATH_SEPARATOR,
+} from 'design-tokens-format-module';
+
 import { ValidationError } from '../../utils/validationError.js';
 import { getJSONValue } from '../../utils/getJSONValue.js';
-import { ALIAS_PATH_SEPARATOR } from '../../definitions/AliasSignature.js';
-import { matchIsTokenTypeName } from '../../definitions/matchIsTokenTypeName.js';
 
 export function recursivelyResolveTokenTypeFromParents(
-  tokenTree: JSONObject,
-  path: JSONValuePath,
-  originalPath: JSONValuePath = path,
+  tokenTree: JSON.Object,
+  path: JSON.ValuePath,
+  originalPath: JSON.ValuePath = path,
 ): Result<
   {
     resolvedType: TokenTypeName;
-    paths: Array<JSONValuePath>;
+    paths: Array<JSON.ValuePath>;
   },
   Array<ValidationError>
 > {

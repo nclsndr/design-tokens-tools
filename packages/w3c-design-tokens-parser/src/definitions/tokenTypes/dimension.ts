@@ -1,23 +1,17 @@
 import { Result } from '@swan-io/boxed';
+import { Dimension } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
-import { TokenSignature } from '../TokenSignature.js';
-import { WithAliasValueSignature } from '../AliasSignature.js';
 import { AnalyzedValue } from '../../parser/internals/AnalyzedToken.js';
 import { AnalyzerContext } from '../../parser/internals/AnalyzerContext.js';
 import { withAlias } from '../withAlias.js';
-
-export type DimensionRawValue = `${number}px` | `${number}rem`;
-export type DimensionValue = WithAliasValueSignature<DimensionRawValue>;
-
-export type DimensionToken = TokenSignature<'dimension', DimensionValue>;
 
 export const dimensionValuePattern = '^(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:px|rem)$';
 
 export function parseDimensionStringRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<AnalyzedValue<DimensionValue>, ValidationError[]> {
+): Result<AnalyzedValue<Dimension.Value>, ValidationError[]> {
   if (typeof value !== 'string') {
     return Result.Error([
       new ValidationError({
@@ -41,7 +35,7 @@ export function parseDimensionStringRawValue(
     ]);
   }
   return Result.Ok({
-    raw: value as DimensionRawValue,
+    raw: value as Dimension.RawValue,
     toReferences: [],
   });
 }

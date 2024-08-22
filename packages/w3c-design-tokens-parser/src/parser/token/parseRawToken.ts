@@ -1,18 +1,18 @@
 import { Result } from '@swan-io/boxed';
+import { type JSON } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
 import { parseTreeNodeExtensions } from '../tree/parseTreeNodeExtensions.js';
-import { JSONObject } from '../../definitions/JSONDefinitions.js';
 import { AnalyzedToken } from '../internals/AnalyzedToken.js';
 import { AnalyzerContext } from '../internals/AnalyzerContext.js';
 import { recursivelyResolveTokenType } from './recursivelyResolveTokenType.js';
 import { parseTreeNodeDescription } from '../tree/parseTreeNodeDescription.js';
-import { getTokenValueParser } from '../../definitions/tokenTypes.js';
+import { getTokenValueParser } from '../../definitions/getTokenValueParser.js';
 
 export function parseRawToken(
-  rawJsonToken: JSONObject,
+  rawJsonToken: JSON.Object,
   ctx: {
-    jsonTokenTree: JSONObject;
+    jsonTokenTree: JSON.Object;
   } & AnalyzerContext,
 ): Result<AnalyzedToken, Array<ValidationError>> {
   const {

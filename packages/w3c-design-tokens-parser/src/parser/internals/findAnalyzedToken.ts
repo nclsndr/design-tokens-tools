@@ -1,11 +1,12 @@
-import { AnalyzedToken } from './AnalyzedToken.js';
-import { JSONValuePath } from '../../definitions/JSONDefinitions.js';
 import { Option } from '@swan-io/boxed';
+import { type JSON } from 'design-tokens-format-module';
+
+import { AnalyzedToken } from './AnalyzedToken.js';
 import { ANALYZER_PATH_SEPARATOR } from './AnalyzerContext.js';
 
 export function findAnalyzedToken(
   analyzedTokens: Array<AnalyzedToken>,
-  refPath: string | JSONValuePath,
+  refPath: string | JSON.ValuePath,
 ): Option<AnalyzedToken> {
   const stringRefPath =
     typeof refPath === 'string'

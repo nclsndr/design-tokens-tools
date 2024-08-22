@@ -1,9 +1,7 @@
 import { Option } from '@swan-io/boxed';
+import { ALIAS_PATH_SEPARATOR, type JSON } from 'design-tokens-format-module';
 
-import type { JSONValuePath } from '../../definitions/JSONDefinitions.js';
-import { ALIAS_PATH_SEPARATOR } from '../../definitions/AliasSignature.js';
-
-export function captureAliasPath(value: unknown): Option<JSONValuePath> {
+export function captureAliasPath(value: unknown): Option<JSON.ValuePath> {
   if (typeof value !== 'string') {
     return Option.None();
   }

@@ -1,25 +1,13 @@
 import { Result } from '@swan-io/boxed';
+import { Transition } from 'design-tokens-format-module';
 
-import { WithAliasValueSignature } from '../AliasSignature.js';
-import { DurationValue, parseAliasableDurationValue } from './duration.js';
-import {
-  CubicBezierValue,
-  parseAliasableCubicBezierValue,
-} from './cubicBezier.js';
-import { TokenSignature } from '../TokenSignature.js';
+import { parseAliasableDurationValue } from './duration.js';
+import { parseAliasableCubicBezierValue } from './cubicBezier.js';
 import { ValidationError } from '../../utils/validationError.js';
 import { AnalyzedValue } from '../../parser/internals/AnalyzedToken.js';
 import { AnalyzerContext } from '../../parser/internals/AnalyzerContext.js';
 import { makeParseObject } from '../../parser/internals/parseObject.js';
 import { withAlias } from '../withAlias.js';
-
-export type TransitionValue = WithAliasValueSignature<{
-  duration: DurationValue;
-  delay: DurationValue;
-  timingFunction: CubicBezierValue;
-}>;
-
-export type TransitionToken = TokenSignature<'transition', TransitionValue>;
 
 const parseTransitionRawValue = makeParseObject({
   duration: { parser: parseAliasableDurationValue },
@@ -31,7 +19,7 @@ export const parseAliasableTransitionValue = withAlias(
   (
     value: unknown,
     ctx: AnalyzerContext,
-  ): Result<AnalyzedValue<TransitionValue>, Array<ValidationError>> => {
+  ): Result<AnalyzedValue<Transition.RawValue>, Array<ValidationError>> => {
     return parseTransitionRawValue(value, ctx).match({
       Ok: (analyzed) => {
         return Result.Ok({

@@ -1,13 +1,12 @@
-import { TokenTypeName } from '../../definitions/tokenTypes.js';
-import { JSONValuePath } from '../../definitions/JSONDefinitions.js';
+import { type JSON, TokenTypeName } from 'design-tokens-format-module';
 import { ANALYZER_PATH_SEPARATOR } from './AnalyzerContext.js';
 
 export type AnalyzedValue<Raw = unknown> = {
   raw: Raw;
   toReferences: Array<{
-    fromTreePath: JSONValuePath;
-    fromValuePath: JSONValuePath;
-    toTreePath: JSONValuePath;
+    fromTreePath: JSON.ValuePath;
+    fromValuePath: JSON.ValuePath;
+    toTreePath: JSON.ValuePath;
   }>;
 };
 
@@ -15,7 +14,7 @@ export class AnalyzedToken<
   Type extends TokenTypeName = TokenTypeName,
   Value = unknown,
 > {
-  readonly #path: JSONValuePath;
+  readonly #path: JSON.ValuePath;
   readonly #stringPath: string;
   readonly #type: Type;
   readonly #value: AnalyzedValue<Value>;
@@ -23,7 +22,7 @@ export class AnalyzedToken<
   readonly #extensions: Record<string, any> | undefined;
 
   constructor(
-    path: JSONValuePath,
+    path: JSON.ValuePath,
     type: Type,
     value: AnalyzedValue<Value>,
     description?: string,
@@ -37,7 +36,7 @@ export class AnalyzedToken<
     this.#extensions = extensions;
   }
 
-  get path() {
+  get path(): JSON.ValuePath {
     return this.#path;
   }
   get stringPath() {
@@ -56,7 +55,7 @@ export class AnalyzedToken<
     return this.#extensions;
   }
 
-  matchPath(path: JSONValuePath) {
+  matchPath(path: JSON.ValuePath) {
     return this.#stringPath === path.join(ANALYZER_PATH_SEPARATOR);
   }
 

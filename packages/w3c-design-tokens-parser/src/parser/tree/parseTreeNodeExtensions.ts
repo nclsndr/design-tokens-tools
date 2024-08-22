@@ -1,12 +1,13 @@
 import { Result } from '@swan-io/boxed';
-import { JSONObject } from '../../definitions/JSONDefinitions.js';
+import { type JSON } from 'design-tokens-format-module';
+
 import { ValidationError } from '../../utils/validationError.js';
 import { AnalyzerContext } from '../internals/AnalyzerContext.js';
 
 export function parseTreeNodeExtensions(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<JSONObject | undefined, ValidationError[]> {
+): Result<JSON.Object | undefined, ValidationError[]> {
   if (value === undefined) return Result.Ok(undefined);
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     return Result.Error([
@@ -18,5 +19,5 @@ export function parseTreeNodeExtensions(
       }),
     ]);
   }
-  return Result.Ok(value as JSONObject);
+  return Result.Ok(value as JSON.Object);
 }

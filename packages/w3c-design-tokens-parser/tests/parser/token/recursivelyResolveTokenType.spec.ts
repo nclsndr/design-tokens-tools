@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
+import { JSONTokenTree } from 'design-tokens-format-module';
 
 import { recursivelyResolveTokenType } from '../../../src/parser/token/recursivelyResolveTokenType';
-import { DesignTokenTree } from '../../../src/definitions/tokenTypes';
 
 describe('recursivelyResolveTokenType', () => {
   it('should resolve an explicit type', () => {
-    const tokenTree: DesignTokenTree = {
+    const tokenTree: JSONTokenTree = {
       aColor: {
         $type: 'color',
         $value: '#ff0000',
@@ -26,7 +26,7 @@ describe('recursivelyResolveTokenType', () => {
     });
   });
   it('should resolve a shallow alias type', () => {
-    const tokenTree: DesignTokenTree = {
+    const tokenTree: JSONTokenTree = {
       base: {
         blue: {
           $type: 'color',
@@ -60,7 +60,7 @@ describe('recursivelyResolveTokenType', () => {
     });
   });
   it('should resolve a deep alias type', () => {
-    const tokenTree: DesignTokenTree = {
+    const tokenTree: JSONTokenTree = {
       base: {
         blue: {
           $type: 'color',
@@ -98,7 +98,7 @@ describe('recursivelyResolveTokenType', () => {
     });
   });
   it('should resolve a type via parents', () => {
-    const tokenTree: DesignTokenTree = {
+    const tokenTree: JSONTokenTree = {
       base: {
         $type: 'color',
         background: {
@@ -127,7 +127,7 @@ describe('recursivelyResolveTokenType', () => {
     });
   });
   it('should resolve an alias type via parents', () => {
-    const tokenTree: DesignTokenTree = {
+    const tokenTree: JSONTokenTree = {
       base: {
         $type: 'color',
         solid: {
@@ -165,7 +165,7 @@ describe('recursivelyResolveTokenType', () => {
     });
   });
   it('should resolve an alias type via parents once the alias resolution failed', () => {
-    const tokenTree: DesignTokenTree = {
+    const tokenTree: JSONTokenTree = {
       colors: {
         $type: 'color',
         primary: {
@@ -191,7 +191,7 @@ describe('recursivelyResolveTokenType', () => {
     });
   });
   it('should fail to resolve when path points to a group', () => {
-    const tokenTree: DesignTokenTree = {
+    const tokenTree: JSONTokenTree = {
       base: {
         $type: 'color',
       },
@@ -216,7 +216,7 @@ describe('recursivelyResolveTokenType', () => {
     );
   });
   it('should fail to resolve when alias is circular', () => {
-    const tokenTree: DesignTokenTree = {
+    const tokenTree: JSONTokenTree = {
       base: {
         $type: 'color',
         blue: {
@@ -237,7 +237,7 @@ describe('recursivelyResolveTokenType', () => {
     );
   });
   it('should fail to resolve when alias is deeply circular', () => {
-    const tokenTree: DesignTokenTree = {
+    const tokenTree: JSONTokenTree = {
       base: {
         $type: 'color',
         blue: {

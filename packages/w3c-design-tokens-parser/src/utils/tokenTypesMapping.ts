@@ -1,7 +1,5 @@
-import { JSONValuePath } from './JSONDefinitions.js';
 import { Result } from '@swan-io/boxed';
-import { ValidationError } from '../utils/validationError.js';
-import { matchIsTokenTypeName } from './matchIsTokenTypeName.js';
+import { type JSON } from 'design-tokens-format-module';
 
 type TokenTypeMapping = {
   _tokenType: string;
@@ -103,10 +101,10 @@ export type MatchTokenTypeAgainstMappingResult = Result<
 export function matchTypeAgainstMapping(
   input: unknown,
   mapping: TokenTypesMapping,
-  treePath: JSONValuePath,
-  valuePath: JSONValuePath,
+  treePath: JSON.ValuePath,
+  valuePath: JSON.ValuePath,
   getDiscriminatorValue: (
-    discriminatorKeyPath: JSONValuePath,
+    discriminatorKeyPath: JSON.ValuePath,
   ) => string | undefined = () => undefined,
   initialMapping: TokenTypesMapping = mapping,
 ): MatchTokenTypeAgainstMappingResult {

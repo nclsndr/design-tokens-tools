@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { JSON } from 'design-tokens-format-module';
 import { deepSetJSONValue } from '../../src/utils/deepSetJSONValue';
-import { JSONArray } from '../../src/definitions/JSONDefinitions';
 
 describe.concurrent('deepSetJSONValue', () => {
   describe.concurrent('Input validation', () => {
@@ -26,13 +26,13 @@ describe.concurrent('deepSetJSONValue', () => {
     });
 
     it('should fail to insert an index using a string on an initial array', () => {
-      const array: JSONArray = [];
+      const array: JSON.Array = [];
       expect(() => deepSetJSONValue(array, ['foo'], 'bar')).toThrow(
         'Cannot set string key on array',
       );
     });
     it('should fail to insert an index using a string on a nested array', () => {
-      const array: JSONArray = [[]];
+      const array: JSON.Array = [[]];
       expect(() => deepSetJSONValue(array, [0, 'foo'], 'bar')).toThrow(
         'Cannot set string key on array',
       );
@@ -41,39 +41,39 @@ describe.concurrent('deepSetJSONValue', () => {
 
   describe.concurrent('Array assignment', () => {
     it('should set a value at the index 0 of an empty array', () => {
-      const array: JSONArray = [];
+      const array: JSON.Array = [];
       deepSetJSONValue(array, [0], 'hello');
       expect(array).toEqual(['hello']);
     });
     it('should set a value at the index 1 of an empty array', () => {
-      const array: JSONArray = [];
+      const array: JSON.Array = [];
       deepSetJSONValue(array, [1], 'hello');
       expect(array).toEqual([undefined, 'hello']);
     });
     it('should set a value at the index 1 of an array of length 1', () => {
-      const array: JSONArray = ['pre'];
+      const array: JSON.Array = ['pre'];
       deepSetJSONValue(array, [1], 'hello');
       expect(array).toEqual(['pre', 'hello']);
     });
     it('should overwrite a value at the index 0 of an array of length 1', () => {
-      const array: JSONArray = ['pre'];
+      const array: JSON.Array = ['pre'];
       deepSetJSONValue(array, [0], 'hello');
       expect(array).toEqual(['hello']);
     });
 
     it('should set a nested array with value at the index 0 of an empty array', () => {
-      const array: JSONArray = [];
+      const array: JSON.Array = [];
       deepSetJSONValue(array, [0, 0], 'hello');
       expect(array).toEqual([['hello']]);
     });
     it('should set a nested object with value at the index 0 of an empty array', () => {
-      const array: JSONArray = [];
+      const array: JSON.Array = [];
       deepSetJSONValue(array, [0, 'foo'], 'hello');
       expect(array).toEqual([{ foo: 'hello' }]);
     });
 
     it('should insert a second index value of an array of length 3', () => {
-      const array: JSONArray = ['pre', 'dope', 'post'];
+      const array: JSON.Array = ['pre', 'dope', 'post'];
       deepSetJSONValue(array, [1, 'foo'], 'bar');
       expect(array).toEqual(['pre', { foo: 'bar' }, 'post']);
     });

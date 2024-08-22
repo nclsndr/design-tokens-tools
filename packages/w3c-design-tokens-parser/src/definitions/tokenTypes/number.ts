@@ -1,21 +1,15 @@
 import { Result } from '@swan-io/boxed';
+import { Number } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
-import { TokenSignature } from '../TokenSignature.js';
-import { WithAliasValueSignature } from '../AliasSignature.js';
 import { AnalyzedValue } from '../../parser/internals/AnalyzedToken.js';
 import { AnalyzerContext } from '../../parser/internals/AnalyzerContext.js';
 import { withAlias } from '../withAlias.js';
 
-export type NumberRawValue = number;
-export type NumberValue = WithAliasValueSignature<NumberRawValue>;
-
-export type NumberToken = TokenSignature<'number', NumberValue>;
-
 export function parseNumberRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<AnalyzedValue<number>, ValidationError[]> {
+): Result<AnalyzedValue<Number.RawValue>, ValidationError[]> {
   if (typeof value !== 'number') {
     return Result.Error([
       new ValidationError({

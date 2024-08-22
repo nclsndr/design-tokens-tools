@@ -1,5 +1,5 @@
 import { Reference } from './Reference.js';
-import { JSONValuePath } from '../definitions/JSONDefinitions.js';
+import { type JSON } from 'design-tokens-format-module';
 
 export class ReferencesSet {
   readonly #nodes: Array<Reference> = [];
@@ -12,8 +12,8 @@ export class ReferencesSet {
     fromTreePath,
     fromValuePath,
   }: {
-    fromTreePath: JSONValuePath;
-    fromValuePath?: JSONValuePath;
+    fromTreePath: JSON.ValuePath;
+    fromValuePath?: JSON.ValuePath;
   }) {
     return this.#nodes.filter((reference) => {
       const matchesFromTreePath = reference.fromTreePath.equals(fromTreePath);

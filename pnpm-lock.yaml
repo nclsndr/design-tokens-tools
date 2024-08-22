@@ -14,8 +14,8 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0(typescript@5.5.4)
       design-tokens-format-module:
-        specifier: ^0.8.0
-        version: 0.8.0
+        specifier: ^0.9.6
+        version: 0.9.6
     devDependencies:
       '@types/node':
         specifier: ^20.14.10
@@ -396,15 +396,12 @@ packages:
     resolution: {integrity: sha512-SUwdGfqdKOwxCPeVYjwSyRpJ7Z+fhpwIAtmCUdZIWZ/YP5R9WAsyuSgpLVDi9bjWoN2LXHNss/dk3urXtdQxGg==}
     engines: {node: '>=6'}
 
-  design-tokens-format-module@0.8.0:
-    resolution: {integrity: sha512-2wWs55YGGbGnpCXaggXsCvx43t7R1eM2cosATrANaIa7ZdLSCN+i6WkQ16huH9xMXyqS71KFBqE9/90OFfHYYg==}
+  design-tokens-format-module@0.9.6:
+    resolution: {integrity: sha512-DL2wHpIshP1P6ANHuGQVJBB2o5Bk3yEnB1oIwCs8010u/Updje89BEByNOp1hmwCm44zjqQtkED1cdUGUrVtow==}
 
   diff-sequences@29.6.3:
     resolution: {integrity: sha512-EjePK1srD3P08o2j4f0ExnylqRs5B9tJjcp9t1krH2qRi8CCdsYfwe9JgSLurFBWwq4uOlipzfk5fHNvwFKr8Q==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-
-  dlv@1.1.3:
-    resolution: {integrity: sha512-+HlytyjlPKnIG8XuRG8WvmBP8xs8P71y+SKKS6ZXWoEgLuePxtDoUEiH7WkdePWrQ5JBpE6aoVqfZfJUQkjXwA==}
 
   esbuild@0.21.5:
     resolution: {integrity: sha512-mg3OPMV4hXywwpoDxu3Qda5xCKQi+vCTZq8S9J/EpkhB2HzKXq4SNFZE3+NK93JYxc8VMSep+lOUSC/RVKaBqw==}
@@ -732,9 +729,6 @@ packages:
     resolution: {integrity: sha512-b4JR1PFR10y1mKjhHY9LaGo6tmrgjit7hxVIeAmyMw3jegXR4dhYqLaQF5zMXZxY7tLpMyJeLjr1C4rLmkVe8g==}
     engines: {node: '>=12.20'}
 
-  zod@3.23.8:
-    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
-
 snapshots:
 
   '@ampproject/remapping@2.3.0':
@@ -1009,14 +1003,9 @@ snapshots:
     dependencies:
       type-detect: 4.1.0
 
-  design-tokens-format-module@0.8.0:
-    dependencies:
-      dlv: 1.1.3
-      zod: 3.23.8
+  design-tokens-format-module@0.9.6: {}
 
   diff-sequences@29.6.3: {}
-
-  dlv@1.1.3: {}
 
   esbuild@0.21.5:
     optionalDependencies:
@@ -1355,5 +1344,3 @@ snapshots:
   wrappy@1.0.2: {}
 
   yocto-queue@1.1.1: {}
-
-  zod@3.23.8: {}

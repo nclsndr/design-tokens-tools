@@ -1,24 +1,13 @@
-import { WithAliasValueSignature } from '../AliasSignature.js';
-import { ColorValue, parseAliasableColorValue } from './color.js';
-import { DimensionValue, parseAliasableDimensionValue } from './dimension.js';
-import { TokenSignature } from '../TokenSignature.js';
-import { ValidationError } from '../../utils/validationError.js';
 import { Result } from '@swan-io/boxed';
+import { Shadow } from 'design-tokens-format-module';
+
+import { parseAliasableColorValue } from './color.js';
+import { parseAliasableDimensionValue } from './dimension.js';
+import { ValidationError } from '../../utils/validationError.js';
 import { AnalyzedValue } from '../../parser/internals/AnalyzedToken.js';
 import { AnalyzerContext } from '../../parser/internals/AnalyzerContext.js';
 import { makeParseObject } from '../../parser/internals/parseObject.js';
-
 import { withAlias } from '../withAlias.js';
-
-export type ShadowValue = WithAliasValueSignature<{
-  color: ColorValue;
-  offsetX: DimensionValue;
-  offsetY: DimensionValue;
-  blur: DimensionValue;
-  spread: DimensionValue;
-}>;
-
-export type ShadowToken = TokenSignature<'shadow', ShadowValue>;
 
 const parseShadowRawValue = makeParseObject({
   color: { parser: parseAliasableColorValue },
@@ -32,7 +21,7 @@ export const parseAliasableShadowValue = withAlias(
   (
     value: unknown,
     ctx: AnalyzerContext,
-  ): Result<AnalyzedValue<ShadowValue>, Array<ValidationError>> => {
+  ): Result<AnalyzedValue<Shadow.RawValue>, Array<ValidationError>> => {
     return parseShadowRawValue(value, ctx).match({
       Ok: (analyzed) => {
         return Result.Ok({

@@ -1,18 +1,17 @@
-import { JSONValuePath } from '../../definitions/JSONDefinitions.js';
-import { TokenTypeName } from '../../definitions/tokenTypes.js';
+import { TokenTypeName, type JSON } from 'design-tokens-format-module';
 
 export type ResolvedReferenceResolutionTrace = {
   status: 'resolved';
-  fromTreePath: JSONValuePath;
-  fromValuePath: JSONValuePath;
-  toTreePath: JSONValuePath;
+  fromTreePath: JSON.ValuePath;
+  fromValuePath: JSON.ValuePath;
+  toTreePath: JSON.ValuePath;
   targetType: TokenTypeName;
 };
 export type UnresolvableReferenceResolutionTrace = {
   status: 'unresolvable';
-  fromTreePath: JSONValuePath;
-  fromValuePath: JSONValuePath;
-  toTreePath: JSONValuePath;
+  fromTreePath: JSON.ValuePath;
+  fromValuePath: JSON.ValuePath;
+  toTreePath: JSON.ValuePath;
 };
 export type ReferenceResolutionTrace =
   | ResolvedReferenceResolutionTrace

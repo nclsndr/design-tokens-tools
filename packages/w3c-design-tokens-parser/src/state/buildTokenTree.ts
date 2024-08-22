@@ -7,7 +7,8 @@ import { recursivelyResolveAnalyzedToken } from '../parser/token/recursivelyReso
 import { Reference } from './Reference.js';
 import { ValidationError } from '../utils/validationError.js';
 import { Option, Result } from '@swan-io/boxed';
-import { matchTokenTypeAgainstMapping } from '../definitions/tokenTypes.js';
+
+import { matchTokenTypeAgainstAliasingMapping } from '../definitions/matchTokenTypeAgainstAliasingMapping.js';
 
 export function buildTokenTree(value: unknown) {
   const treeState = new TreeState();
@@ -58,7 +59,7 @@ export function buildTokenTree(value: unknown) {
                         }
                         if (index === 0 && trace.status === 'resolved') {
                           // perform type check only on the first trace
-                          return matchTokenTypeAgainstMapping(
+                          return matchTokenTypeAgainstAliasingMapping(
                             analyzedToken.type,
                             trace.targetType,
                             trace.fromTreePath,

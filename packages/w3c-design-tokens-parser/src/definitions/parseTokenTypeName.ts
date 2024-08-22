@@ -1,8 +1,12 @@
-import { AnalyzerContext } from '../parser/internals/AnalyzerContext.js';
 import { Result } from '@swan-io/boxed';
+import {
+  TokenTypeName,
+  tokenTypeNames,
+  matchIsTokenTypeName,
+} from 'design-tokens-format-module';
+
+import { AnalyzerContext } from '../parser/internals/AnalyzerContext.js';
 import { ValidationError } from '../utils/validationError.js';
-import { TokenTypeName, tokenTypeNames } from './tokenTypes.js';
-import { matchIsTokenTypeName } from './matchIsTokenTypeName.js';
 
 export function parseTokenTypeName<AllowUndefined extends boolean = false>(
   value: unknown,

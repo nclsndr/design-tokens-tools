@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DesignTokenTree } from '../../src/definitions/tokenTypes';
+import { JSONTokenTree } from 'design-tokens-format-module';
 
 import { parseJSONTokenTree } from '../../src/parser/parseJSONTokenTree';
 import {
@@ -14,7 +14,6 @@ import {
   numberToken,
   shadowToken,
   stringFontWeightToken,
-  stringToken,
   strokeStyleToken,
   transitionToken,
   typographyToken,
@@ -22,7 +21,7 @@ import {
 
 describe('parseJSONTokenTree', () => {
   it('should parse a token tree of raw values of all types', () => {
-    const tree: DesignTokenTree = {
+    const tree: JSONTokenTree = {
       borderToken,
       colorToken,
       cubicBezierToken,
@@ -34,7 +33,6 @@ describe('parseJSONTokenTree', () => {
       gradientToken,
       numberToken,
       shadowToken,
-      stringToken,
       strokeStyleToken,
       transitionToken,
       typographyToken,
@@ -50,7 +48,7 @@ describe('parseJSONTokenTree', () => {
     expect(analyzedResult).toMatchSnapshot();
   });
   it('should parse a token tree with references to other tokens', () => {
-    const tree: DesignTokenTree = {
+    const tree: JSONTokenTree = {
       base: {
         primary: colorToken,
       },
@@ -129,7 +127,7 @@ describe('parseJSONTokenTree', () => {
     });
   });
   it('should parse a token tree with invalid tokens', () => {
-    const tree: DesignTokenTree = {
+    const tree: JSONTokenTree = {
       base: {
         // @ts-expect-error
         primary: {
@@ -208,7 +206,7 @@ describe('parseJSONTokenTree', () => {
     });
   });
   it('should parse a token tree containing a circular reference', () => {
-    const tree: DesignTokenTree = {
+    const tree: JSONTokenTree = {
       base: {
         $type: 'color',
         primary: {

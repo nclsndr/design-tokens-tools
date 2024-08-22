@@ -1,4 +1,5 @@
-import { JSONValuePath } from '../../definitions/JSONDefinitions.js';
+import { type JSON } from 'design-tokens-format-module';
+
 import { AnalyzedToken } from '../internals/AnalyzedToken.js';
 import { findAnalyzedToken } from '../internals/findAnalyzedToken.js';
 import { ReferenceResolutionTrace } from '../internals/ReferenceResolutionTrace.js';
@@ -6,8 +7,8 @@ import { ReferenceResolutionTrace } from '../internals/ReferenceResolutionTrace.
 export function recursivelyResolveAnalyzedToken(
   analyzedTokens: Array<AnalyzedToken>,
   analyzedToken: AnalyzedToken,
-  fromTreePath: JSONValuePath = [],
-  fromValuePath: JSONValuePath = [],
+  fromTreePath: JSON.ValuePath = [],
+  fromValuePath: JSON.ValuePath = [],
 ): Array<ReferenceResolutionTrace> {
   const acc: Array<ReferenceResolutionTrace> =
     fromTreePath.length > 0 // do not include the root token in the resolution steps

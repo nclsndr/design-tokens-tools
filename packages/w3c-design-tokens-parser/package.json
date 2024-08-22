@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@swan-io/boxed": "^2.3.0",
-    "design-tokens-format-module": "^0.8.0"
+    "design-tokens-format-module": "^0.9.6"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",

@@ -1,8 +1,8 @@
 import { Result } from '@swan-io/boxed';
+import { ALIAS_PATH_SEPARATOR } from 'design-tokens-format-module';
 
 import type { AnalyzerContext } from './AnalyzerContext.js';
 import { ValidationError } from '../../utils/validationError.js';
-import { ALIAS_PATH_SEPARATOR } from '../../definitions/AliasSignature.js';
 
 export function makeParseObject<
   R extends Result<any, Array<ValidationError>>,

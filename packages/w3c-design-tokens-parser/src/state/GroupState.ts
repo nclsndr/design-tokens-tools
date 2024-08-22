@@ -1,13 +1,15 @@
 import { TreeNode } from './TreeNode.js';
-import { TokenTypeName } from '../definitions/tokenTypes.js';
-import { JSONValuePath } from '../definitions/JSONDefinitions.js';
-import { GroupProperties } from '../definitions/GroupSignature.js';
+import {
+  type JSON,
+  TokenTypeName,
+  GroupProperties,
+} from 'design-tokens-format-module';
 
 export class GroupState extends TreeNode {
   #tokenType: TokenTypeName | undefined;
 
   constructor(
-    path: JSONValuePath,
+    path: JSON.ValuePath,
     tokenType: TokenTypeName | undefined,
     description: string | undefined,
     extensions: Record<string, any> | undefined,

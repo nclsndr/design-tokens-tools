@@ -1,14 +1,14 @@
-import { DimensionValue, parseAliasableDimensionValue } from './dimension.js';
-import {
-  AliasValueSignature,
-  WithAliasValueSignature,
-} from '../AliasSignature.js';
-import { TokenSignature } from '../TokenSignature.js';
-import { AnalyzerContext } from '../../parser/internals/AnalyzerContext.js';
 import { Result } from '@swan-io/boxed';
+import {
+  Dimension,
+  StrokeStyle,
+  AliasValue,
+} from 'design-tokens-format-module';
+
+import { parseAliasableDimensionValue } from './dimension.js';
+import { AnalyzerContext } from '../../parser/internals/AnalyzerContext.js';
 import { ValidationError } from '../../utils/validationError.js';
 import { AnalyzedValue } from '../../parser/internals/AnalyzedToken.js';
-
 import { withAlias } from '../withAlias.js';
 
 export const strokeStyleStringValues = [
@@ -26,18 +26,6 @@ export type StrokeStyleStringValues = (typeof strokeStyleStringValues)[number];
 export const strokeStyleLineCapValues = ['round', 'butt', 'square'] as const;
 export type StrokeStyleLineCapValues =
   (typeof strokeStyleLineCapValues)[number];
-
-export type StrokeStyleInnerValue =
-  | StrokeStyleStringValues
-  | {
-      dashArray: DimensionValue[];
-      lineCap: StrokeStyleLineCapValues;
-    };
-export type StrokeStyleValue = WithAliasValueSignature<
-  StrokeStyleStringValues | StrokeStyleInnerValue
->;
-
-export type StrokeStyleToken = TokenSignature<'strokeStyle', StrokeStyleValue>;
 
 export function parseStrokeStyleLineCapValue(
   value: unknown,
@@ -74,7 +62,7 @@ export function parseStrokeStyleDashArrayValue(
   value: unknown,
   ctx: AnalyzerContext,
 ): Result<
-  Array<AnalyzedValue<DimensionValue> | AnalyzedValue<AliasValueSignature>>,
+  Array<AnalyzedValue<Dimension.Value> | AnalyzedValue<AliasValue>>,
   Array<ValidationError>
 > {
   if (!Array.isArray(value)) {
@@ -107,7 +95,7 @@ export function parseStrokeStyleDashArrayValue(
 
   return Result.Ok(
     analyzedValueResults.reduce<
-      Array<AnalyzedValue<DimensionValue> | AnalyzedValue<AliasValueSignature>>
+      Array<AnalyzedValue<Dimension.Value> | AnalyzedValue<AliasValue>>
     >((acc, c) => {
       if (c.isOk()) acc.push(c.value);
       return acc;
@@ -118,11 +106,11 @@ export function parseStrokeStyleDashArrayValue(
 export function parseStrokeStyleRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<AnalyzedValue<StrokeStyleValue>, Array<ValidationError>> {
+): Result<AnalyzedValue<StrokeStyle.RawValue>, Array<ValidationError>> {
   if (typeof value === 'string') {
     if (strokeStyleStringValues.includes(value as any)) {
       return Result.Ok({
-        raw: value as StrokeStyleInnerValue,
+        raw: value as StrokeStyle.RawValue,
         toReferences: [],
       });
     }

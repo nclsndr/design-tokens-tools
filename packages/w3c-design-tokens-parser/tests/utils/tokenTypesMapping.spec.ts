@@ -1,15 +1,16 @@
 import { describe, it, expect } from 'vitest';
+import { type JSON } from 'design-tokens-format-module';
+
 import {
   matchTypeAgainstMapping,
   TokenTypesMapping,
-} from '../../src/definitions/tokenTypesMapping';
-import { JSONValuePath } from '../../src/definitions/JSONDefinitions';
+} from '../../src/utils/tokenTypesMapping';
 
 describe('matchTypeAgainstMapping', () => {
   it('should match a shallow token type', () => {
     const mapping = { _tokenType: 'string' } satisfies TokenTypesMapping;
-    const treePath: JSONValuePath = ['some', 'token'];
-    const valuePath: JSONValuePath = [];
+    const treePath: JSON.ValuePath = ['some', 'token'];
+    const valuePath: JSON.ValuePath = [];
 
     const input = 'string';
 
@@ -24,8 +25,8 @@ describe('matchTypeAgainstMapping', () => {
   });
   it('should match any primitive type', () => {
     const mapping = { _primitive: 'number' } satisfies TokenTypesMapping;
-    const treePath: JSONValuePath = ['some', 'token'];
-    const valuePath: JSONValuePath = [];
+    const treePath: JSON.ValuePath = ['some', 'token'];
+    const valuePath: JSON.ValuePath = [];
 
     const input = 42;
 
@@ -40,8 +41,8 @@ describe('matchTypeAgainstMapping', () => {
   });
   it('should match a constant value type', () => {
     const mapping = { _constant: 42 } satisfies TokenTypesMapping;
-    const treePath: JSONValuePath = ['some', 'token'];
-    const valuePath: JSONValuePath = [];
+    const treePath: JSON.ValuePath = ['some', 'token'];
+    const valuePath: JSON.ValuePath = [];
 
     const input = 42;
 
@@ -58,8 +59,8 @@ describe('matchTypeAgainstMapping', () => {
     const mapping = {
       _unionOf: [{ _tokenType: 'string' }, { _tokenType: 'number' }],
     } satisfies TokenTypesMapping;
-    const treePath: JSONValuePath = ['some', 'token'];
-    const valuePath: JSONValuePath = [];
+    const treePath: JSON.ValuePath = ['some', 'token'];
+    const valuePath: JSON.ValuePath = [];
 
     const input = 'number';
 
@@ -80,8 +81,8 @@ describe('matchTypeAgainstMapping', () => {
       },
     } satisfies TokenTypesMapping;
 
-    const treePath: JSONValuePath = ['a', 'token'];
-    const valuePath: JSONValuePath = ['author'];
+    const treePath: JSON.ValuePath = ['a', 'token'];
+    const valuePath: JSON.ValuePath = ['author'];
 
     const input = 'string';
 
@@ -99,8 +100,8 @@ describe('matchTypeAgainstMapping', () => {
       _arrayOf: { _tokenType: 'string' },
     } satisfies TokenTypesMapping;
 
-    const treePath: JSONValuePath = ['a', 'token'];
-    const valuePath: JSONValuePath = [0];
+    const treePath: JSON.ValuePath = ['a', 'token'];
+    const valuePath: JSON.ValuePath = [0];
 
     const input = 'string';
 
@@ -118,8 +119,8 @@ describe('matchTypeAgainstMapping', () => {
       _tuple: [{ _tokenType: 'string' }, { _tokenType: 'number' }],
     } satisfies TokenTypesMapping;
 
-    const treePath: JSONValuePath = ['a', 'token'];
-    const valuePath: JSONValuePath = [1];
+    const treePath: JSON.ValuePath = ['a', 'token'];
+    const valuePath: JSON.ValuePath = [1];
 
     const input = 'number';
 
@@ -135,8 +136,8 @@ describe('matchTypeAgainstMapping', () => {
 
   it('should fail to match a shallow token type', () => {
     const mapping = { _tokenType: 'string' } satisfies TokenTypesMapping;
-    const treePath: JSONValuePath = ['a', 'token'];
-    const valuePath: JSONValuePath = [];
+    const treePath: JSON.ValuePath = ['a', 'token'];
+    const valuePath: JSON.ValuePath = [];
 
     const input = 'number';
 
@@ -153,8 +154,8 @@ describe('matchTypeAgainstMapping', () => {
   });
   it('should fail to match any primitive type', () => {
     const mapping = { _primitive: 'number' } satisfies TokenTypesMapping;
-    const treePath: JSONValuePath = ['a', 'token'];
-    const valuePath: JSONValuePath = [];
+    const treePath: JSON.ValuePath = ['a', 'token'];
+    const valuePath: JSON.ValuePath = [];
 
     const input = 'a string';
 
@@ -171,8 +172,8 @@ describe('matchTypeAgainstMapping', () => {
   });
   it('should fail to match a constant value type', () => {
     const mapping = { _constant: 42 } satisfies TokenTypesMapping;
-    const treePath: JSONValuePath = ['a', 'token'];
-    const valuePath: JSONValuePath = [];
+    const treePath: JSON.ValuePath = ['a', 'token'];
+    const valuePath: JSON.ValuePath = [];
 
     const input = 100;
 
@@ -191,8 +192,8 @@ describe('matchTypeAgainstMapping', () => {
     const mapping = {
       _unionOf: [{ _tokenType: 'string' }, { _primitive: 'number' }],
     } satisfies TokenTypesMapping;
-    const treePath: JSONValuePath = ['some', 'token'];
-    const valuePath: JSONValuePath = [];
+    const treePath: JSON.ValuePath = ['some', 'token'];
+    const valuePath: JSON.ValuePath = [];
 
     const input = 'border';
 
@@ -228,8 +229,8 @@ describe('matchTypeAgainstMapping', () => {
         },
       ],
     } satisfies TokenTypesMapping;
-    const treePath: JSONValuePath = ['some', 'token'];
-    const valuePath: JSONValuePath = ['value'];
+    const treePath: JSON.ValuePath = ['some', 'token'];
+    const valuePath: JSON.ValuePath = ['value'];
 
     const input = 'boolean';
 
@@ -252,8 +253,8 @@ describe('matchTypeAgainstMapping', () => {
       },
     } satisfies TokenTypesMapping;
 
-    const treePath: JSONValuePath = ['a', 'token'];
-    const valuePath: JSONValuePath = ['title'];
+    const treePath: JSON.ValuePath = ['a', 'token'];
+    const valuePath: JSON.ValuePath = ['title'];
 
     const input = 'number';
 
@@ -276,8 +277,8 @@ describe('matchTypeAgainstMapping', () => {
       },
     };
 
-    const treePath: JSONValuePath = ['a', 'token'];
-    const valuePath: JSONValuePath = ['description'];
+    const treePath: JSON.ValuePath = ['a', 'token'];
+    const valuePath: JSON.ValuePath = ['description'];
 
     const input = 'string';
 
@@ -301,8 +302,8 @@ describe('matchTypeAgainstMapping', () => {
       },
     };
 
-    const treePath: JSONValuePath = ['a', 'token'];
-    const valuePath: JSONValuePath = ['title'];
+    const treePath: JSON.ValuePath = ['a', 'token'];
+    const valuePath: JSON.ValuePath = ['title'];
 
     const input = 'boolean';
 
@@ -322,8 +323,8 @@ describe('matchTypeAgainstMapping', () => {
       _arrayOf: { _tokenType: 'string' },
     } satisfies TokenTypesMapping;
 
-    const treePath: JSONValuePath = ['a', 'token'];
-    const valuePath: JSONValuePath = [0];
+    const treePath: JSON.ValuePath = ['a', 'token'];
+    const valuePath: JSON.ValuePath = [0];
 
     const input = 'number';
 
@@ -343,8 +344,8 @@ describe('matchTypeAgainstMapping', () => {
       _tuple: [{ _tokenType: 'string' }, { _tokenType: 'number' }],
     } satisfies TokenTypesMapping;
 
-    const treePath: JSONValuePath = ['a', 'token'];
-    const valuePath: JSONValuePath = [1];
+    const treePath: JSON.ValuePath = ['a', 'token'];
+    const valuePath: JSON.ValuePath = [1];
 
     const input = 'string';
 
@@ -364,8 +365,8 @@ describe('matchTypeAgainstMapping', () => {
       _tuple: [{ _tokenType: 'string' }, { _tokenType: 'number' }],
     } satisfies TokenTypesMapping;
 
-    const treePath: JSONValuePath = ['a', 'token'];
-    const valuePath: JSONValuePath = [2];
+    const treePath: JSON.ValuePath = ['a', 'token'];
+    const valuePath: JSON.ValuePath = [2];
 
     const input = 'number';
 

@@ -1,13 +1,10 @@
 import { describe, it, expect } from 'vitest';
-
-import { DesignTokenTree } from '../../src/definitions/tokenTypes';
-import { BorderToken } from '../../src/definitions/tokenTypes/border';
-import { ColorToken } from '../../src/definitions/tokenTypes/color';
+import { Border, Color, JSONTokenTree } from 'design-tokens-format-module';
 
 import { buildTokenTree } from '../../src/state/buildTokenTree';
 
 describe('buildTokenTree', () => {
-  const borderToken: BorderToken = {
+  const borderToken: Border.Token = {
     $type: 'border',
     $value: {
       color: '#676767',
@@ -15,13 +12,13 @@ describe('buildTokenTree', () => {
       width: '1px',
     },
   };
-  const colorToken: ColorToken = {
+  const colorToken: Color.Token = {
     $type: 'color',
     $value: '#a82222',
   };
 
   it('should build a treeState of raw values', () => {
-    const tokenTree: DesignTokenTree = {
+    const tokenTree: JSONTokenTree = {
       borderToken,
       colorToken,
     };
@@ -69,7 +66,7 @@ describe('buildTokenTree', () => {
     ]);
   });
   it('should build a treeState of raw alias values and resolvable aliases', () => {
-    const tokenTree: DesignTokenTree = {
+    const tokenTree: JSONTokenTree = {
       colorToken,
       primary: {
         $type: 'color',
@@ -165,7 +162,7 @@ describe('buildTokenTree', () => {
     ]);
   });
   it('should build a treeState of raw alias values and unresolvable aliases', () => {
-    const tokenTree: DesignTokenTree = {
+    const tokenTree: JSONTokenTree = {
       colorToken,
       secondary: {
         $type: 'color',

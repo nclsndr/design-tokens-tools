@@ -1,11 +1,11 @@
 import { JSONPath } from '../utils/JSONPath.js';
-import { JSONValuePath } from '../definitions/JSONDefinitions.js';
+import { type JSON } from 'design-tokens-format-module';
 
 export class RawValuePart {
   #path: JSONPath;
   #value: string | number | boolean | null;
 
-  constructor(path: JSONValuePath, value: string | number | boolean | null) {
+  constructor(path: JSON.ValuePath, value: string | number | boolean | null) {
     this.#path = JSONPath.fromJSONValuePath(path);
     this.#value = value;
   }

@@ -1,21 +1,17 @@
-import { WithAliasValueSignature } from '../AliasSignature.js';
-import { TokenSignature } from '../TokenSignature.js';
+import { Result } from '@swan-io/boxed';
+import { CubicBezier } from 'design-tokens-format-module';
+
 import { ValidationError } from '../../utils/validationError.js';
 import { AnalyzerContext } from '../../parser/internals/AnalyzerContext.js';
 import { AnalyzedValue } from '../../parser/internals/AnalyzedToken.js';
-import { Result } from '@swan-io/boxed';
-
 import { withAlias } from '../withAlias.js';
 
 export type CubicBezierRawValue = [number, number, number, number];
-export type CubicBezierValue = WithAliasValueSignature<CubicBezierRawValue>;
-
-export type CubicBezierToken = TokenSignature<'cubicBezier', CubicBezierValue>;
 
 export function parseCubicBezierRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<AnalyzedValue<CubicBezierValue>, ValidationError[]> {
+): Result<AnalyzedValue<CubicBezier.Value>, ValidationError[]> {
   if (!Array.isArray(value) || value.length !== 4) {
     return Result.Error([
       new ValidationError({

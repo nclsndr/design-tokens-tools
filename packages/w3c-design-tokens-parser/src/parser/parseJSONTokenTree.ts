@@ -1,14 +1,17 @@
 import { Result } from '@swan-io/boxed';
+import {
+  matchIsToken,
+  matchIsGroup,
+  ALIAS_PATH_SEPARATOR,
+  JSONTokenTree,
+} from 'design-tokens-format-module';
 
 import { traverseJSONValue } from '../utils/traverseJSONValue.js';
-import { matchIsTokenSignature } from '../definitions/TokenSignature.js';
-import { matchIsGroupSignature } from '../definitions/GroupSignature.js';
 import { parseRawToken } from './token/parseRawToken.js';
 import { ValidationError } from '../utils/validationError.js';
 import { parseGroup } from './group/parseGroup.js';
 import { AnalyzedToken } from './internals/AnalyzedToken.js';
 import { AnalyzedGroup } from './internals/AnalyzedGroup.js';
-import { ALIAS_PATH_SEPARATOR } from '../definitions/AliasSignature.js';
 import { parseTreeNode } from './tree/parseTreeNode.js';
 
 export type AnalyzedTokenResult = Result<AnalyzedToken, Array<ValidationError>>;
@@ -23,7 +26,7 @@ export function parseJSONTokenTree(root: unknown) {
     const analyzedGroups: Array<AnalyzedGroupResult> = [];
 
     traverseJSONValue(jsonTokenTree, (value, rawPath) => {
-      if (matchIsTokenSignature(value)) {
+      if (matchIsToken(value)) {
         analyzedTokens.push(
           parseRawToken(value, {
             jsonTokenTree,
@@ -33,7 +36,7 @@ export function parseJSONTokenTree(root: unknown) {
         );
 
         return false;
-      } else if (matchIsGroupSignature(value)) {
+      } else if (matchIsGroup(value)) {
         analyzedGroups.push(
           parseGroup(value, {
             path: rawPath,
@@ -48,7 +51,7 @@ export function parseJSONTokenTree(root: unknown) {
 
     // Gather both valid and errored results
     return Result.Ok({
-      tokenTree: jsonTokenTree,
+      tokenTree: jsonTokenTree as JSONTokenTree,
       tokens: analyzedTokens.reduce<
         [Array<AnalyzedToken>, Array<ValidationError>]
       >(

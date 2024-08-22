@@ -1,13 +1,13 @@
 import { Result } from '@swan-io/boxed';
+import { AliasValue } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
-import { AliasValueSignature } from '../../definitions/AliasSignature.js';
 import { AnalyzerContext } from '../internals/AnalyzerContext.js';
 
 export function parseAliasValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<AliasValueSignature, ValidationError[]> {
+): Result<AliasValue, ValidationError[]> {
   if (typeof value !== 'string') {
     return Result.Error([
       new ValidationError({
@@ -28,5 +28,5 @@ export function parseAliasValue(
       }),
     ]);
   }
-  return Result.Ok(value as AliasValueSignature);
+  return Result.Ok(value as AliasValue);
 }

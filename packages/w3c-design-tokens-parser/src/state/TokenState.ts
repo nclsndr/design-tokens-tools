@@ -1,22 +1,21 @@
+import { DesignToken } from 'design-tokens-format-module';
+import { type JSON, ALIAS_PATH_SEPARATOR } from 'design-tokens-format-module';
+
 import type { TreeState } from './TreeState.js';
 import { TreeNode } from './TreeNode.js';
-import { TokenType } from '../definitions/tokenTypes.js';
-import { JSONValuePath } from '../definitions/JSONDefinitions.js';
 import { RawValueParts } from './RawValueParts.js';
 import { deepSetJSONValue } from '../utils/deepSetJSONValue.js';
-import { ALIAS_PATH_SEPARATOR } from '../definitions/AliasSignature.js';
 import { makeAliasStringPath } from '../parser/alias/makeAliasStringPath.js';
 import { AnalyzedValue } from '../parser/internals/AnalyzedToken.js';
 import { registerTokenRawValue } from './registerTokenRawValue.js';
-import { TokenSignature } from '../definitions/TokenSignature.js';
 
 export class TokenState extends TreeNode {
-  #type: Required<TokenType>['$type'];
+  #type: Required<DesignToken>['$type'];
   #treeState: TreeState;
   #rawValueParts: RawValueParts;
   constructor(
-    path: JSONValuePath,
-    type: Required<TokenType>['$type'],
+    path: JSON.ValuePath,
+    type: Required<DesignToken>['$type'],
     description: string | undefined,
     extensions: Record<string, any> | undefined,
     treeState: TreeState,
@@ -78,8 +77,8 @@ export class TokenState extends TreeNode {
     return acc;
   }
 
-  getJSONToken(): TokenSignature {
-    const token: TokenSignature = {
+  getJSONToken(): DesignToken {
+    const token: DesignToken = {
       $type: this.#type,
       $value: this.getJSONValue(),
     };

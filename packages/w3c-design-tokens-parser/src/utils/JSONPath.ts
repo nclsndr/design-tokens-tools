@@ -1,24 +1,23 @@
-import type { JSONValuePath } from '../definitions/JSONDefinitions.js';
-import { ALIAS_PATH_SEPARATOR } from '../definitions/AliasSignature.js';
+import { type JSON, ALIAS_PATH_SEPARATOR } from 'design-tokens-format-module';
 
 /**
  * A path is a sequence of strings and numbers that represent a path to a value in a JSON object.
  */
 export class JSONPath {
-  #array: JSONValuePath;
+  #array: JSON.ValuePath;
   #string: string;
   #isRoot = false;
-  constructor(path: JSONValuePath) {
+  constructor(path: JSON.ValuePath) {
     this.#array = path;
     this.#string = path.join(ALIAS_PATH_SEPARATOR);
     this.#isRoot = path.length === 0;
   }
 
-  static fromJSONValuePath(path: JSONValuePath) {
+  static fromJSONValuePath(path: JSON.ValuePath) {
     return new JSONPath(path);
   }
 
-  get array() {
+  get array(): JSON.ValuePath {
     return this.#array;
   }
   get string() {
@@ -27,16 +26,16 @@ export class JSONPath {
   get isRoot() {
     return this.#isRoot;
   }
-  get parent(): JSONValuePath {
+  get parent(): JSON.ValuePath {
     return this.#array.slice(0, -1);
   }
-  // set value(path: JSONValuePath) {
+  // set value(path: JSON.ValuePath) {
   //   this.#array = path;
   //   this.#string = path.join('__');
   //   this.#isRoot = path.length === 0;
   // }
 
-  equals(path: JSONValuePath) {
+  equals(path: JSON.ValuePath) {
     return this.#string === path.join(ALIAS_PATH_SEPARATOR);
   }
 
@@ -54,7 +53,10 @@ export class JSONPath {
       string: this.#string,
     });
   }
-  toJSON() {
+  toJSON(): {
+    array: JSON.ValuePath;
+    string: string;
+  } {
     return {
       array: this.#array,
       string: this.#string,
