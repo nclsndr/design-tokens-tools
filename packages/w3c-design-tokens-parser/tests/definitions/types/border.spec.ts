@@ -26,6 +26,23 @@ describe.concurrent('parseAliasableBorderValue', () => {
       toReferences: [],
     });
   });
+  it('should parse an aliased value', () => {
+    const result = parseAliasableBorderValue('{borders.b-border}', {
+      varName: 'borders.a-border',
+      path: ['borders', 'a-border'],
+      valuePath: [],
+    });
+
+    expect((result as any).value.raw).toStrictEqual('{borders.b-border}');
+
+    expect((result as any).value.toReferences).toStrictEqual([
+      {
+        fromTreePath: ['borders', 'a-border'],
+        fromValuePath: [],
+        toTreePath: ['borders', 'b-border'],
+      },
+    ]);
+  });
   it('should parse a value with nested aliases', () => {
     const result = parseAliasableBorderValue(
       {

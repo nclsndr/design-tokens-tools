@@ -31,34 +31,6 @@ describe.concurrent('parseRawToken', () => {
       extensions: undefined,
     });
   });
-  it('should parse a string token', () => {
-    const rawJsonToken = {
-      $type: 'string',
-      $value: 'Hello, World!',
-    };
-
-    const result = parseRawToken(rawJsonToken, {
-      varName: 'aToken',
-      path: ['aToken'],
-      valuePath: [],
-      jsonTokenTree: {
-        aToken: rawJsonToken,
-      },
-    });
-
-    expect(
-      result.match({
-        Ok: (r) => r.toJSON(),
-        Error: (_) => undefined,
-      }),
-    ).toStrictEqual({
-      path: ['aToken'],
-      type: 'string',
-      value: { raw: 'Hello, World!', toReferences: [] },
-      description: undefined,
-      extensions: undefined,
-    });
-  });
   it('should parse an opaque color token', () => {
     const rawJsonToken = {
       $type: 'color',

@@ -17,7 +17,7 @@ import {
   transitionToken,
   typographyToken,
 } from '../_fixtures/tokens';
-import { buildTokenTree } from '../../src/state/buildTokenTree';
+import { buildTreeState } from '../../src/state/buildTreeState';
 
 describe('TokenState', () => {
   describe('getJSONToken', () => {
@@ -39,7 +39,7 @@ describe('TokenState', () => {
         typographyToken,
       };
 
-      const treeState = buildTokenTree(tokens);
+      const treeState = buildTreeState(tokens);
 
       const values = treeState.tokenStates.nodes.map((t) => t.getJSONToken());
 
@@ -79,7 +79,6 @@ describe('TokenState', () => {
             spread: '4px',
           },
         },
-        { $type: 'string', $value: 'hello' },
         { $type: 'strokeStyle', $value: 'solid' },
         {
           $type: 'transition',
@@ -147,7 +146,7 @@ describe('TokenState', () => {
         },
       };
 
-      const treeState = buildTokenTree(tokens);
+      const treeState = buildTreeState(tokens);
 
       const values = treeState.tokenStates.nodes.map((t) => t.getJSONToken());
 
@@ -196,6 +195,10 @@ describe('TokenState', () => {
         {
           $type: 'dimension',
           $value: '{dimensionToken}',
+        },
+        {
+          $type: 'gradient',
+          $value: '{gradientToken}',
         },
         {
           $type: 'gradient',

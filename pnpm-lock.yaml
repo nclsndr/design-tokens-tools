@@ -14,8 +14,8 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0(typescript@5.5.4)
       design-tokens-format-module:
-        specifier: ^0.9.6
-        version: 0.9.6
+        specifier: ^0.9.7
+        version: 0.9.7
     devDependencies:
       '@types/node':
         specifier: ^20.14.10
@@ -396,8 +396,8 @@ packages:
     resolution: {integrity: sha512-SUwdGfqdKOwxCPeVYjwSyRpJ7Z+fhpwIAtmCUdZIWZ/YP5R9WAsyuSgpLVDi9bjWoN2LXHNss/dk3urXtdQxGg==}
     engines: {node: '>=6'}
 
-  design-tokens-format-module@0.9.6:
-    resolution: {integrity: sha512-DL2wHpIshP1P6ANHuGQVJBB2o5Bk3yEnB1oIwCs8010u/Updje89BEByNOp1hmwCm44zjqQtkED1cdUGUrVtow==}
+  design-tokens-format-module@0.9.7:
+    resolution: {integrity: sha512-uFfKTkPjUDI7xVoe0mWLSu6qJlD6fSWfYoBLr6ac7Y1qgaaR0P9XAp2NUXWHYmLFhkLjiz42Jqcd6xMMjVP2dw==}
 
   diff-sequences@29.6.3:
     resolution: {integrity: sha512-EjePK1srD3P08o2j4f0ExnylqRs5B9tJjcp9t1krH2qRi8CCdsYfwe9JgSLurFBWwq4uOlipzfk5fHNvwFKr8Q==}
@@ -1003,7 +1003,7 @@ snapshots:
     dependencies:
       type-detect: 4.1.0
 
-  design-tokens-format-module@0.9.6: {}
+  design-tokens-format-module@0.9.7: {}
 
   diff-sequences@29.6.3: {}
 

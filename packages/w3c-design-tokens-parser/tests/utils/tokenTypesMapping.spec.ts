@@ -73,6 +73,31 @@ describe('matchTypeAgainstMapping', () => {
       }),
     ).toBe(true);
   });
+  it('should match a union of token type and object', () => {
+    const mapping = {
+      _unionOf: [
+        { _tokenType: 'string' },
+        {
+          _mapOf: {
+            value: { _tokenType: 'number' },
+          },
+        },
+      ],
+    } satisfies TokenTypesMapping;
+    const treePath: JSON.ValuePath = ['some', 'token'];
+    const valuePath: JSON.ValuePath = [];
+
+    const input = 'string';
+
+    const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
+
+    expect(
+      result.match({
+        Ok: (value) => value,
+        Error: (_) => undefined,
+      }),
+    ).toBe(true);
+  });
   it('should match a map type', () => {
     const mapping = {
       _mapOf: {

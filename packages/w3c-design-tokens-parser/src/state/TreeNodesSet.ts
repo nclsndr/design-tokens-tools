@@ -2,6 +2,7 @@ import { Option } from '@swan-io/boxed';
 import { type JSON } from 'design-tokens-format-module';
 
 import { TreeNode } from './TreeNode.js';
+import { JSONPath } from '../utils/JSONPath.js';
 
 export class TreeNodesSet<T extends TreeNode> {
   readonly #nodes: Set<T>;
@@ -14,10 +15,16 @@ export class TreeNodesSet<T extends TreeNode> {
     return Array.from(this.#nodes);
   }
 
-  get(path: JSON.ValuePath): Option<T> {
+  get(path: JSON.ValuePath | JSONPath): Option<T> {
     for (const node of this.#nodes) {
-      if (node.matchPath(path)) {
-        return Option.Some(node);
+      if (path instanceof JSONPath) {
+        if (node.equalsJSONPath(path)) {
+          return Option.Some(node);
+        }
+      } else {
+        if (node.matchPath(path)) {
+          return Option.Some(node);
+        }
       }
     }
     return Option.None();

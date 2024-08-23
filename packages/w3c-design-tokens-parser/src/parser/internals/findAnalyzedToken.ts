@@ -1,17 +1,14 @@
 import { Option } from '@swan-io/boxed';
-import { type JSON } from 'design-tokens-format-module';
+import { type JSON, ALIAS_PATH_SEPARATOR } from 'design-tokens-format-module';
 
 import { AnalyzedToken } from './AnalyzedToken.js';
-import { ANALYZER_PATH_SEPARATOR } from './AnalyzerContext.js';
 
 export function findAnalyzedToken(
   analyzedTokens: Array<AnalyzedToken>,
   refPath: string | JSON.ValuePath,
 ): Option<AnalyzedToken> {
   const stringRefPath =
-    typeof refPath === 'string'
-      ? refPath
-      : refPath.join(ANALYZER_PATH_SEPARATOR);
+    typeof refPath === 'string' ? refPath : refPath.join(ALIAS_PATH_SEPARATOR);
   const maybe = analyzedTokens.find((token) => {
     return token.stringPath === stringRefPath;
   });

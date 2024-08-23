@@ -1,7 +1,5 @@
 import { type JSON } from 'design-tokens-format-module';
 
-export const ANALYZER_PATH_SEPARATOR = '|';
-
 export type AnalyzerContext = {
   varName: string;
   path: JSON.ValuePath;

@@ -3,14 +3,15 @@ import { TokenState } from './TokenState.js';
 import { TreeState } from './TreeState.js';
 import { GroupState } from './GroupState.js';
 import { findAnalyzedToken } from '../parser/internals/findAnalyzedToken.js';
-import { recursivelyResolveAnalyzedToken } from '../parser/token/recursivelyResolveAnalyzedToken.js';
+import { recursivelyResolveAnalyzedToken } from './internals/recursivelyResolveAnalyzedToken.js';
 import { Reference } from './Reference.js';
 import { ValidationError } from '../utils/validationError.js';
 import { Option, Result } from '@swan-io/boxed';
 
 import { matchTokenTypeAgainstAliasingMapping } from '../definitions/matchTokenTypeAgainstAliasingMapping.js';
+import { JSONPath } from '../utils/JSONPath.js';
 
-export function buildTokenTree(value: unknown) {
+export function buildTreeState(value: unknown) {
   const treeState = new TreeState();
 
   parseJSONTokenTree(value).match({
@@ -62,8 +63,8 @@ export function buildTokenTree(value: unknown) {
                           return matchTokenTypeAgainstAliasingMapping(
                             analyzedToken.type,
                             trace.targetType,
-                            trace.fromTreePath,
-                            trace.fromValuePath,
+                            trace.fromTreePath.array,
+                            trace.fromValuePath.array,
                           ).match({
                             Ok: (_) => previous,
                             Error: (err) =>
@@ -95,7 +96,9 @@ export function buildTokenTree(value: unknown) {
                             analyzedToken.path,
                             analyzedReference.fromValuePath,
                             analyzedReference.toTreePath,
+                            foundAnalyzedToken.type,
                             resolutionTraces,
+                            treeState,
                           );
                           return refsResult.map((refs) => [...refs, reference]);
                         },
@@ -106,14 +109,22 @@ export function buildTokenTree(value: unknown) {
                       analyzedToken.path,
                       analyzedReference.fromValuePath,
                       analyzedReference.toTreePath,
+                      undefined,
                       [
                         {
                           status: 'unresolvable',
-                          fromTreePath: analyzedReference.fromValuePath,
-                          fromValuePath: analyzedReference.fromValuePath,
-                          toTreePath: analyzedReference.toTreePath,
+                          fromTreePath: JSONPath.fromJSONValuePath(
+                            analyzedReference.fromValuePath,
+                          ),
+                          fromValuePath: JSONPath.fromJSONValuePath(
+                            analyzedReference.fromValuePath,
+                          ),
+                          toTreePath: JSONPath.fromJSONValuePath(
+                            analyzedReference.toTreePath,
+                          ),
                         },
                       ],
+                      treeState,
                     );
                     return refsResult.map((refs) => [...refs, reference]);
                   },

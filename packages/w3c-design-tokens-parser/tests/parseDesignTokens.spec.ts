@@ -15,38 +15,245 @@ describe('parseDesignTokens', () => {
           $type: 'color',
           $value: '{base.blue}',
         },
-        number: {
-          $type: 'number',
-          $value: 42,
+        blue3: {
+          $type: 'color',
+          $value: '{base.blue2}',
         },
+        blue4: {
+          $type: 'color',
+          $value: '{base.blue3}',
+        },
+        blue5: {
+          $type: 'color',
+          $value: '{base.blue4}',
+        },
+        // number: {
+        //   $type: 'number',
+        //   $value: 42,
+        // },
         // red: {
         //   $type: 'color',
         //   $value: '#ff0000',
         // },
-      },
-      color: {
-        $type: 'color',
-        primary: {
-          $value: '{base.blue2}',
+        unresolvableColor: {
+          $type: 'color',
+          $value: '{base.unknown}',
+        },
+        unresolvableColorAliased: {
+          $type: 'color',
+          $value: '{base.unresolvableColor}',
         },
       },
-
-      // border: {
-      //   solid: {
-      //     $value: '{color.primary}',
-      //   },
-      //   dashed: {
-      //     $value: '{color.border.solid}',
+      // color: {
+      //   $type: 'color',
+      //   primary: {
+      //     $value: '{base.blue2}',
       //   },
       // },
+      baseDimension: {
+        $type: 'dimension',
+        $value: '4px',
+      },
+      aliasedDimension: {
+        $type: 'dimension',
+        $value: '{baseDimension}',
+      },
+
+      borders: {
+        aBorder: {
+          $type: 'border',
+          $value: {
+            color: '{base.blue2}',
+            style: {
+              dashArray: ['2px', '{aliasedDimension}'],
+              lineCap: 'round',
+            },
+            // style: 'solid',
+            width: '1px',
+          },
+        },
+        aliasedBorder: {
+          $type: 'border',
+          $value: '{borders.aBorder}',
+        },
+        // aliasOfAliasBorder: {
+        //   $type: 'border',
+        //   $value: '{borders.aliasedBorder}',
+        // },
+      },
+
+      aGradient: {
+        $type: 'gradient',
+        $value: [
+          {
+            color: '{base.blue}',
+            position: 0,
+          },
+          {
+            color: '#ff0000',
+            position: 1,
+          },
+        ],
+      },
     };
 
     const tokenTree = parseDesignTokens(tree);
 
-    // TODO @Nico: NO CONSOLE
-    console.log('tokenTree:', JSON.stringify(tokenTree, null, 2));
+    tokenTree.mapTokensByType('color', (token) => {
+      // TODO @Nico: NO CONSOLE
+      console.log('token.path:', token.path);
 
-    // TODO @Nico: NO CONSOLE
+      const res = token
+        .getValueMapper({
+          resolveAtDepth: Infinity,
+        })
+        .mapScalarValue((r) => {
+          return r.raw;
+        })
+        .mapAliasReference((a) => {
+          // TODO @Nico: NO CONSOLE
+          console.log('a:', a);
+          return JSON.stringify(a.to.treePath);
+        })
+        .unwrap();
+      // TODO @Nico: NO CONSOLE
+      console.log('res:', res);
+
+      const mappedValue = token
+        .getValueMapper()
+        .mapAliasReference((a) => {
+          // throw new Error('Should not have aliases');
+          // const res = a.resolve();
+          // res.mapResolved((r) => {});
+          return `{${a.to.treePath.string}}`;
+        })
+        .mapScalarValue((r) => {
+          return r.raw;
+        })
+        .unwrap();
+    });
+
+    tokenTree.mapTokensByType('border', (token) => {
+      // TODO @Nico: NO CONSOLE
+      console.log('token.path:', token.path);
+
+      const res = token
+        .getValueMapper({
+          resolveAtDepth: 2,
+        })
+        .unwrap();
+
+      token
+        .getValueMapper()
+        .mapAliasReference((a) => {
+          // throw new Error('Should not have aliases');
+          // a.mapResolvedValue((r) => {
+          //   // TODO @Nico: NO CONSOLE
+          //   console.log('mapResolvedValue r:', r);
+          //   r.getValueMapper();
+          //   return r.getJSONValue();
+          // });
+          return `{${a.to.treePath.string}}`;
+        })
+        .mapObjectValue((objectValue) => {
+          return objectValue
+            .mapKey('color', (c) => {
+              return c
+                .mapScalarValue((r) => {
+                  return r.raw;
+                })
+                .mapAliasReference((a) => {
+                  return JSON.stringify(a.to.treePath);
+                })
+                .unwrap();
+            })
+            .mapKey('width', (w) => {
+              return w
+                .mapScalarValue((r) => {
+                  return r.raw;
+                })
+                .mapAliasReference((a) => {
+                  return JSON.stringify(a.from);
+                })
+                .unwrap();
+            })
+            .mapKey('style', (s) => {
+              return s
+                .mapScalarValue((r) => {
+                  return r.raw;
+                })
+                .mapObjectValue((o) => {
+                  return o
+                    .mapKey('dashArray', (da) => {
+                      return da
+                        .mapArrayValue((arr) => {
+                          return arr
+                            .mapItems((v, i) => {
+                              return v
+                                .mapScalarValue((s) => s.raw)
+                                .mapAliasReference((a) =>
+                                  JSON.stringify(a.from),
+                                )
+                                .unwrap();
+                            })
+                            .unwrap();
+                        })
+                        .unwrap();
+                    })
+                    .mapKey('lineCap', (lc) => {
+                      return lc
+                        .mapScalarValue((r) => {
+                          return r.raw;
+                        })
+                        .unwrap();
+                    })
+                    .unwrap();
+                })
+                .unwrap();
+            })
+            .unwrap();
+        })
+        .unwrap();
+
+      // console.log('mappedValue:', mappedValue);
+    });
+
+    tokenTree.mapTokensByType('gradient', (token) => {
+      const mappedValue = token
+        .getValueMapper()
+        .mapArrayValue((stops) => {
+          return stops
+            .mapItems((stop, index) => {
+              return stop
+                .mapObjectValue((stopValue) => {
+                  return stopValue
+                    .mapKey('color', (color) => {
+                      return color
+                        .mapScalarValue((r) => {
+                          return r.raw;
+                        })
+                        .mapAliasReference((a) => {
+                          return JSON.stringify(a.from);
+                        })
+                        .unwrap();
+                    })
+                    .mapKey('position', (position) => {
+                      return position
+                        .mapScalarValue((r) => {
+                          return r.raw;
+                        })
+                        .unwrap();
+                    })
+                    .unwrap();
+                })
+                .unwrap();
+            })
+            .unwrap();
+        })
+        .unwrap();
+    });
+
+    // console.log('tokenTree:', JSON.stringify(tokenTree, null, 2));
     // console.log('getErrors', tokenTreeAPI.getErrors());
     // console.log(
     //   'getAllTokens',

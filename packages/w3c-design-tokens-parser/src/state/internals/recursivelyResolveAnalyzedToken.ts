@@ -1,8 +1,9 @@
 import { type JSON } from 'design-tokens-format-module';
 
-import { AnalyzedToken } from '../internals/AnalyzedToken.js';
-import { findAnalyzedToken } from '../internals/findAnalyzedToken.js';
-import { ReferenceResolutionTrace } from '../internals/ReferenceResolutionTrace.js';
+import { AnalyzedToken } from '../../parser/internals/AnalyzedToken.js';
+import { findAnalyzedToken } from '../../parser/internals/findAnalyzedToken.js';
+import { ReferenceResolutionTrace } from './ReferenceResolutionTrace.js';
+import { JSONPath } from '../../utils/JSONPath.js';
 
 export function recursivelyResolveAnalyzedToken(
   analyzedTokens: Array<AnalyzedToken>,
@@ -15,9 +16,9 @@ export function recursivelyResolveAnalyzedToken(
       ? [
           {
             status: 'resolved',
-            fromTreePath: fromTreePath,
-            fromValuePath: fromValuePath,
-            toTreePath: analyzedToken.path,
+            fromTreePath: JSONPath.fromJSONValuePath(fromTreePath),
+            fromValuePath: JSONPath.fromJSONValuePath(fromValuePath),
+            toTreePath: JSONPath.fromJSONValuePath(analyzedToken.path),
             targetType: analyzedToken.type,
           },
         ]
@@ -41,9 +42,9 @@ export function recursivelyResolveAnalyzedToken(
         None: () => [
           {
             status: 'unresolvable',
-            fromTreePath: ref.fromTreePath,
-            fromValuePath: ref.fromValuePath,
-            toTreePath: ref.toTreePath,
+            fromTreePath: JSONPath.fromJSONValuePath(ref.fromTreePath),
+            fromValuePath: JSONPath.fromJSONValuePath(ref.fromValuePath),
+            toTreePath: JSONPath.fromJSONValuePath(ref.toTreePath),
           },
         ],
       });

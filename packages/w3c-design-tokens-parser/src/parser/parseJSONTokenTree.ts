@@ -4,6 +4,7 @@ import {
   matchIsGroup,
   ALIAS_PATH_SEPARATOR,
   JSONTokenTree,
+  TokenTypeName,
 } from 'design-tokens-format-module';
 
 import { traverseJSONValue } from '../utils/traverseJSONValue.js';
@@ -17,7 +18,17 @@ import { parseTreeNode } from './tree/parseTreeNode.js';
 export type AnalyzedTokenResult = Result<AnalyzedToken, Array<ValidationError>>;
 export type AnalyzedGroupResult = Result<AnalyzedGroup, Array<ValidationError>>;
 
-export function parseJSONTokenTree(root: unknown) {
+export function parseJSONTokenTree(root: unknown): Result<
+  {
+    tokenTree: JSONTokenTree;
+    tokens: [
+      Array<AnalyzedToken<TokenTypeName, unknown>>,
+      Array<ValidationError>,
+    ];
+    groups: [Array<AnalyzedGroup>, Array<ValidationError>];
+  },
+  ValidationError[]
+> {
   return parseTreeNode(root, {
     varName: '[root]',
     path: [],

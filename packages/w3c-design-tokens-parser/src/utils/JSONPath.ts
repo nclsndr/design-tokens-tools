@@ -26,8 +26,20 @@ export class JSONPath {
   get isRoot() {
     return this.#isRoot;
   }
-  get parent(): JSON.ValuePath {
-    return this.#array.slice(0, -1);
+  get parent(): JSONPath {
+    return JSONPath.fromJSONValuePath(this.#array.slice(0, -1));
+  }
+  get last() {
+    return this.#array.at(-1);
+  }
+  get first() {
+    return this.#array.at(0);
+  }
+  get head() {
+    return JSONPath.fromJSONValuePath(this.#array.slice(0, -1));
+  }
+  get tail() {
+    return JSONPath.fromJSONValuePath(this.#array.slice(1));
   }
   // set value(path: JSON.ValuePath) {
   //   this.#array = path;
@@ -35,16 +47,28 @@ export class JSONPath {
   //   this.#isRoot = path.length === 0;
   // }
 
+  get length() {
+    return this.#array.length;
+  }
+
   equals(path: JSON.ValuePath) {
     return this.#string === path.join(ALIAS_PATH_SEPARATOR);
   }
 
-  append(value: string | number) {
-    return new JSONPath([...this.#array, value]);
+  equalsStringPath(stringPath: string) {
+    return this.#string === stringPath;
   }
 
-  get length() {
-    return this.#array.length;
+  equalsJSONPath(path: JSONPath) {
+    return this.#string === path.string;
+  }
+
+  append(...values: Array<string | number>) {
+    return new JSONPath([...this.#array, ...values]);
+  }
+
+  concat(...paths: Array<JSON.ValuePath>) {
+    return new JSONPath([...this.#array, ...paths.flat()]);
   }
 
   toString() {
@@ -63,11 +87,11 @@ export class JSONPath {
     };
   }
   toDebugString() {
-    return `[${this.#array.map((v) => `"${v}"`).join(', ')}]`;
+    return `[${this.#array.map((v) => (typeof v === 'string' ? `"${v}"` : v)).join(', ')}]`;
   }
 
   // Override console.log in Node.js environment
   [Symbol.for('nodejs.util.inspect.custom')](_depth: unknown, _opts: unknown) {
-    return `Path {[${this.#array.map((v) => `"${v}"`).join(', ')}]}`;
+    return `Path {${this.toDebugString()}}`;
   }
 }

@@ -1,11 +1,13 @@
-import { AnalyzedValue } from '../parser/internals/AnalyzedToken.js';
-import { TokenState } from './TokenState.js';
-import { traverseJSONValue } from '../utils/traverseJSONValue.js';
-import { RawValuePart } from './RawValuePart.js';
+import { TokenTypeName } from 'design-tokens-format-module';
 
-export function registerTokenRawValue(
+import { AnalyzedValue } from '../../parser/internals/AnalyzedToken.js';
+import { TokenState } from '../TokenState.js';
+import { traverseJSONValue } from '../../utils/traverseJSONValue.js';
+import { RawValuePart } from '../RawValuePart.js';
+
+export function registerTokenRawValue<T extends TokenTypeName>(
   analyzedValue: AnalyzedValue,
-  tokenState: TokenState,
+  tokenState: TokenState<T>,
 ) {
   if (
     analyzedValue.toReferences.length === 1 &&

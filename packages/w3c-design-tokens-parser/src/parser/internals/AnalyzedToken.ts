@@ -1,5 +1,8 @@
-import { type JSON, TokenTypeName } from 'design-tokens-format-module';
-import { ANALYZER_PATH_SEPARATOR } from './AnalyzerContext.js';
+import {
+  type JSON,
+  TokenTypeName,
+  ALIAS_PATH_SEPARATOR,
+} from 'design-tokens-format-module';
 
 export type AnalyzedValue<Raw = unknown> = {
   raw: Raw;
@@ -29,7 +32,7 @@ export class AnalyzedToken<
     extensions?: Record<string, any>,
   ) {
     this.#path = path;
-    this.#stringPath = path.join(ANALYZER_PATH_SEPARATOR);
+    this.#stringPath = path.join(ALIAS_PATH_SEPARATOR);
     this.#type = type;
     this.#value = value;
     this.#description = description;
@@ -56,7 +59,7 @@ export class AnalyzedToken<
   }
 
   matchPath(path: JSON.ValuePath) {
-    return this.#stringPath === path.join(ANALYZER_PATH_SEPARATOR);
+    return this.#stringPath === path.join(ALIAS_PATH_SEPARATOR);
   }
 
   toJSON() {

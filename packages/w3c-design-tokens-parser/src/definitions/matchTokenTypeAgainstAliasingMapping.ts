@@ -1,15 +1,17 @@
-/* ------------------------------------------
-   Types mapping
---------------------------------------------- */
 import {
   JSON,
   TokenTypeName,
   tokenTypeNamesMapping,
+  strokeStyleLineCapValues,
 } from 'design-tokens-format-module';
 import {
   matchTypeAgainstMapping,
   TokenTypesMapping,
 } from '../utils/tokenTypesMapping.js';
+
+/* ------------------------------------------
+   Types mapping
+--------------------------------------------- */
 
 const numberTokenTypeMapping = {
   _tokenType: tokenTypeNamesMapping.number,
@@ -33,7 +35,23 @@ const cubicBezierTokenTypeMapping = {
   _tokenType: tokenTypeNamesMapping.cubicBezier,
 } satisfies TokenTypesMapping;
 const strokeStyleTokenTypeMapping = {
-  _tokenType: tokenTypeNamesMapping.strokeStyle,
+  _unionOf: [
+    {
+      _tokenType: tokenTypeNamesMapping.strokeStyle,
+    },
+    {
+      _mapOf: {
+        dashArray: {
+          _arrayOf: dimensionTokenTypeMapping,
+        },
+        lineCap: {
+          _unionOf: strokeStyleLineCapValues.map((v) => ({
+            _constant: v,
+          })),
+        },
+      },
+    },
+  ],
 } satisfies TokenTypesMapping;
 const borderTokenTypeMapping = {
   _unionOf: [
@@ -80,7 +98,7 @@ const gradientTokenTypeMapping = {
       _arrayOf: {
         _mapOf: {
           color: colorTokenTypeMapping,
-          position: { _primitive: 'number' },
+          position: numberTokenTypeMapping,
         },
       },
     },

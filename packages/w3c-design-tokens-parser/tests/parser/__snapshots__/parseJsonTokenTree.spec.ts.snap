@@ -5,7 +5,7 @@ exports[`parseJSONTokenTree > should parse a token tree of raw values of all typ
   "groups": [
     [
       {
-        "childrenCount": 15,
+        "childrenCount": 14,
         "description": undefined,
         "extensions": undefined,
         "path": [],
@@ -82,10 +82,6 @@ exports[`parseJSONTokenTree > should parse a token tree of raw values of all typ
     "stringFontWeightToken": {
       "$type": "fontWeight",
       "$value": "bold",
-    },
-    "stringToken": {
-      "$type": "string",
-      "$value": "hello",
     },
     "strokeStyleToken": {
       "$type": "strokeStyle",
@@ -270,18 +266,6 @@ exports[`parseJSONTokenTree > should parse a token tree of raw values of all typ
             "offsetY": "2px",
             "spread": "4px",
           },
-          "toReferences": [],
-        },
-      },
-      {
-        "description": undefined,
-        "extensions": undefined,
-        "path": [
-          "stringToken",
-        ],
-        "type": "string",
-        "value": {
-          "raw": "hello",
           "toReferences": [],
         },
       },

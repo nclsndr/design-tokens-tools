@@ -181,7 +181,7 @@ describe('parseJSONTokenTree', () => {
             nodeKey: '$type',
             valuePath: [],
             message:
-              'semantic.primary.$type must be a valid type among: "number", "string", "color", "dimension", "duration", "fontFamily", "fontWeight", "cubicBezier", "border", "strokeStyle", "transition", "shadow", "gradient", "typography". Got "unknown".',
+              'semantic.primary.$type must be a valid type among: "color", "dimension", "fontFamily", "fontWeight", "duration", "cubicBezier", "number", "strokeStyle", "border", "transition", "shadow", "gradient", "typography". Got "unknown".',
           },
         ],
       ],

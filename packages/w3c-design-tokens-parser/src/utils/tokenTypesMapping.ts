@@ -135,30 +135,36 @@ export function matchTypeAgainstMapping(
         });
   }
   if (matchIsUnionMapping(mapping)) {
-    return mapping._unionOf
-      .map((m) =>
-        matchTypeAgainstMapping(
-          input,
-          m,
-          treePath,
-          valuePath,
-          getDiscriminatorValue,
-          initialMapping,
-        ),
-      )
-      .reduce((acc, r) => {
-        return r.match({
-          Ok: (_) => (acc.isOk() ? acc : Result.Ok(true)),
-          Error: (err) =>
-            acc.isError()
-              ? acc.mapError((e) => ({
-                  expectedType: [e.expectedType, err.expectedType]
-                    .filter((m) => m.length > 0)
-                    .join(' | '),
-                }))
-              : Result.Error(err),
-        });
-      }, Result.Ok(true));
+    const res = mapping._unionOf.map((m) =>
+      matchTypeAgainstMapping(
+        input,
+        m,
+        treePath,
+        valuePath,
+        getDiscriminatorValue,
+        initialMapping,
+      ),
+    );
+
+    const hasOk = res.some((r) => r.isOk());
+    return hasOk
+      ? Result.Ok(true)
+      : res.reduce((acc, r) => {
+          return r.match({
+            Ok: (_) => {
+              throw new Error('DESIGN ERROR :: Unexpected Ok in UnionMapping');
+            },
+            Error: (err) => {
+              return acc.isError()
+                ? acc.mapError((e) => ({
+                    expectedType: [e.expectedType, err.expectedType]
+                      .filter((m) => m.length > 0)
+                      .join(' | '),
+                  }))
+                : Result.Error(err);
+            },
+          });
+        }, Result.Ok(true));
   }
   if (matchIsMapOfMapping(mapping)) {
     const nextMapping = mapping._mapOf[selector];

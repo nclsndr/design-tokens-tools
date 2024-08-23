@@ -16,7 +16,7 @@ describe.concurrent('withAlias', () => {
         return Result.Error([
           new ValidationError({
             type: 'Type',
-            path: ctx.path,
+            treePath: ctx.path,
             message: `${ctx.varName} must be a boolean. Got "${typeof value}".`,
           }),
         ]);
@@ -67,7 +67,7 @@ describe.concurrent('withAlias', () => {
         return Result.Error([
           new ValidationError({
             type: 'Type',
-            path: ctx.path,
+            treePath: ctx.path,
             message: `${ctx.varName} must be a boolean. Got "${typeof value}".`,
           }),
         ]);

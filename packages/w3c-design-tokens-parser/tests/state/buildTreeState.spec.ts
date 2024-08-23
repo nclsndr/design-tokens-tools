@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { Border, Color, JSONTokenTree } from 'design-tokens-format-module';
 
-import { buildTokenTree } from '../../src/state/buildTokenTree';
+import { buildTreeState } from '../../src/state/buildTreeState';
 
-describe('buildTokenTree', () => {
+describe('buildTreeState', () => {
   const borderToken: Border.Token = {
     $type: 'border',
     $value: {
@@ -23,7 +23,7 @@ describe('buildTokenTree', () => {
       colorToken,
     };
 
-    const treeState = buildTokenTree(tokenTree);
+    const treeState = buildTreeState(tokenTree);
 
     const tokenResults = treeState.tokenStates.nodes.map((t) => ({
       stringPath: t.stringPath,
@@ -65,7 +65,7 @@ describe('buildTokenTree', () => {
       },
     ]);
   });
-  it('should build a treeState of raw alias values and resolvable aliases', () => {
+  it('should build a treeState of raw values and resolvable aliases', () => {
     const tokenTree: JSONTokenTree = {
       colorToken,
       primary: {
@@ -78,7 +78,7 @@ describe('buildTokenTree', () => {
       },
     };
 
-    const treeState = buildTokenTree(tokenTree);
+    const treeState = buildTreeState(tokenTree);
 
     const tokenResults = treeState.tokenStates.nodes.map((t) => ({
       stringPath: t.stringPath,
@@ -87,12 +87,27 @@ describe('buildTokenTree', () => {
         stringPath: v.path.string,
         value: v.value,
       })),
-      references: t.references.map((r) => ({
+      references: t.references.nodes.map((r) => ({
         fromValuePath: r.fromValuePath.string,
         fromTreePath: r.fromTreePath.string,
         toTreePath: r.toTreePath.string,
         isFullyResolved: r.isFullyResolved,
-        resolutionTraces: r.resolutionTraces,
+        resolutionTraces: r.resolutionTraces.map((trace) => {
+          const state = {
+            status: trace.status,
+            fromTreePath: trace.fromTreePath.string,
+            fromValuePath: trace.fromValuePath.string,
+            toTreePath: trace.toTreePath.string,
+          };
+
+          if (trace.status === 'resolved') {
+            return {
+              ...state,
+              targetType: trace.targetType,
+            };
+          }
+          return state;
+        }),
       })),
     }));
 
@@ -121,9 +136,9 @@ describe('buildTokenTree', () => {
             resolutionTraces: [
               {
                 status: 'resolved',
-                fromTreePath: ['primary'],
-                fromValuePath: [],
-                toTreePath: ['colorToken'],
+                fromTreePath: 'primary',
+                fromValuePath: '',
+                toTreePath: 'colorToken',
                 targetType: 'color',
               },
             ],
@@ -143,16 +158,16 @@ describe('buildTokenTree', () => {
             resolutionTraces: [
               {
                 status: 'resolved',
-                fromTreePath: ['secondary'],
-                fromValuePath: [],
-                toTreePath: ['primary'],
+                fromTreePath: 'secondary',
+                fromValuePath: '',
+                toTreePath: 'primary',
                 targetType: 'color',
               },
               {
                 status: 'resolved',
-                fromTreePath: ['primary'],
-                fromValuePath: [],
-                toTreePath: ['colorToken'],
+                fromTreePath: 'primary',
+                fromValuePath: '',
+                toTreePath: 'colorToken',
                 targetType: 'color',
               },
             ],
@@ -161,7 +176,7 @@ describe('buildTokenTree', () => {
       },
     ]);
   });
-  it('should build a treeState of raw alias values and unresolvable aliases', () => {
+  it('should build a treeState of raw values and unresolvable aliases', () => {
     const tokenTree: JSONTokenTree = {
       colorToken,
       secondary: {
@@ -170,7 +185,7 @@ describe('buildTokenTree', () => {
       },
     };
 
-    const treeState = buildTokenTree(tokenTree);
+    const treeState = buildTreeState(tokenTree);
 
     const tokenResults = treeState.tokenStates.nodes.map((t) => ({
       stringPath: t.stringPath,
@@ -179,12 +194,27 @@ describe('buildTokenTree', () => {
         stringPath: v.path.string,
         value: v.value,
       })),
-      references: t.references.map((r) => ({
+      references: t.references.nodes.map((r) => ({
         fromValuePath: r.fromValuePath.string,
         fromTreePath: r.fromTreePath.string,
         toTreePath: r.toTreePath.string,
         isFullyResolved: r.isFullyResolved,
-        resolutionTraces: r.resolutionTraces,
+        resolutionTraces: r.resolutionTraces.map((trace) => {
+          const state = {
+            status: trace.status,
+            fromTreePath: trace.fromTreePath.string,
+            fromValuePath: trace.fromValuePath.string,
+            toTreePath: trace.toTreePath.string,
+          };
+
+          if (trace.status === 'resolved') {
+            return {
+              ...state,
+              targetType: trace.targetType,
+            };
+          }
+          return state;
+        }),
       })),
     }));
 
@@ -213,9 +243,9 @@ describe('buildTokenTree', () => {
             resolutionTraces: [
               {
                 status: 'unresolvable',
-                fromTreePath: [],
-                fromValuePath: [],
-                toTreePath: ['primary'],
+                fromTreePath: '',
+                fromValuePath: '',
+                toTreePath: 'primary',
               },
             ],
           },
