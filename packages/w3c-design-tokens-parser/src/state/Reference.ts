@@ -1,8 +1,6 @@
 import { type JSON, TokenTypeName } from 'design-tokens-format-module';
 import { JSONPath } from '../utils/JSONPath.js';
-import { ReferenceResolutionTrace } from './internals/ReferenceResolutionTrace.js';
 import { TreeState } from './TreeState.js';
-import { Option } from '@swan-io/boxed';
 import { RawValuePart } from './RawValuePart.js';
 
 export class Reference {
@@ -13,21 +11,17 @@ export class Reference {
   readonly #toTreePath: JSONPath;
   readonly #toType: TokenTypeName | undefined;
 
-  readonly #resolutionTraces: Array<ReferenceResolutionTrace>;
-
   constructor(
     fromTreePath: JSON.ValuePath,
     fromValuePath: JSON.ValuePath,
     toTreePath: JSON.ValuePath,
     toType: TokenTypeName | undefined,
-    resolutionTraces: Array<ReferenceResolutionTrace>,
     treeState: TreeState,
   ) {
     this.#fromTreePath = JSONPath.fromJSONValuePath(fromTreePath);
     this.#fromValuePath = JSONPath.fromJSONValuePath(fromValuePath);
     this.#toTreePath = JSONPath.fromJSONValuePath(toTreePath);
     this.#toType = toType;
-    this.#resolutionTraces = resolutionTraces;
     this.#treeState = treeState;
   }
 
@@ -43,28 +37,29 @@ export class Reference {
   get toType() {
     return this.#toType;
   }
-  get resolutionTraces() {
-    return this.#resolutionTraces;
-  }
 
   /**
    * Whether the reference is resolvable at the first level
    */
-  get isShallowlyResolved() {
-    return (
-      (this.#resolutionTraces[0] ?? { status: 'unresolvable' }).status ===
-      'resolved'
-    );
+  get isShallowlyLinked() {
+    return this.#treeState.tokenStates.get(this.#toTreePath).match({
+      Some: () => true,
+      None: () => false,
+    });
   }
 
   /**
    * Whether the reference is recursively resolvable
    */
-  get isFullyResolved() {
-    return (
-      this.#resolutionTraces.length > 0 &&
-      this.#resolutionTraces.every((trace) => trace.status === 'resolved')
-    );
+  get isFullyLinked(): boolean {
+    return this.#treeState.tokenStates.get(this.#toTreePath).match({
+      Some: (tokenState) => {
+        return tokenState.references.nodes.reduce((acc, ref) => {
+          return acc && ref.isFullyLinked;
+        }, true);
+      },
+      None: () => false,
+    });
   }
 
   /**
@@ -95,7 +90,6 @@ export class Reference {
               currentRef.fromValuePath.array,
               tokenState.path,
               tokenState.type,
-              currentRef.resolutionTraces,
               this.#treeState,
             ),
           );
@@ -107,7 +101,6 @@ export class Reference {
               currentRef.fromValuePath.array,
               this.toTreePath.array,
               this.toType,
-              currentRef.resolutionTraces,
               this.#treeState,
             ),
           );
@@ -140,7 +133,6 @@ export class Reference {
             currentRef.fromValuePath.array,
             this.toTreePath.array,
             this.toType,
-            this.resolutionTraces,
             this.#treeState,
           ),
         );
@@ -159,15 +151,8 @@ export class Reference {
   to: {
     treePath: ${this.#toTreePath.toDebugString()},
   },
-  isShallowlyResolved: ${this.isShallowlyResolved ? 'true' : 'false'},
-  isFullyResolved: ${this.isFullyResolved ? 'true' : 'false'},
-  resolutionTraces: ${
-    this.#resolutionTraces.length > 0
-      ? `[
-    ${this.#resolutionTraces.map((trace) => JSON.stringify(trace)).join(',\n    ')}
-  ]`
-      : '[]'
-  }
+  isShallowlyResolved: ${this.isShallowlyLinked ? 'true' : 'false'},
+  isFullyResolved: ${this.isFullyLinked ? 'true' : 'false'}
 }`;
   }
 

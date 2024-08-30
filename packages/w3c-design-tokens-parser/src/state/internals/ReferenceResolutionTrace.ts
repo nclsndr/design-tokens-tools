@@ -1,19 +1,19 @@
 import { TokenTypeName, type JSON } from 'design-tokens-format-module';
 import { JSONPath } from '../../utils/JSONPath.js';
 
-export type ResolvedReferenceResolutionTrace = {
-  status: 'resolved';
+export type LinkedReferenceResolutionTrace = {
+  status: 'linked';
   fromTreePath: JSONPath;
   fromValuePath: JSONPath;
   toTreePath: JSONPath;
   targetType: TokenTypeName;
 };
-export type UnresolvableReferenceResolutionTrace = {
-  status: 'unresolvable';
+export type UnlinkedReferenceResolutionTrace = {
+  status: 'unlinked';
   fromTreePath: JSONPath;
   fromValuePath: JSONPath;
   toTreePath: JSONPath;
 };
 export type ReferenceResolutionTrace =
-  | ResolvedReferenceResolutionTrace
-  | UnresolvableReferenceResolutionTrace;
+  | LinkedReferenceResolutionTrace
+  | UnlinkedReferenceResolutionTrace;

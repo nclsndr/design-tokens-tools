@@ -8,10 +8,9 @@ import {
 import { Reference } from './Reference.js';
 import { TokenState } from './TokenState.js';
 import { JSONPath } from '../utils/JSONPath.js';
-import { extractRawValuePartsFromJSON } from './internals/extractRawValuePartsFromJSON.js';
-import { ReferenceResolutionTrace } from './internals/ReferenceResolutionTrace.js';
 import { RawValuePart } from './RawValuePart.js';
 import { Token } from '../client/Token.js';
+import { Option } from '@swan-io/boxed';
 
 export type TokenTypeAliasingCompatibilityMap = {
   color: 'color';
@@ -51,22 +50,23 @@ export type PickTokenTypeAliasingCompatibilityEntry<T extends string> =
   T extends keyof TokenTypeAliasingCompatibilityMap
     ? TokenTypeAliasingCompatibilityMap[T]
     : never;
+
 export type SwapValueSignature<
-  Type extends string,
+  Key extends string,
   Value,
 > = Value extends AliasValue
-  ? AliasReference<PickTokenTypeAliasingCompatibilityEntry<Type>>
+  ? AliasReference<PickTokenTypeAliasingCompatibilityEntry<Key>>
   : Value extends { [k: PropertyKey]: unknown }
     ? ObjectValue<{
         [K in keyof Value]: ValueMapper<
           SwapValueSignature<
-            `${Type}.${K extends string ? K : string}`,
+            `${Key}.${K extends string ? K : string}`,
             Value[K]
           >
         >;
       }>
     : Value extends Array<infer A>
-      ? ArrayValue<Array<ValueMapper<SwapValueSignature<`${Type}.0`, A>>>>
+      ? ArrayValue<Array<ValueMapper<SwapValueSignature<`${Key}.0`, A>>>>
       : Value extends JSON.Primitive
         ? ScalarValue<Value>
         : never;
@@ -88,11 +88,18 @@ export class BaseValue {
     this.#tokenState = tokenState;
   }
 
+  /**
+   * Get the value path
+   */
   get valuePath() {
     return this.#valuePath;
   }
 
-  protected get tokenState() {
+  /**
+   * Get the related token state
+   * @protected
+   */
+  protected get _tokenState() {
     return this.#tokenState;
   }
 }
@@ -161,39 +168,25 @@ export class ScalarValue<
     this.#value = value;
   }
 
+  /**
+   * Get the raw scalar value
+   */
   get raw(): Inner {
     return this.#value.value;
   }
 }
 
-function makeResolveTraces(
-  fromTreePath: JSONPath,
-  resolutionTraces: Array<ReferenceResolutionTrace>,
-): any {
-  if (resolutionTraces.length < 1) {
-    throw new Error('No resolution traces');
-  }
-  return resolutionTraces
-    .filter((trace) => trace.fromTreePath.equalsJSONPath(fromTreePath))
-    .reduce((acc, trace) => {
-      const [tr, next] = makeResolveTraces(trace.toTreePath, resolutionTraces);
-      acc.push(trace);
-      if (tr) acc.push(tr);
-      if (next) acc.push(next);
-      return acc;
-    }, [] as any);
-}
-
 export class AliasReference<
   Type extends TokenTypeName = TokenTypeName,
-  Value = unknown,
+  Value = AliasValue,
 > extends BaseValue {
   #reference: Reference;
-  #value: Value = undefined as Value;
+  #value: Value;
 
   constructor(reference: Reference, tokenState: TokenState<any>) {
     super(reference.fromValuePath, tokenState);
     this.#reference = reference;
+    this.#value = reference.toTreePath.toDesignTokenAliasPath() as Value;
   }
 
   get from() {
@@ -213,15 +206,60 @@ export class AliasReference<
     return this.#reference.toType;
   }
 
-  resolve() {
-    return this.#reference.resolve();
+  getToken<T extends Type>(): Token<T> | undefined {
+    return this._tokenState.treeState.tokenStates
+      .get(this.#reference.toTreePath)
+      .match({
+        Some: (tokenState) => new Token(tokenState),
+        None: () => undefined,
+      }) as any;
   }
 
-  mapResolvedValue<R>(
-    callback: (resolvedToken: Token) => R,
-  ): AliasReference<Type, R> {
-    if (this.#reference.isShallowlyResolved) {
-      this.tokenState.treeState.tokenStates
+  // resolve(options?: { resolveAtDepth?: number }): any {
+  //   const { resolveAtDepth } = options ?? {};
+  //   if (typeof resolveAtDepth === 'number' && resolveAtDepth < 1) {
+  //     throw new Error('Depth must be greater or equal to 1');
+  //   }
+  //
+  //   const { raws, refs } = this.#reference.resolve(resolveAtDepth ?? Infinity);
+  //
+  //   const scalarValues: Array<ScalarValue> = raws.map(
+  //     (r) => new ScalarValue(r, r.path, this._tokenState),
+  //   );
+  //   const aliasReferences: Array<AliasReference> = refs.map(
+  //     (r) => new AliasReference(r, this._tokenState),
+  //   );
+  //
+  //   const mergedValues = [...aliasReferences, ...scalarValues];
+  //
+  //   return makeValueMapper(
+  //     mergedValues.map((v) => ({
+  //       currentValuePath: v.valuePath,
+  //       data: new ValueMapper(v, this._tokenState),
+  //     })),
+  //     this._tokenState,
+  //   ) as any;
+  // }
+
+  /**
+   * Map against the value of the alias reference.
+   * @param callback
+   */
+  map<R>(callback: (value: Value) => R): AliasReference<Type, R> {
+    // @ts-expect-error
+    this.#value = callback(this.#value);
+    return this as any;
+  }
+
+  /**
+   * Map against the shallowly linked value of the alias reference.
+   * @param callback
+   */
+  mapShallowlyLinkedValue<T extends Type, R>(
+    callback: (resolvedToken: Token<T>) => R,
+  ): AliasReference<Type, R | Value> {
+    if (this.#reference.isShallowlyLinked) {
+      this._tokenState.treeState.tokenStates
         .get(this.#reference.toTreePath.array)
         .match({
           Some: (tokenState) => {
@@ -234,35 +272,58 @@ export class AliasReference<
     return this as any;
   }
 
-  mapUnresolvableValue<R>(
-    callback: (unresolvableReference: {
-      from: { treePath: JSONPath; valuePath: JSONPath };
-      to: { treePath: JSONPath };
-    }) => R,
-  ): AliasReference<Type, R> {
-    if (!this.#reference.isShallowlyResolved) {
-      // @ts-expect-error
-      this.#value = callback({
-        from: {
-          treePath: this.#reference.fromTreePath,
-          valuePath: this.#reference.fromValuePath,
-        },
-        to: { treePath: this.#reference.toTreePath },
-      });
+  /**
+   * Map against the deeply linked value of the alias reference.
+   * @param callback
+   */
+  mapDeeplyLinkedToken<T extends Type, R>(
+    callback: (resolvedToken: Token<T>) => R,
+  ): AliasReference<Type, R | Value> {
+    if (this.#reference.isFullyLinked) {
+      this._tokenState.treeState.tokenStates
+        .get(this.#reference.toTreePath.array)
+        .match({
+          Some: (tokenState) => {
+            // @ts-expect-error
+            this.#value = callback(new Token(tokenState));
+          },
+          None: () => {},
+        });
     }
     return this as any;
   }
 
-  mapResolved<R>(
-    callback: (resolvedToken: Extract<Value, ValueMapper>) => R,
-  ): AliasReference<Type, R | Exclude<Value, ValueMapper>> {
-    if (this.#value instanceof ValueMapper) {
+  /**
+   * Map against the shallowly unlinked value of the alias reference.
+   * @param callback
+   */
+  mapShallowlyUnlinkedReference<R>(
+    callback: (unresolvableReference: AliasReference<Type, Value>) => R,
+  ): AliasReference<Type, R | Value> {
+    if (!this.#reference.isShallowlyLinked) {
       // @ts-expect-error
-      this.#value = callback(this.#value);
+      this.#value = callback(this);
     }
     return this as any;
   }
 
+  /**
+   * Map against the deeply unlinked value of the alias reference.
+   * @param callback
+   */
+  mapDeeplyUnlinkedReference<R>(
+    callback: (unresolvableReference: AliasReference<Type, Value>) => R,
+  ): AliasReference<Type, R | Value> {
+    if (!this.#reference.isFullyLinked) {
+      // @ts-expect-error
+      this.#value = callback(this);
+    }
+    return this as any;
+  }
+
+  /**
+   * Unwrap the current value.
+   */
   unwrap() {
     return this.#value;
   }
@@ -276,8 +337,8 @@ export class AliasReference<
   to: {
     treePath: ${this.#reference.toTreePath.toDebugString()},
   },
-  isShallowlyResolved: ${this.#reference.isShallowlyResolved ? 'true' : 'false'},
-  isFullyResolved: ${this.#reference.isFullyResolved ? 'true' : 'false'},
+  isShallowlyResolved: ${this.#reference.isShallowlyLinked ? 'true' : 'false'},
+  isFullyResolved: ${this.#reference.isFullyLinked ? 'true' : 'false'},
 }`;
   }
 
@@ -298,6 +359,10 @@ export class ValueMapper<
     this.#tokenState = tokenState;
   }
 
+  /**
+   * Map against the scalar value of the token.
+   * @param callback
+   */
   mapScalarValue<R>(
     callback: (rawValue: Extract<Value, ScalarValue>) => R,
   ): ValueMapper<R | Exclude<Value, ScalarValue>> {
@@ -308,7 +373,11 @@ export class ValueMapper<
     return this as any;
   }
 
-  mapAliasReference<T extends TokenTypeName, R>(
+  /**
+   * Map against the alias reference of the token.
+   * @param callback
+   */
+  mapAliasReference<R>(
     callback: (reference: Extract<Value, AliasReference>) => R,
   ): ValueMapper<R | Exclude<Value, AliasReference>> {
     if (this.#value instanceof AliasReference) {
@@ -318,6 +387,10 @@ export class ValueMapper<
     return this as any;
   }
 
+  /**
+   * Map against the object-based value of the token.
+   * @param callback
+   */
   mapObjectValue<R>(
     callback: (objectValue: Extract<Value, ObjectValue<any>>) => R,
   ): ValueMapper<R | Exclude<Value, ObjectValue<any>>> {
@@ -328,6 +401,10 @@ export class ValueMapper<
     return this as any;
   }
 
+  /**
+   * Map against the array-based value of the token.
+   * @param callback
+   */
   mapArrayValue<R>(
     callback: (arrayValue: Extract<Value, ArrayValue<any>>) => R,
   ): ValueMapper<R | Exclude<Value, ArrayValue<any>>> {
@@ -338,6 +415,10 @@ export class ValueMapper<
     return this as any;
   }
 
+  /**
+   * Unwrap the current value.
+   * To be called at the end of the chain.
+   */
   unwrap() {
     return this.#value;
   }

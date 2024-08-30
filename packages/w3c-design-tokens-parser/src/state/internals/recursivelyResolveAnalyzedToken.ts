@@ -15,7 +15,7 @@ export function recursivelyResolveAnalyzedToken(
     fromTreePath.length > 0 // do not include the root token in the resolution steps
       ? [
           {
-            status: 'resolved',
+            status: 'linked',
             fromTreePath: JSONPath.fromJSONValuePath(fromTreePath),
             fromValuePath: JSONPath.fromJSONValuePath(fromValuePath),
             toTreePath: JSONPath.fromJSONValuePath(analyzedToken.path),
@@ -41,7 +41,7 @@ export function recursivelyResolveAnalyzedToken(
         },
         None: () => [
           {
-            status: 'unresolvable',
+            status: 'unlinked',
             fromTreePath: JSONPath.fromJSONValuePath(ref.fromTreePath),
             fromValuePath: JSONPath.fromJSONValuePath(ref.fromValuePath),
             toTreePath: JSONPath.fromJSONValuePath(ref.toTreePath),

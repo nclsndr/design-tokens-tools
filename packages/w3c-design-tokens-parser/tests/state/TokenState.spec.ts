@@ -109,7 +109,7 @@ describe('TokenState', () => {
         cubicBezierToken,
         aliasedBorder: {
           $type: 'border',
-          $value: '{colorToken}',
+          $value: '{borderToken}',
         },
         deepAliasedBorder: {
           $type: 'border',
@@ -183,6 +183,10 @@ describe('TokenState', () => {
         {
           $type: 'cubicBezier',
           $value: [0, 1, 1, 0],
+        },
+        {
+          $type: 'border',
+          $value: '{borderToken}',
         },
         {
           $type: 'border',

@@ -105,15 +105,27 @@ describe('parseDesignTokens', () => {
 
       const res = token
         .getValueMapper({
-          resolveAtDepth: Infinity,
+          resolveAtDepth: 1,
         })
         .mapScalarValue((r) => {
           return r.raw;
         })
         .mapAliasReference((a) => {
-          // TODO @Nico: NO CONSOLE
-          console.log('a:', a);
-          return JSON.stringify(a.to.treePath);
+          const rr = a
+            .mapDeeplyLinkedToken((t) => {
+              return null;
+            })
+            .mapShallowlyLinkedValue((ref) => {
+              return true;
+            })
+            .map((value) => {
+              if (typeof value === 'string') {
+                return [value];
+              }
+              return value;
+            })
+            .unwrap();
+          return rr;
         })
         .unwrap();
       // TODO @Nico: NO CONSOLE
@@ -121,16 +133,32 @@ describe('parseDesignTokens', () => {
 
       const mappedValue = token
         .getValueMapper()
-        .mapAliasReference((a) => {
-          // throw new Error('Should not have aliases');
-          // const res = a.resolve();
-          // res.mapResolved((r) => {});
-          return `{${a.to.treePath.string}}`;
+        .mapAliasReference((ref) => {
+          const maybeToken = ref.getToken();
+          if (maybeToken) {
+            return maybeToken
+              .getValueMapper({ resolveAtDepth: 10 })
+              .mapAliasReference((ref) => {
+                return JSON.stringify(ref.to.treePath.array);
+              })
+              .mapScalarValue((r) => {
+                return r.raw;
+              })
+              .unwrap();
+          }
+
+          return maybeToken;
+          // const resolved = ref.resolve();
+          // resolved.mapScalarValue((r) => {
+          //   return r.raw;
+          // });
         })
         .mapScalarValue((r) => {
           return r.raw;
         })
         .unwrap();
+
+      console.log('mappedValue:', mappedValue);
     });
 
     tokenTree.mapTokensByType('border', (token) => {
@@ -143,18 +171,11 @@ describe('parseDesignTokens', () => {
         })
         .unwrap();
 
-      token
-        .getValueMapper()
-        .mapAliasReference((a) => {
-          // throw new Error('Should not have aliases');
-          // a.mapResolvedValue((r) => {
-          //   // TODO @Nico: NO CONSOLE
-          //   console.log('mapResolvedValue r:', r);
-          //   r.getValueMapper();
-          //   return r.getJSONValue();
-          // });
-          return `{${a.to.treePath.string}}`;
+      const mapped = token
+        .getValueMapper({
+          resolveAtDepth: 5,
         })
+        .mapAliasReference((a) => `{${a.to.treePath.string}}`)
         .mapObjectValue((objectValue) => {
           return objectValue
             .mapKey('color', (c) => {
@@ -162,9 +183,7 @@ describe('parseDesignTokens', () => {
                 .mapScalarValue((r) => {
                   return r.raw;
                 })
-                .mapAliasReference((a) => {
-                  return JSON.stringify(a.to.treePath);
-                })
+                .mapAliasReference((a) => `{${a.to.treePath.string}}`)
                 .unwrap();
             })
             .mapKey('width', (w) => {
@@ -172,9 +191,7 @@ describe('parseDesignTokens', () => {
                 .mapScalarValue((r) => {
                   return r.raw;
                 })
-                .mapAliasReference((a) => {
-                  return JSON.stringify(a.from);
-                })
+                .mapAliasReference((a) => `{${a.to.treePath.string}}`)
                 .unwrap();
             })
             .mapKey('style', (s) => {
@@ -182,6 +199,7 @@ describe('parseDesignTokens', () => {
                 .mapScalarValue((r) => {
                   return r.raw;
                 })
+                .mapAliasReference((a) => `{${a.to.treePath.string}}`)
                 .mapObjectValue((o) => {
                   return o
                     .mapKey('dashArray', (da) => {
@@ -191,8 +209,8 @@ describe('parseDesignTokens', () => {
                             .mapItems((v, i) => {
                               return v
                                 .mapScalarValue((s) => s.raw)
-                                .mapAliasReference((a) =>
-                                  JSON.stringify(a.from),
+                                .mapAliasReference(
+                                  (a) => `{${a.to.treePath.string}}`,
                                 )
                                 .unwrap();
                             })
@@ -214,6 +232,9 @@ describe('parseDesignTokens', () => {
             .unwrap();
         })
         .unwrap();
+
+      // TODO @Nico: NO CONSOLE
+      console.log('mapped:', mapped);
 
       // console.log('mappedValue:', mappedValue);
     });

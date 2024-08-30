@@ -47,4 +47,12 @@ export class TreeNodesSet<T extends TreeNode> {
     console.info('TreeNodesSet:');
     this.#nodes.forEach((node) => console.info(node));
   }
+
+  map<U>(fn: (node: T, i: number, xs: Array<T>) => U): Array<U> {
+    return Array.from(this.#nodes).map(fn);
+  }
+
+  [Symbol.iterator]() {
+    return this.#nodes.values();
+  }
 }

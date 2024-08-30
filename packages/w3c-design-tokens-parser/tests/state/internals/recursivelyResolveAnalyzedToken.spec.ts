@@ -5,7 +5,7 @@ import { parseJSONTokenTree } from '../../../src/parser/parseJSONTokenTree';
 import { recursivelyResolveAnalyzedToken } from '../../../src/state/internals/recursivelyResolveAnalyzedToken';
 
 describe('recursivelyResolveAnalyzedToken', () => {
-  it('should list a top level resolved reference', () => {
+  it('should list a top level linked reference', () => {
     const tokenTree = {
       aColor: {
         $type: 'color',
@@ -41,7 +41,7 @@ describe('recursivelyResolveAnalyzedToken', () => {
       })),
     ).toStrictEqual([
       {
-        status: 'resolved',
+        status: 'linked',
         fromTreePath: ['bColor'],
         fromValuePath: [],
         targetType: 'color',
@@ -49,7 +49,7 @@ describe('recursivelyResolveAnalyzedToken', () => {
       },
     ]);
   });
-  it('should list a top level unresolvable reference', () => {
+  it('should list a top level unlinked reference', () => {
     const tokenTree = {
       semantic: {
         primary: {
@@ -84,14 +84,14 @@ describe('recursivelyResolveAnalyzedToken', () => {
       })),
     ).toStrictEqual([
       {
-        status: 'unresolvable',
+        status: 'unlinked',
         fromTreePath: ['semantic', 'primary'],
         fromValuePath: [],
         toTreePath: ['base', 'blue'],
       },
     ]);
   });
-  it('should list a deep top level resolvable reference', () => {
+  it('should list a deep top level linked reference', () => {
     const tokenTree = {
       base: {
         blue: {
@@ -137,21 +137,21 @@ describe('recursivelyResolveAnalyzedToken', () => {
       })),
     ).toStrictEqual([
       {
-        status: 'resolved',
+        status: 'linked',
         fromTreePath: ['semantic', 'accent'],
         fromValuePath: [],
         toTreePath: ['semantic', 'solid'],
         targetType: 'color',
       },
       {
-        status: 'resolved',
+        status: 'linked',
         fromTreePath: ['semantic', 'solid'],
         fromValuePath: [],
         toTreePath: ['semantic', 'primary'],
         targetType: 'color',
       },
       {
-        status: 'resolved',
+        status: 'linked',
         fromTreePath: ['semantic', 'primary'],
         fromValuePath: [],
         toTreePath: ['base', 'blue'],
@@ -159,7 +159,7 @@ describe('recursivelyResolveAnalyzedToken', () => {
       },
     ]);
   });
-  it('should list a deep top level unresolvable reference', () => {
+  it('should list a deep top level unlinked reference', () => {
     const tokenTree = {
       semantic: {
         primary: {
@@ -198,21 +198,21 @@ describe('recursivelyResolveAnalyzedToken', () => {
       })),
     ).toStrictEqual([
       {
-        status: 'resolved',
+        status: 'linked',
         fromTreePath: ['semantic', 'solid'],
         fromValuePath: [],
         targetType: 'color',
         toTreePath: ['semantic', 'primary'],
       },
       {
-        status: 'unresolvable',
+        status: 'unlinked',
         fromTreePath: ['semantic', 'primary'],
         fromValuePath: [],
         toTreePath: ['base', 'blue'],
       },
     ]);
   });
-  it('should list nested resolvable references', () => {
+  it('should list nested linked references', () => {
     const tokenTree = {
       color: {
         $type: 'color',
@@ -273,35 +273,35 @@ describe('recursivelyResolveAnalyzedToken', () => {
       })),
     ).toStrictEqual([
       {
-        status: 'resolved',
+        status: 'linked',
         fromTreePath: ['border', 'solid'],
         fromValuePath: ['color'],
         toTreePath: ['color', 'primary'],
         targetType: 'color',
       },
       {
-        status: 'resolved',
+        status: 'linked',
         fromTreePath: ['color', 'primary'],
         fromValuePath: [],
         toTreePath: ['color', 'blueAliased'],
         targetType: 'color',
       },
       {
-        status: 'resolved',
+        status: 'linked',
         fromTreePath: ['color', 'blueAliased'],
         fromValuePath: [],
         toTreePath: ['color', 'blue'],
         targetType: 'color',
       },
       {
-        status: 'resolved',
+        status: 'linked',
         fromTreePath: ['border', 'solid'],
         fromValuePath: ['width'],
         toTreePath: ['spacing', 'border'],
         targetType: 'dimension',
       },
       {
-        status: 'resolved',
+        status: 'linked',
         fromTreePath: ['spacing', 'border'],
         fromValuePath: [],
         toTreePath: ['spacing', '0_25'],

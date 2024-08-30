@@ -6,13 +6,7 @@ import {
 
 import { TokenState } from '../state/TokenState.js';
 import { Reference } from '../state/Reference.js';
-import {
-  AliasReference,
-  makeValueMapper,
-  PickSwappedValueSignature,
-  ScalarValue,
-  ValueMapper,
-} from '../state/ValueMapper.js';
+import { PickSwappedValueSignature } from '../state/ValueMapper.js';
 
 export class Token<Type extends TokenTypeName = TokenTypeName> {
   readonly #state: TokenState;
@@ -21,22 +15,44 @@ export class Token<Type extends TokenTypeName = TokenTypeName> {
     this.#state = state;
   }
 
+  /**
+   * The token path in the tree
+   */
   get path(): JSON.ValuePath {
     return this.#state.path;
   }
 
+  /**
+   * The token string representation of the path
+   */
   get stringPath() {
     return this.#state.stringPath;
   }
 
+  /**
+   * The token type
+   */
+  get type(): TokenTypeName {
+    return this.#state.type;
+  }
+
+  /**
+   * The token description
+   */
   get description() {
     return this.#state.description;
   }
 
+  /**
+   * The token extensions
+   */
   get extensions() {
     return this.#state.extensions;
   }
 
+  /**
+   * The token main data
+   */
   get summary(): {
     path: JSON.ValuePath;
     type: TokenTypeName;
@@ -59,6 +75,10 @@ export class Token<Type extends TokenTypeName = TokenTypeName> {
      Value consumption methods
   --------------------------------------------- */
 
+  /**
+   * Get the ValueMapper utility to work with the token value
+   * @param options
+   */
   getValueMapper(options?: {
     resolveAtDepth?: number;
   }): PickSwappedValueSignature<Type> {
@@ -70,14 +90,23 @@ export class Token<Type extends TokenTypeName = TokenTypeName> {
      JSON methods
   --------------------------------------------- */
 
+  /**
+   * Get the JSON representation of the token value
+   */
   getJSONValue() {
     return this.#state.getJSONValue();
   }
 
+  /**
+   * Get the JSON representation of the token
+   */
   getJSONToken() {
     return this.#state.getJSONToken();
   }
 
+  /**
+   * Get the JSON representation of the token state
+   */
   toJSON() {
     return this.#state.toJSON();
   }

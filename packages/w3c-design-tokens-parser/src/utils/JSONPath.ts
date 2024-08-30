@@ -1,4 +1,8 @@
-import { type JSON, ALIAS_PATH_SEPARATOR } from 'design-tokens-format-module';
+import {
+  type JSON,
+  ALIAS_PATH_SEPARATOR,
+  AliasValue,
+} from 'design-tokens-format-module';
 
 /**
  * A path is a sequence of strings and numbers that represent a path to a value in a JSON object.
@@ -69,6 +73,10 @@ export class JSONPath {
 
   concat(...paths: Array<JSON.ValuePath>) {
     return new JSONPath([...this.#array, ...paths.flat()]);
+  }
+
+  toDesignTokenAliasPath(): AliasValue {
+    return `{${this.#string}}`;
   }
 
   toString() {

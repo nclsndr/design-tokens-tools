@@ -9,22 +9,44 @@ export class Group {
     this.#state = state;
   }
 
+  /**
+   * The group path in the tree
+   */
   get path(): JSON.ValuePath {
     return this.#state.path;
   }
 
+  /**
+   * The group string representation of the path
+   */
   get stringPath() {
     return this.#state.stringPath;
   }
 
+  /**
+   * The group token type
+   */
+  get tokenType() {
+    return this.#state.tokenType;
+  }
+
+  /**
+   * The group description
+   */
   get description() {
     return this.#state.description;
   }
 
+  /**
+   * The group extensions
+   */
   get extensions() {
     return this.#state.extensions;
   }
 
+  /**
+   * The group main data
+   */
   get summary(): {
     path: JSON.ValuePath;
     type: TokenTypeName | undefined;
@@ -39,10 +61,16 @@ export class Group {
     };
   }
 
+  /**
+   * Get the JSON properties - type, description, extensions - of the group
+   */
   getJSONProperties() {
     return this.#state.getJSONProperties();
   }
 
+  /**
+   * Get the JSON representation of the group
+   */
   toJSON() {
     return this.#state.toJSON();
   }

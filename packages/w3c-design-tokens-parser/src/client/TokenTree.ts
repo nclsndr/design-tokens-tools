@@ -16,38 +16,58 @@ export class TokenTree {
     this.#treeState = treeState;
   }
 
+  /**
+   * Get validation errors
+   */
   getErrors() {
     return this.#treeState.validationErrors.nodes;
   }
 
   /* ------------------------------------------
-     Token methods
+   Token methods
   --------------------------------------------- */
 
+  /**
+   * Get all tokens in the tree
+   */
   getAllTokens() {
     return this.#treeState.tokenStates.nodes.map(
       (tokenState) => new Token(tokenState),
     );
   }
 
+  /**
+   * Get all tokens of a specific type
+   */
   getAllTokensByType(type: TokenTypeName) {
     return this.#treeState.tokenStates.nodes
       .filter((tokenState) => tokenState.type === type)
       .map((tokenState) => new Token(tokenState));
   }
 
+  /**
+   * Get a token by its path
+   * @param path
+   */
   getToken(path: JSON.ValuePath) {
     return this.#treeState.tokenStates
       .get(path)
       .map((tokenState) => new Token(tokenState));
   }
 
+  /**
+   * Map over all tokens
+   * @param callback
+   */
   mapTokens<T>(callback: (token: Token) => T) {
     return this.#treeState.tokenStates.nodes.map((tokenState) =>
       callback(new Token(tokenState)),
     );
   }
 
+  /**
+   * Map over all tokens of a specific type
+   */
   mapTokensByType<T extends TokenTypeName, R>(
     type: T,
     callback: (token: Token<T>) => R,
@@ -61,18 +81,29 @@ export class TokenTree {
      Group methods
   --------------------------------------------- */
 
+  /**
+   * Get all groups in the tree
+   */
   getAllGroups() {
     return this.#treeState.groupStates.nodes.map(
       (groupState) => new Group(groupState),
     );
   }
 
+  /**
+   * Get a group by its path
+   * @param path
+   */
   getGroup(path: JSON.ValuePath) {
     return this.#treeState.groupStates
       .get(path)
       .map((groupState) => new Group(groupState));
   }
 
+  /**
+   * Map over all groups
+   * @param callback
+   */
   mapGroups<T>(callback: (group: Group) => T) {
     return this.#treeState.groupStates.nodes.map((groupState) =>
       callback(new Group(groupState)),
@@ -83,6 +114,9 @@ export class TokenTree {
      Misc
   --------------------------------------------- */
 
+  /**
+   * Get the JSON representation of the token tree
+   */
   toJSON() {
     const acc: JSONTokenTree = {};
     for (const group of this.#treeState.groupStates.nodes) {

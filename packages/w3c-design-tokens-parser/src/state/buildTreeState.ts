@@ -1,15 +1,14 @@
+import { Option, Result } from '@swan-io/boxed';
+
 import { parseJSONTokenTree } from '../parser/parseJSONTokenTree.js';
+import { findAnalyzedToken } from '../parser/internals/findAnalyzedToken.js';
+import { recursivelyResolveAnalyzedToken } from './internals/recursivelyResolveAnalyzedToken.js';
+import { ValidationError } from '../utils/validationError.js';
+import { matchTokenTypeAgainstAliasingMapping } from '../definitions/matchTokenTypeAgainstAliasingMapping.js';
 import { TokenState } from './TokenState.js';
 import { TreeState } from './TreeState.js';
 import { GroupState } from './GroupState.js';
-import { findAnalyzedToken } from '../parser/internals/findAnalyzedToken.js';
-import { recursivelyResolveAnalyzedToken } from './internals/recursivelyResolveAnalyzedToken.js';
 import { Reference } from './Reference.js';
-import { ValidationError } from '../utils/validationError.js';
-import { Option, Result } from '@swan-io/boxed';
-
-import { matchTokenTypeAgainstAliasingMapping } from '../definitions/matchTokenTypeAgainstAliasingMapping.js';
-import { JSONPath } from '../utils/JSONPath.js';
 
 export function buildTreeState(value: unknown) {
   const treeState = new TreeState();
@@ -34,9 +33,6 @@ export function buildTreeState(value: unknown) {
         ]
       >(
         (acc, analyzedToken) => {
-          /* ------------------------------------------
-             References check
-          --------------------------------------------- */
           analyzedToken.value.toReferences
             .reduce<Result<Array<Reference>, Array<ValidationError>>>(
               (refsResult, analyzedReference) =>
@@ -58,7 +54,7 @@ export function buildTreeState(value: unknown) {
                           // abort early
                           return previous;
                         }
-                        if (index === 0 && trace.status === 'resolved') {
+                        if (index === 0 && trace.status === 'linked') {
                           // perform type check only on the first trace
                           return matchTokenTypeAgainstAliasingMapping(
                             analyzedToken.type,
@@ -97,7 +93,6 @@ export function buildTreeState(value: unknown) {
                             analyzedReference.fromValuePath,
                             analyzedReference.toTreePath,
                             foundAnalyzedToken.type,
-                            resolutionTraces,
                             treeState,
                           );
                           return refsResult.map((refs) => [...refs, reference]);
@@ -110,20 +105,6 @@ export function buildTreeState(value: unknown) {
                       analyzedReference.fromValuePath,
                       analyzedReference.toTreePath,
                       undefined,
-                      [
-                        {
-                          status: 'unresolvable',
-                          fromTreePath: JSONPath.fromJSONValuePath(
-                            analyzedReference.fromValuePath,
-                          ),
-                          fromValuePath: JSONPath.fromJSONValuePath(
-                            analyzedReference.fromValuePath,
-                          ),
-                          toTreePath: JSONPath.fromJSONValuePath(
-                            analyzedReference.toTreePath,
-                          ),
-                        },
-                      ],
                       treeState,
                     );
                     return refsResult.map((refs) => [...refs, reference]);

@@ -16,10 +16,6 @@ import {
   ScalarValue,
   ValueMapper,
 } from './ValueMapper.js';
-import { ReferenceResolutionTrace } from './internals/ReferenceResolutionTrace.js';
-import { RawValuePart } from './RawValuePart.js';
-import { JSONPath } from '../utils/JSONPath.js';
-import { Reference } from './Reference.js';
 
 export class TokenState<
   Type extends TokenTypeName = TokenTypeName,
@@ -68,14 +64,14 @@ export class TokenState<
     resolveAtDepth?: number;
   }): PickSwappedValueSignature<Type> {
     const { resolveAtDepth } = options ?? {};
-    if (typeof resolveAtDepth === 'number' && resolveAtDepth < 1) {
-      throw new Error('Depth must be greater or equal to 1');
+    if (typeof resolveAtDepth === 'number' && resolveAtDepth < 0) {
+      throw new Error('Depth must be greater or equal to 0');
     }
 
     const aliasReferences: Array<AliasReference> = [];
     const scalarValues: Array<ScalarValue> = [];
 
-    if (resolveAtDepth !== undefined) {
+    if (resolveAtDepth !== undefined && resolveAtDepth !== 0) {
       for (const ref of this.references) {
         const { raws, refs } = ref.resolve(resolveAtDepth ?? Infinity);
         scalarValues.push(...raws.map((r) => new ScalarValue(r, r.path, this)));
