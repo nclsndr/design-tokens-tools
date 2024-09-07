@@ -1,0 +1,40 @@
+{
+  "color": {
+    "$type": "color",
+    "blue": {
+      "100": {
+        "$value": "#e6e6ff"
+      },
+      "200": {
+        "$value": "#bebeed"
+      },
+      "300": {
+        "$value": "#9494db"
+      },
+      "400": {
+        "$value": "#6b6bc9"
+      },
+      "500": {
+        "$value": "#4242b7"
+      },
+      "600": {
+        "$value": "#1a1aa6"
+      }
+    }
+  },
+  "spacing": {
+    "$type": "dimension",
+    "1": {
+      "$value": "4px"
+    },
+    "2": {
+      "$value": "8px"
+    },
+    "3": {
+      "$value": "12px"
+    },
+    "4": {
+      "$value": "16px"
+    }
+  }
+}

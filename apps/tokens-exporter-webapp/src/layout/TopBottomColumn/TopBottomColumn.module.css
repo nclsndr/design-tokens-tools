@@ -1,0 +1,12 @@
+.column {
+  display: grid;
+  grid-template-columns: 1fr;
+  height: 100%;
+  overflow: hidden;
+}
+.columnNormal {
+  grid-template-rows: 1fr min-content;
+}
+.columnExpanded {
+  grid-template-rows: 60% 40%;
+}

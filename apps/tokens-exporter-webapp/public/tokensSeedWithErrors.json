@@ -1,0 +1,24 @@
+{
+  "color": {
+    "blue": {
+      "100": {
+        "$type": "color",
+        "$value": "Invalid color"
+      },
+      "200": {
+        "$type": "color",
+        "$value": "#bebeed"
+      }
+    }
+  },
+  "spacing": {
+    "1": {
+      "$type": "dimension",
+      "$value": 42
+    },
+    "2": {
+      "$type": "dimension",
+      "$value": "{color.blue.100}"
+    }
+  }
+}

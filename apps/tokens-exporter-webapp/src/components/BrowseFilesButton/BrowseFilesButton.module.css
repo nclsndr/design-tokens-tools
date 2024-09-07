@@ -1,0 +1,15 @@
+.box {
+  position: relative;
+  cursor: grab;
+}
+.box span {
+  z-index: 0;
+}
+.box input {
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: red;
+  opacity: 0;
+}

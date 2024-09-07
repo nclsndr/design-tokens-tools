@@ -1,0 +1,10 @@
+.panel {
+  display: grid;
+  grid-template-rows: min-content 1fr;
+}
+.withBorder {
+  border-left: 1px solid var(--gray-6);
+}
+.p_header {
+  border-bottom: 1px solid var(--gray-6);
+}
