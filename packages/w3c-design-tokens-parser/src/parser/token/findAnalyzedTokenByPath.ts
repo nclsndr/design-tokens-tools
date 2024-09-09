@@ -3,7 +3,7 @@ import { type JSON, ALIAS_PATH_SEPARATOR } from 'design-tokens-format-module';
 
 import { AnalyzedToken } from './AnalyzedToken.js';
 
-export function findAnalyzedToken(
+export function findAnalyzedTokenByPath(
   analyzedTokens: Array<AnalyzedToken>,
   refPath: string | JSON.ValuePath,
 ): Option<AnalyzedToken> {

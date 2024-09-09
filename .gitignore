@@ -1,9 +1,8 @@
 node_modules
 
-.idea
-.vscode
+**/.idea
+**/.vscode
 
-.env.*
-
-dist
+**/dist
 coverage
+**/benchmark/output

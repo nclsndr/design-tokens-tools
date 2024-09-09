@@ -7,7 +7,11 @@ export class ValidationErrorsSet {
     return this.#errors.slice();
   }
 
-  register(...errors: Array<ValidationError>) {
+  get size() {
+    return this.#errors.length;
+  }
+
+  add(...errors: Array<ValidationError>) {
     this.#errors.push(...errors);
   }
 }

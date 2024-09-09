@@ -41,7 +41,7 @@ describe('TokenState', () => {
 
       const treeState = buildTreeState(tokens);
 
-      const values = treeState.tokenStates.nodes.map((t) => t.getJSONToken());
+      const values = treeState.tokenStates.map((t) => t.getJSONToken());
 
       expect(values).toStrictEqual([
         {
@@ -100,6 +100,7 @@ describe('TokenState', () => {
         },
       ]);
     });
+
     it('should parse a token tree of alias values', () => {
       const tokens: JSONTokenTree = {
         borderToken,
@@ -148,7 +149,7 @@ describe('TokenState', () => {
 
       const treeState = buildTreeState(tokens);
 
-      const values = treeState.tokenStates.nodes.map((t) => t.getJSONToken());
+      const values = treeState.tokenStates.map((t) => t.getJSONToken());
 
       expect(values).toStrictEqual([
         {

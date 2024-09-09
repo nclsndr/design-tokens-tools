@@ -17,6 +17,18 @@ export class TokenTree {
   }
 
   /**
+   * Get a glimpse of the token tree state
+   */
+  get summary() {
+    return {
+      tokens: this.#treeState.tokenStates.size,
+      groups: this.#treeState.groupStates.size,
+      references: this.#treeState.references.size,
+      validationErrors: this.#treeState.validationErrors.size,
+    };
+  }
+
+  /**
    * Get validation errors
    */
   getErrors() {
@@ -31,7 +43,7 @@ export class TokenTree {
    * Get all tokens in the tree
    */
   getAllTokens() {
-    return this.#treeState.tokenStates.nodes.map(
+    return this.#treeState.tokenStates.map(
       (tokenState) => new Token(tokenState),
     );
   }
@@ -51,18 +63,20 @@ export class TokenTree {
    */
   getToken(path: JSON.ValuePath) {
     return this.#treeState.tokenStates
-      .get(path)
+      .getOneByPath(path)
       .map((tokenState) => new Token(tokenState));
   }
 
   /**
-   * Map over all tokens
-   * @param callback
+   * Get a token of a specific type by its path
+   * @param type
+   * @param path
    */
-  mapTokens<T>(callback: (token: Token) => T) {
-    return this.#treeState.tokenStates.nodes.map((tokenState) =>
-      callback(new Token(tokenState)),
-    );
+  getTokenOfType<T extends TokenTypeName>(type: T, path: JSON.ValuePath) {
+    return this.#treeState.tokenStates
+      .getOneByPath(path)
+      .filter((tokenState) => tokenState.type === type)
+      .map((tokenState) => new Token<T>(tokenState));
   }
 
   /**
@@ -85,7 +99,7 @@ export class TokenTree {
    * Get all groups in the tree
    */
   getAllGroups() {
-    return this.#treeState.groupStates.nodes.map(
+    return this.#treeState.groupStates.map(
       (groupState) => new Group(groupState),
     );
   }
@@ -96,18 +110,8 @@ export class TokenTree {
    */
   getGroup(path: JSON.ValuePath) {
     return this.#treeState.groupStates
-      .get(path)
+      .getOneByPath(path)
       .map((groupState) => new Group(groupState));
-  }
-
-  /**
-   * Map over all groups
-   * @param callback
-   */
-  mapGroups<T>(callback: (group: Group) => T) {
-    return this.#treeState.groupStates.nodes.map((groupState) =>
-      callback(new Group(groupState)),
-    );
   }
 
   /* ------------------------------------------

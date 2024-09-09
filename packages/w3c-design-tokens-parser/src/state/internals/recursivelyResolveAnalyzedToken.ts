@@ -1,7 +1,7 @@
 import { type JSON } from 'design-tokens-format-module';
 
-import { AnalyzedToken } from '../../parser/internals/AnalyzedToken.js';
-import { findAnalyzedToken } from '../../parser/internals/findAnalyzedToken.js';
+import { AnalyzedToken } from '../../parser/token/AnalyzedToken.js';
+import { findAnalyzedTokenByPath } from '../../parser/token/findAnalyzedTokenByPath.js';
 import { ReferenceResolutionTrace } from './ReferenceResolutionTrace.js';
 import { JSONPath } from '../../utils/JSONPath.js';
 
@@ -30,7 +30,7 @@ export function recursivelyResolveAnalyzedToken(
 
   return acc.concat(
     analyzedToken.value.toReferences.flatMap((ref) => {
-      return findAnalyzedToken(analyzedTokens, ref.toTreePath).match({
+      return findAnalyzedTokenByPath(analyzedTokens, ref.toTreePath).match({
         Some: (at) => {
           return recursivelyResolveAnalyzedToken(
             analyzedTokens,

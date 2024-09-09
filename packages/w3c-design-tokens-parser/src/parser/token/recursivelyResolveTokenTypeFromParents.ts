@@ -26,6 +26,7 @@ export function recursivelyResolveTokenTypeFromParents(
     return Result.Error([
       new ValidationError({
         type: 'Value',
+        nodeId: '',
         treePath: originalPath,
         valuePath: undefined,
         message: `Could not resolve $type for token at path: "${originalPath.join(ALIAS_PATH_SEPARATOR)}".`,
@@ -48,6 +49,7 @@ export function recursivelyResolveTokenTypeFromParents(
       return Result.Error([
         new ValidationError({
           type: 'Value',
+          nodeId: '',
           treePath: originalPath,
           valuePath: undefined,
           message,
@@ -61,6 +63,7 @@ export function recursivelyResolveTokenTypeFromParents(
     return Result.Error([
       new ValidationError({
         type: 'Value',
+        nodeId: '',
         treePath: originalPath,
         valuePath: undefined,
         message: `Could not resolve $type from token up to root.`,

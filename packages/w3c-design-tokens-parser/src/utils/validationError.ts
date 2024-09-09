@@ -3,6 +3,7 @@ import { type JSON } from 'design-tokens-format-module';
 export class ValidationError extends Error {
   type: 'Type' | 'Value' | 'Computation';
   isCritical: boolean;
+  nodeId: string;
   treePath: JSON.ValuePath;
   nodeKey: '$type' | '$value' | '$description' | '$extensions' | undefined;
   valuePath: JSON.ValuePath;
@@ -11,6 +12,7 @@ export class ValidationError extends Error {
   constructor({
     type,
     message,
+    nodeId,
     treePath,
     nodeKey,
     valuePath,
@@ -19,6 +21,7 @@ export class ValidationError extends Error {
   }: {
     type: 'Type' | 'Value' | 'Computation';
     message: string;
+    nodeId: string;
     treePath: JSON.ValuePath;
     nodeKey?: '$type' | '$value' | '$description' | '$extensions' | undefined;
     valuePath?: JSON.ValuePath | undefined;
@@ -29,6 +32,7 @@ export class ValidationError extends Error {
     this.type = type;
     this.name = 'ValidationError';
     this.treePath = treePath;
+    this.nodeId = nodeId;
     this.nodeKey = nodeKey;
     this.valuePath = valuePath ?? [];
     this.referenceToTreePath = referenceToTreePath;
@@ -38,6 +42,7 @@ export class ValidationError extends Error {
   toJSON(): {
     type: 'Type' | 'Value' | 'Computation';
     isCritical: boolean;
+    nodeId: string;
     treePath: JSON.ValuePath;
     nodeKey: '$type' | '$value' | '$description' | '$extensions' | undefined;
     valuePath: JSON.ValuePath;
@@ -47,6 +52,7 @@ export class ValidationError extends Error {
     return {
       type: this.type,
       isCritical: this.isCritical,
+      nodeId: this.nodeId,
       treePath: this.treePath,
       nodeKey: this.nodeKey,
       valuePath: this.valuePath,
@@ -59,6 +65,7 @@ export class ValidationError extends Error {
     return `ValidationError {
   type: "${this.type}",
   isCritical: ${this.isCritical},
+  nodeId: "${this.nodeId}",
   treePath: ${JSON.stringify(this.treePath)},
   nodeKey: ${this.nodeKey !== undefined ? `"${this.nodeKey}"` : 'undefined'},
   valuePath: ${JSON.stringify(this.valuePath)},
@@ -69,14 +76,6 @@ export class ValidationError extends Error {
 
   // Override console.log in Node.js environment
   [Symbol.for('nodejs.util.inspect.custom')](_depth: unknown, _opts: unknown) {
-    return `ValidationError {
-  type: "${this.type}",
-  isCritical: ${this.isCritical},
-  treePath: ${JSON.stringify(this.treePath)},
-  nodeKey: ${this.nodeKey !== undefined ? `"${this.nodeKey}"` : 'undefined'},
-  valuePath: ${JSON.stringify(this.valuePath)},
-  referenceToTreePath: ${this.referenceToTreePath ? JSON.stringify(this.referenceToTreePath) : 'undefined'},
-  message: "${this.message}",
-}`;
+    return this.toString();
   }
 }

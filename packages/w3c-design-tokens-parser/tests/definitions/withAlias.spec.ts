@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { Result } from '@swan-io/boxed';
 
 import { ValidationError } from '../../src/utils/validationError';
-import { AnalyzedValue } from '../../src/parser/internals/AnalyzedToken';
-import { AnalyzerContext } from '../../src/parser/internals/AnalyzerContext';
+import { AnalyzedValue } from '../../src/parser/token/AnalyzedToken';
+import { AnalyzerContext } from '../../src/parser/utils/AnalyzerContext';
 import { withAlias } from '../../src/definitions/withAlias';
 
 describe.concurrent('withAlias', () => {
@@ -16,6 +16,7 @@ describe.concurrent('withAlias', () => {
         return Result.Error([
           new ValidationError({
             type: 'Type',
+            nodeId: ctx.nodeId,
             treePath: ctx.path,
             message: `${ctx.varName} must be a boolean. Got "${typeof value}".`,
           }),
@@ -33,6 +34,7 @@ describe.concurrent('withAlias', () => {
     const result1 = parseBool('{my.alias}', {
       varName: 'alias',
       valuePath: [],
+      nodeId: 'abc',
       path: ['alias'],
     });
 
@@ -49,6 +51,7 @@ describe.concurrent('withAlias', () => {
     const result2 = parseBool(true, {
       varName: 'bool',
       valuePath: [],
+      nodeId: 'abc',
       path: ['bool'],
     });
 
@@ -67,6 +70,7 @@ describe.concurrent('withAlias', () => {
         return Result.Error([
           new ValidationError({
             type: 'Type',
+            nodeId: ctx.nodeId,
             treePath: ctx.path,
             message: `${ctx.varName} must be a boolean. Got "${typeof value}".`,
           }),
@@ -80,8 +84,9 @@ describe.concurrent('withAlias', () => {
 
     const result1 = parseBool(42, {
       varName: 'aReferencingToken',
-      valuePath: [],
+      nodeId: 'abc',
       path: ['aReferencingToken'],
+      valuePath: [],
     });
 
     expect(result1.isError()).toBe(true);
@@ -93,6 +98,7 @@ describe.concurrent('withAlias', () => {
     const result2 = parseBool('a string', {
       varName: 'bool',
       valuePath: [],
+      nodeId: 'abc',
       path: ['bool'],
     });
 

@@ -4,18 +4,23 @@ import {
   TokenTypeName,
   GroupProperties,
 } from 'design-tokens-format-module';
+import { TreeState } from './TreeState.js';
 
 export class GroupState extends TreeNode {
+  #treeState: TreeState;
   #tokenType: TokenTypeName | undefined;
 
   constructor(
+    id: string,
     path: JSON.ValuePath,
     tokenType: TokenTypeName | undefined,
     description: string | undefined,
     extensions: Record<string, any> | undefined,
+    treeState: TreeState,
   ) {
-    super(path, description, extensions);
+    super(id, path, description, extensions);
     this.#tokenType = tokenType;
+    this.#treeState = treeState;
   }
 
   get tokenType() {

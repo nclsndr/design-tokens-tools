@@ -2,16 +2,19 @@ import { ALIAS_PATH_SEPARATOR, type JSON } from 'design-tokens-format-module';
 import { JSONPath } from '../utils/JSONPath.js';
 
 export class TreeNode {
+  #id: string;
   #arrayPath: JSON.ValuePath;
   #stringPath: string;
   #description: string | undefined;
   #extensions: Record<string, any> | undefined;
 
   constructor(
+    id: string,
     path: JSON.ValuePath,
     description?: string,
     extensions?: Record<string, any>,
   ) {
+    this.#id = id;
     this.#arrayPath = path;
     this.#description = description;
     this.#extensions = extensions;
@@ -19,6 +22,9 @@ export class TreeNode {
     this.#stringPath = path.join(ALIAS_PATH_SEPARATOR);
   }
 
+  get id() {
+    return this.#id;
+  }
   get path(): JSON.ValuePath {
     return this.#arrayPath;
   }

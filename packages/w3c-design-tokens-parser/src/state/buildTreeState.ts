@@ -1,14 +1,10 @@
-import { Option, Result } from '@swan-io/boxed';
-
 import { parseJSONTokenTree } from '../parser/parseJSONTokenTree.js';
-import { findAnalyzedToken } from '../parser/internals/findAnalyzedToken.js';
-import { recursivelyResolveAnalyzedToken } from './internals/recursivelyResolveAnalyzedToken.js';
-import { ValidationError } from '../utils/validationError.js';
-import { matchTokenTypeAgainstAliasingMapping } from '../definitions/matchTokenTypeAgainstAliasingMapping.js';
+import { findAnalyzedTokenByPath } from '../parser/token/findAnalyzedTokenByPath.js';
 import { TokenState } from './TokenState.js';
 import { TreeState } from './TreeState.js';
 import { GroupState } from './GroupState.js';
 import { Reference } from './Reference.js';
+import { captureAnalyzedTokensReferenceErrors } from '../parser/token/captureAnalyzedTokensReferenceErrors.js';
 
 export function buildTreeState(value: unknown) {
   const treeState = new TreeState();
@@ -19,145 +15,78 @@ export function buildTreeState(value: unknown) {
       const [analyzedGroups, groupErrors] = groups;
 
       if (tokenErrors.length > 0 || groupErrors.length > 0) {
-        treeState.validationErrors.register(...tokenErrors);
+        treeState.validationErrors.add(...tokenErrors);
       }
 
-      // Post check the token references type against their type mapping
-      const [validTokens, tokenTypeReferenceErrors] = analyzedTokens.reduce<
-        [
-          Array<{
-            tokenState: TokenState;
-            references: Array<Reference>;
-          }>,
-          Array<ValidationError>,
-        ]
-      >(
-        (acc, analyzedToken) => {
-          analyzedToken.value.toReferences
-            .reduce<Result<Array<Reference>, Array<ValidationError>>>(
-              (refsResult, analyzedReference) =>
-                findAnalyzedToken(
-                  analyzedTokens,
-                  analyzedReference.toTreePath,
-                ).match({
-                  Some: (foundAnalyzedToken) => {
-                    const resolutionTraces = recursivelyResolveAnalyzedToken(
-                      analyzedTokens,
-                      foundAnalyzedToken,
-                      analyzedReference.fromTreePath,
-                      analyzedReference.fromValuePath,
-                    );
+      const { referenceErrors, referenceErrorsFreeAnalyzedTokens } =
+        captureAnalyzedTokensReferenceErrors(analyzedTokens);
 
-                    return resolutionTraces
-                      .reduce<Option<string>>((previous, trace, index) => {
-                        if (previous.isSome()) {
-                          // abort early
-                          return previous;
-                        }
-                        if (index === 0 && trace.status === 'linked') {
-                          // perform type check only on the first trace
-                          return matchTokenTypeAgainstAliasingMapping(
-                            analyzedToken.type,
-                            trace.targetType,
-                            trace.fromTreePath.array,
-                            trace.fromValuePath.array,
-                          ).match({
-                            Ok: (_) => previous,
-                            Error: (err) =>
-                              Option.Some(
-                                `expected [ ${err.expectedType} ] - got Token(${trace.targetType})`,
-                              ),
-                          });
-                        }
-                        return previous;
-                      }, Option.None())
-                      .match({
-                        Some: (errMessage) => {
-                          return refsResult.flatMap((_) =>
-                            Result.Error([
-                              new ValidationError({
-                                type: 'Type',
-                                treePath: analyzedReference.fromTreePath,
-                                valuePath: analyzedReference.fromValuePath,
-                                message: `Type mismatch: ${errMessage}`,
-                                nodeKey: '$value',
-                                referenceToTreePath:
-                                  analyzedReference.toTreePath,
-                              }),
-                            ]),
-                          );
-                        },
-                        None: () => {
-                          const reference = new Reference(
-                            analyzedToken.path,
-                            analyzedReference.fromValuePath,
-                            analyzedReference.toTreePath,
-                            foundAnalyzedToken.type,
-                            treeState,
-                          );
-                          return refsResult.map((refs) => [...refs, reference]);
-                        },
-                      });
-                  },
-                  None: () => {
-                    const reference = new Reference(
-                      analyzedToken.path,
-                      analyzedReference.fromValuePath,
-                      analyzedReference.toTreePath,
-                      undefined,
-                      treeState,
-                    );
-                    return refsResult.map((refs) => [...refs, reference]);
-                  },
-                }),
-              Result.Ok([]),
-            )
-            .match({
-              Ok: (references) => {
-                const tokenState = new TokenState(
-                  analyzedToken.path,
-                  analyzedToken.type,
-                  analyzedToken.description,
-                  analyzedToken.extensions,
-                  treeState,
+      treeState.validationErrors.add(...referenceErrors);
+
+      for (const analyzedToken of referenceErrorsFreeAnalyzedTokens) {
+        const tokenState = new TokenState(
+          analyzedToken.id,
+          analyzedToken.path,
+          analyzedToken.type,
+          analyzedToken.typeResolution,
+          analyzedToken.description,
+          analyzedToken.extensions,
+          treeState,
+        );
+        // Register the raw value parts
+        tokenState.registerAnalyzedValueRawParts(analyzedToken.value);
+
+        // Register token within the tree
+        treeState.tokenStates.add(tokenState);
+
+        // Built up the reference states to add in treeState
+        for (const analyzedRef of analyzedToken.value.toReferences) {
+          findAnalyzedTokenByPath(analyzedTokens, analyzedRef.toTreePath).match(
+            {
+              Some: (foundAnalyzedToken) => {
+                treeState.references.add(
+                  new Reference(
+                    analyzedToken.id,
+                    analyzedRef.fromValuePath,
+                    foundAnalyzedToken.id,
+                    undefined,
+                    foundAnalyzedToken.type,
+                    treeState,
+                  ),
                 );
-                tokenState.registerAnalyzedValue(analyzedToken.value);
-
-                acc[0].push({ tokenState, references });
               },
-              Error: (errors) => {
-                acc[1].push(...errors);
+              None: () => {
+                treeState.references.add(
+                  new Reference(
+                    analyzedToken.id,
+                    analyzedRef.fromValuePath,
+                    undefined,
+                    analyzedRef.toTreePath,
+                    undefined,
+                    treeState,
+                  ),
+                );
               },
-            });
-
-          return acc;
-        },
-        [[], []],
-      );
-
-      if (tokenTypeReferenceErrors.length > 0) {
-        treeState.validationErrors.register(...tokenTypeReferenceErrors);
-      }
-      for (const { tokenState, references } of validTokens) {
-        for (const reference of references) {
-          treeState.references.register(reference);
+            },
+          );
         }
-        treeState.tokenStates.register(tokenState);
       }
 
       for (const analyzedGroup of analyzedGroups) {
-        const groupState = new GroupState(
-          analyzedGroup.path,
-          analyzedGroup.tokenType,
-          analyzedGroup.description,
-          analyzedGroup.extensions,
+        treeState.groupStates.add(
+          new GroupState(
+            analyzedGroup.id,
+            analyzedGroup.path,
+            analyzedGroup.tokenType,
+            analyzedGroup.description,
+            analyzedGroup.extensions,
+            treeState,
+          ),
         );
-
-        treeState.groupStates.register(groupState);
       }
     },
     Error: (errors) => {
-      treeState.validationErrors.register(...errors);
+      treeState.validationErrors.add(...errors);
     },
   });
 

@@ -4,8 +4,8 @@ import { JSONTokenTree } from 'design-tokens-format-module';
 import { parseDesignTokens } from '../src/parseDesignTokens.js';
 
 describe('parseDesignTokens', () => {
-  it.only('should parse token tree with top level aliases', () => {
-    const tree: JSONTokenTree = {
+  it.todo('should parse token tree with top level aliases', () => {
+    const tokens: JSONTokenTree = {
       base: {
         blue: {
           $type: 'color',
@@ -97,7 +97,7 @@ describe('parseDesignTokens', () => {
       },
     };
 
-    const tokenTree = parseDesignTokens(tree);
+    const tokenTree = parseDesignTokens(tokens);
 
     tokenTree.mapTokensByType('color', (token) => {
       // TODO @Nico: NO CONSOLE
@@ -112,24 +112,27 @@ describe('parseDesignTokens', () => {
         })
         .mapAliasReference((a) => {
           const rr = a
-            .mapDeeplyLinkedToken((t) => {
+            .mapDeeplyLinkedToken((token) => {
               return null;
             })
-            .mapShallowlyLinkedValue((ref) => {
+            .mapShallowlyLinkedToken((token) => {
               return true;
             })
-            .map((value) => {
-              if (typeof value === 'string') {
-                return [value];
-              }
-              return value;
+            .mapDeeplyUnlinkedReference((ref) => {
+              // TODO @Nico: NO CONSOLE
+              console.log('ref:', ref);
+              return true;
             })
+            // .map((value) => {
+            //   if (typeof value === 'string') {
+            //     return [value];
+            //   }
+            //   return value;
+            // })
             .unwrap();
           return rr;
         })
         .unwrap();
-      // TODO @Nico: NO CONSOLE
-      console.log('res:', res);
 
       const mappedValue = token
         .getValueMapper()
@@ -162,9 +165,6 @@ describe('parseDesignTokens', () => {
     });
 
     tokenTree.mapTokensByType('border', (token) => {
-      // TODO @Nico: NO CONSOLE
-      console.log('token.path:', token.path);
-
       const res = token
         .getValueMapper({
           resolveAtDepth: 2,

@@ -2,7 +2,7 @@ import { Result } from '@swan-io/boxed';
 import { type JSON } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
-import { AnalyzerContext } from '../internals/AnalyzerContext.js';
+import { AnalyzerContext } from '../utils/AnalyzerContext.js';
 
 export function parseTreeNodeExtensions(
   value: unknown,
@@ -13,6 +13,7 @@ export function parseTreeNodeExtensions(
     return Result.Error([
       new ValidationError({
         type: 'Type',
+        nodeId: ctx.nodeId,
         treePath: ctx.path,
         nodeKey: ctx.nodeKey,
         message: `${ctx.varName} must be an object. Got "${typeof value}".`,

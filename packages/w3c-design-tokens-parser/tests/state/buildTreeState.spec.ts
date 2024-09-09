@@ -65,7 +65,7 @@ describe('buildTreeState', () => {
         stringPath: v.path.string,
         value: v.value,
       })),
-      references: t.references.nodes.map((r) => ({})),
+      references: t.referencesArray.map((_) => ({})),
     }));
 
     expect(tokenResults).toStrictEqual([
@@ -210,10 +210,10 @@ describe('buildTreeState', () => {
         stringPath: v.path.string,
         value: v.value,
       })),
-      references: t.references.nodes.map((r) => ({
+      references: t.referencesArray.map((r) => ({
         fromValuePath: r.fromValuePath.string,
-        fromTreePath: r.fromTreePath.string,
-        toTreePath: r.toTreePath.string,
+        fromId: expect.any(String),
+        toId: r.toId,
         isShallowlyResolved: r.isShallowlyLinked,
         isFullyResolved: r.isFullyLinked,
       })),
@@ -238,8 +238,8 @@ describe('buildTreeState', () => {
         references: [
           {
             fromValuePath: '',
-            fromTreePath: 'primary',
-            toTreePath: 'colorToken',
+            fromId: expect.any(String),
+            toId: expect.any(String),
             isShallowlyResolved: true,
             isFullyResolved: true,
           },
@@ -252,8 +252,8 @@ describe('buildTreeState', () => {
         references: [
           {
             fromValuePath: '',
-            fromTreePath: 'secondary',
-            toTreePath: 'primary',
+            fromId: expect.any(String),
+            toId: expect.any(String),
             isShallowlyResolved: true,
             isFullyResolved: true,
           },
@@ -275,8 +275,8 @@ describe('buildTreeState', () => {
         references: [
           {
             fromValuePath: 'color',
-            fromTreePath: 'border.base',
-            toTreePath: 'primary',
+            fromId: expect.any(String),
+            toId: expect.any(String),
             isShallowlyResolved: true,
             isFullyResolved: true,
           },
@@ -289,8 +289,8 @@ describe('buildTreeState', () => {
         references: [
           {
             fromValuePath: '',
-            fromTreePath: 'border.aliased',
-            toTreePath: 'border.base',
+            fromId: expect.any(String),
+            toId: expect.any(String),
             isShallowlyResolved: true,
             isFullyResolved: true,
           },
@@ -333,10 +333,10 @@ describe('buildTreeState', () => {
         stringPath: v.path.string,
         value: v.value,
       })),
-      references: t.references.nodes.map((r) => ({
+      references: t.referencesArray.map((r) => ({
         fromValuePath: r.fromValuePath.string,
-        fromTreePath: r.fromTreePath.string,
-        toTreePath: r.toTreePath.string,
+        fromId: r.fromId,
+        toId: r.toId,
         isShallowlyResolved: r.isShallowlyLinked,
         isFullyResolved: r.isFullyLinked,
       })),
@@ -350,8 +350,8 @@ describe('buildTreeState', () => {
         references: [
           {
             fromValuePath: '',
-            fromTreePath: 'primary',
-            toTreePath: 'colorToken',
+            fromId: expect.any(String),
+            toId: undefined,
             isShallowlyResolved: false,
             isFullyResolved: false,
           },
@@ -364,8 +364,8 @@ describe('buildTreeState', () => {
         references: [
           {
             fromValuePath: '',
-            fromTreePath: 'secondary',
-            toTreePath: 'primary',
+            fromId: expect.any(String),
+            toId: expect.any(String),
             isShallowlyResolved: true,
             isFullyResolved: false,
           },
@@ -387,8 +387,8 @@ describe('buildTreeState', () => {
         references: [
           {
             fromValuePath: 'color',
-            fromTreePath: 'border.base',
-            toTreePath: 'primary',
+            fromId: expect.any(String),
+            toId: expect.any(String),
             isShallowlyResolved: true,
             isFullyResolved: false,
           },
@@ -401,8 +401,8 @@ describe('buildTreeState', () => {
         references: [
           {
             fromValuePath: '',
-            fromTreePath: 'border.aliased',
-            toTreePath: 'border.base',
+            fromId: expect.any(String),
+            toId: expect.any(String),
             isShallowlyResolved: true,
             isFullyResolved: false,
           },
@@ -495,7 +495,7 @@ describe('buildTreeState', () => {
         valuePath: [],
         referenceToTreePath: ['color', 'blue'],
         message:
-          'Type mismatch: expected [ Token(dimension) ] - got Token(color)',
+          'Type mismatch: expected [ Token(dimension) ] - got Token(color).',
       },
       {
         type: 'Type',
@@ -505,7 +505,7 @@ describe('buildTreeState', () => {
         valuePath: [],
         referenceToTreePath: ['dimension', 'base'],
         message:
-          'Type mismatch: expected [ Token(border) | key: "color", "style", "width" - got: undefined ] - got Token(dimension)',
+          'Type mismatch: expected [ Token(border) | key: "color", "style", "width" - got: undefined ] - got Token(dimension).',
       },
       {
         type: 'Type',
@@ -515,7 +515,7 @@ describe('buildTreeState', () => {
         valuePath: ['color'],
         referenceToTreePath: ['dimension', 'base'],
         message:
-          'Type mismatch: expected [ Token(color) ] - got Token(dimension)',
+          'Type mismatch: expected [ Token(color) ] - got Token(dimension).',
       },
     ]);
   });

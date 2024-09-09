@@ -2,7 +2,7 @@ import { Result } from '@swan-io/boxed';
 import { AliasValue } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
-import { AnalyzerContext } from '../internals/AnalyzerContext.js';
+import { AnalyzerContext } from '../utils/AnalyzerContext.js';
 
 export function parseAliasValue(
   value: unknown,
@@ -12,6 +12,7 @@ export function parseAliasValue(
     return Result.Error([
       new ValidationError({
         type: 'Type',
+        nodeId: ctx.nodeId,
         treePath: ctx.path,
         valuePath: ctx.valuePath,
         message: `${ctx.varName} alias must be a string. Got "${typeof value}".`,
@@ -22,6 +23,7 @@ export function parseAliasValue(
     return Result.Error([
       new ValidationError({
         type: 'Value',
+        nodeId: ctx.nodeId,
         treePath: ctx.path,
         valuePath: ctx.valuePath,
         message: `${ctx.varName} must be wrapped in curly braces to form an alias reference, like: "{my.alias}". Got "${value}".`,

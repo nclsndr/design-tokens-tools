@@ -6,9 +6,9 @@ import {
 } from 'design-tokens-format-module';
 
 import { parseAliasableDimensionValue } from './dimension.js';
-import { AnalyzerContext } from '../../parser/internals/AnalyzerContext.js';
+import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
 import { ValidationError } from '../../utils/validationError.js';
-import { AnalyzedValue } from '../../parser/internals/AnalyzedToken.js';
+import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
 import { withAlias } from '../withAlias.js';
 
 export const strokeStyleStringValues = [
@@ -35,6 +35,7 @@ export function parseStrokeStyleLineCapValue(
     return Result.Error([
       new ValidationError({
         type: 'Type',
+        nodeId: ctx.nodeId,
         treePath: ctx.path,
         nodeKey: ctx.nodeKey,
         valuePath: ctx.valuePath,
@@ -46,6 +47,7 @@ export function parseStrokeStyleLineCapValue(
     return Result.Error([
       new ValidationError({
         type: 'Value',
+        nodeId: ctx.nodeId,
         treePath: ctx.path,
         nodeKey: ctx.nodeKey,
         valuePath: ctx.valuePath,
@@ -69,6 +71,7 @@ export function parseStrokeStyleDashArrayValue(
     return Result.Error([
       new ValidationError({
         type: 'Type',
+        nodeId: ctx.nodeId,
         treePath: ctx.path,
         nodeKey: ctx.nodeKey,
         valuePath: ctx.valuePath,
@@ -117,6 +120,7 @@ export function parseStrokeStyleRawValue(
     return Result.Error([
       new ValidationError({
         type: 'Value',
+        nodeId: ctx.nodeId,
         treePath: ctx.path,
         nodeKey: ctx.nodeKey,
         valuePath: ctx.valuePath,
@@ -129,6 +133,7 @@ export function parseStrokeStyleRawValue(
       return Result.Error([
         new ValidationError({
           type: 'Value',
+          nodeId: ctx.nodeId,
           treePath: ctx.path,
           nodeKey: ctx.nodeKey,
           valuePath: ctx.valuePath,
@@ -171,6 +176,7 @@ export function parseStrokeStyleRawValue(
     return Result.Error([
       new ValidationError({
         type: 'Value',
+        nodeId: ctx.nodeId,
         treePath: ctx.path,
         nodeKey: ctx.nodeKey,
         valuePath: ctx.valuePath,
@@ -181,6 +187,7 @@ export function parseStrokeStyleRawValue(
   return Result.Error([
     new ValidationError({
       type: 'Type',
+      nodeId: ctx.nodeId,
       treePath: ctx.path,
       nodeKey: ctx.nodeKey,
       valuePath: ctx.valuePath,

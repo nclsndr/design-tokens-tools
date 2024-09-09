@@ -3,11 +3,11 @@ import { Border } from 'design-tokens-format-module';
 
 import { parseAliasableColorValue } from './color.js';
 import { parseAliasableStrokeStyleValue } from './strokeStyle.js';
-import { AnalyzerContext } from '../../parser/internals/AnalyzerContext.js';
-import { AnalyzedValue } from '../../parser/internals/AnalyzedToken.js';
+import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
+import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
 import { ValidationError } from '../../utils/validationError.js';
 import { parseAliasableDimensionValue } from './dimension.js';
-import { makeParseObject } from '../../parser/internals/parseObject.js';
+import { makeParseObject } from '../../parser/utils/parseObject.js';
 import { withAlias } from '../withAlias.js';
 
 const parseBorderRawValue = makeParseObject({

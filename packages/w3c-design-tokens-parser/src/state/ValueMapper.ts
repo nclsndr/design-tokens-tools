@@ -10,46 +10,9 @@ import { TokenState } from './TokenState.js';
 import { JSONPath } from '../utils/JSONPath.js';
 import { RawValuePart } from './RawValuePart.js';
 import { Token } from '../client/Token.js';
+import { indentLines } from '../utils/indentLines.js';
+import { PickTokenTypeAliasingCompatibilityEntry } from '../definitions/TokenTypeAliasingCompatibility.js';
 import { Option } from '@swan-io/boxed';
-
-export type TokenTypeAliasingCompatibilityMap = {
-  color: 'color';
-  dimension: 'dimension';
-  fontFamily: 'fontFamily';
-  fontWeight: 'fontWeight';
-  duration: 'duration';
-  cubicBezier: 'cubicBezier';
-  number: 'number';
-  strokeStyle: 'strokeStyle';
-  'strokeStyle.dashArray.0': 'dimension';
-  border: 'border';
-  'border.width': 'dimension';
-  'border.color': 'color';
-  'border.style': 'strokeStyle';
-  transition: 'transition';
-  'transition.duration': 'duration';
-  'transition.delay': 'duration';
-  'transition.timingFunction': 'cubicBezier';
-  shadow: 'shadow';
-  'shadow.color': 'color';
-  'shadow.offsetX': 'dimension';
-  'shadow.offsetY': 'dimension';
-  'shadow.blur': 'dimension';
-  'shadow.spread': 'dimension';
-  gradient: 'gradient';
-  'gradient.0': 'gradient';
-  'gradient.0.color': 'color';
-  typography: 'typography';
-  'typography.fontFamily': 'fontFamily';
-  'typography.fontWeight': 'fontWeight';
-  'typography.fontSize': 'dimension';
-  'typography.letterSpacing': 'dimension';
-  'typography.lineHeight': 'number';
-};
-export type PickTokenTypeAliasingCompatibilityEntry<T extends string> =
-  T extends keyof TokenTypeAliasingCompatibilityMap
-    ? TokenTypeAliasingCompatibilityMap[T]
-    : never;
 
 export type SwapValueSignature<
   Key extends string,
@@ -104,6 +67,9 @@ export class BaseValue {
   }
 }
 
+/**
+ * Represents the object based token values
+ */
 export class ObjectValue<
   Value extends { [k: PropertyKey]: any } = { [k: PropertyKey]: any },
 > extends BaseValue {
@@ -114,6 +80,11 @@ export class ObjectValue<
     this.#value = value;
   }
 
+  /**
+   * Map against the value of a key within the object value.
+   * @param key
+   * @param callback
+   */
   mapKey<K extends keyof Value, R>(
     key: K,
     callback: (keyValue: Value[K]) => R,
@@ -125,15 +96,39 @@ export class ObjectValue<
     return this;
   }
 
+  /**
+   * Map the entire object value then unwrap the value.
+   * @param callback
+   */
   flatMap<R>(callback: (objectValue: Value) => R): R {
     return callback(this.#value);
   }
 
+  /**
+   * Unwrap the current value.
+   */
   unwrap() {
     return this.#value;
   }
+
+  /**
+   * Debug the content of the object value
+   */
+  override toString() {
+    const content = Object.entries(this.#value)
+      .map(([key, value]) => {
+        return `${key}: ${value}`;
+      })
+      .join(',\n');
+    return `ObjectValue: {
+${indentLines(2, content)}
+}`;
+  }
 }
 
+/**
+ * Represents the array based token values
+ */
 export class ArrayValue<
   Value extends Array<any> = Array<any>,
 > extends BaseValue {
@@ -144,6 +139,10 @@ export class ArrayValue<
     this.#value = value;
   }
 
+  /**
+   * Map against the value of an index within the array value.
+   * @param callback
+   */
   mapItems<R>(
     callback: (arrayValue: Value[number], index: number) => R,
   ): ArrayValue<Array<R>> {
@@ -152,14 +151,43 @@ export class ArrayValue<
     return this as any;
   }
 
+  /**
+   * Map the entire array value then unwrap the value.
+   * @param callback
+   */
+  flatMap<R>(callback: (arrayValue: Value) => R): R {
+    return callback(this.#value);
+  }
+
+  /**
+   * Unwrap the current value.
+   * To be called at the end of the mapping chain.
+   */
   unwrap() {
     return this.#value;
   }
+
+  /**
+   * Debug the content of the array value
+   * @internal
+   */
+  override toString() {
+    const content = this.#value
+      .map((item, index) => {
+        return `${index}: ${item.toString()}`;
+      })
+      .join(',\n');
+    return `ArrayValue: [
+${indentLines(2, content)}
+]`;
+  }
 }
 
+/**
+ * Represents the scalar token values
+ */
 export class ScalarValue<
-  Inner extends JSON.Primitive = JSON.Primitive,
-  Value extends RawValuePart<Inner> = RawValuePart<Inner>,
+  Value extends JSON.Primitive = JSON.Primitive,
 > extends BaseValue {
   #value: Value;
 
@@ -171,11 +199,22 @@ export class ScalarValue<
   /**
    * Get the raw scalar value
    */
-  get raw(): Inner {
-    return this.#value.value;
+  get raw(): Value {
+    return this.#value;
+  }
+
+  /**
+   * Debug the content of the scalar value
+   * @internal
+   */
+  override toString() {
+    return `Scalar: ${this.#value}`;
   }
 }
 
+/**
+ * Represents the reference to another token value
+ */
 export class AliasReference<
   Type extends TokenTypeName = TokenTypeName,
   Value = AliasValue,
@@ -189,6 +228,9 @@ export class AliasReference<
     this.#value = reference.toTreePath.toDesignTokenAliasPath() as Value;
   }
 
+  /**
+   * Get the coordinates of the referencing token
+   */
   get from() {
     return {
       treePath: this.#reference.fromTreePath,
@@ -196,50 +238,44 @@ export class AliasReference<
     };
   }
 
+  /**
+   * Get the coordinates of the referenced token
+   */
   get to() {
     return {
       treePath: this.#reference.toTreePath,
     };
   }
 
+  /**
+   * Whether the reference is fully linked across all its dependencies
+   */
+  get isFullyLinked() {
+    return this.#reference.isFullyLinked;
+  }
+
+  /**
+   * Whether the reference is linked at least to the next level
+   */
+  get isShallowlyLinked() {
+    return this.#reference.isShallowlyLinked;
+  }
+
+  /**
+   * Get the targeted type of the referenced token
+   */
   get toType() {
     return this.#reference.toType;
   }
 
-  getToken<T extends Type>(): Token<T> | undefined {
+  /**
+   * Get the Option for the referenced token
+   */
+  getToken<T extends Type>(): Option<Token<T>> {
     return this._tokenState.treeState.tokenStates
-      .get(this.#reference.toTreePath)
-      .match({
-        Some: (tokenState) => new Token(tokenState),
-        None: () => undefined,
-      }) as any;
+      .getOneById(this.#reference.toId)
+      .map((tokenState) => new Token(tokenState));
   }
-
-  // resolve(options?: { resolveAtDepth?: number }): any {
-  //   const { resolveAtDepth } = options ?? {};
-  //   if (typeof resolveAtDepth === 'number' && resolveAtDepth < 1) {
-  //     throw new Error('Depth must be greater or equal to 1');
-  //   }
-  //
-  //   const { raws, refs } = this.#reference.resolve(resolveAtDepth ?? Infinity);
-  //
-  //   const scalarValues: Array<ScalarValue> = raws.map(
-  //     (r) => new ScalarValue(r, r.path, this._tokenState),
-  //   );
-  //   const aliasReferences: Array<AliasReference> = refs.map(
-  //     (r) => new AliasReference(r, this._tokenState),
-  //   );
-  //
-  //   const mergedValues = [...aliasReferences, ...scalarValues];
-  //
-  //   return makeValueMapper(
-  //     mergedValues.map((v) => ({
-  //       currentValuePath: v.valuePath,
-  //       data: new ValueMapper(v, this._tokenState),
-  //     })),
-  //     this._tokenState,
-  //   ) as any;
-  // }
 
   /**
    * Map against the value of the alias reference.
@@ -255,12 +291,12 @@ export class AliasReference<
    * Map against the shallowly linked value of the alias reference.
    * @param callback
    */
-  mapShallowlyLinkedValue<T extends Type, R>(
+  mapShallowlyLinkedToken<T extends Type, R>(
     callback: (resolvedToken: Token<T>) => R,
   ): AliasReference<Type, R | Value> {
     if (this.#reference.isShallowlyLinked) {
       this._tokenState.treeState.tokenStates
-        .get(this.#reference.toTreePath.array)
+        .getOneById(this.#reference.toId)
         .match({
           Some: (tokenState) => {
             // @ts-expect-error
@@ -281,7 +317,7 @@ export class AliasReference<
   ): AliasReference<Type, R | Value> {
     if (this.#reference.isFullyLinked) {
       this._tokenState.treeState.tokenStates
-        .get(this.#reference.toTreePath.array)
+        .getOneById(this.#reference.toId)
         .match({
           Some: (tokenState) => {
             // @ts-expect-error
@@ -323,34 +359,44 @@ export class AliasReference<
 
   /**
    * Unwrap the current value.
+   * To be called at the end of the mapping chain.
    */
   unwrap() {
     return this.#value;
   }
 
+  /**
+   * Debug the content of the alias reference
+   * @internal
+   */
   override toString() {
-    return `{
-  from: {
-    treePath: ${this.#reference.fromTreePath.toDebugString()},
-    valuePath: ${this.#reference.fromValuePath.toDebugString()},
-  },
-  to: {
-    treePath: ${this.#reference.toTreePath.toDebugString()},
-  },
-  isShallowlyResolved: ${this.#reference.isShallowlyLinked ? 'true' : 'false'},
-  isFullyResolved: ${this.#reference.isFullyLinked ? 'true' : 'false'},
-}`;
+    const isShallowlyLinked = this.#reference.isShallowlyLinked;
+    const isFullyLinked = this.#reference.isFullyLinked;
+
+    const status = isFullyLinked
+      ? '[Linked]'
+      : isShallowlyLinked
+        ? '[Shallowly linked]'
+        : '[Unlinked]';
+
+    const valuePath =
+      this.#reference.fromValuePath.length > 0
+        ? ` at "${this.#reference.fromValuePath.string}"`
+        : ' ';
+
+    return `AliasReference ${status} "${this.#reference.fromTreePath.string}"${valuePath} -> "${this.#reference.toTreePath.string}"`;
   }
 
   // Override console.log in Node.js environment
   [Symbol.for('nodejs.util.inspect.custom')](_depth: unknown, _opts: unknown) {
-    return `Reference ${this.toString()}`;
+    return this.toString();
   }
 }
 
-export class ValueMapper<
-  Value = AliasReference | ScalarValue | ObjectValue | ArrayValue,
-> {
+/**
+ * Utility to map against the value of a token
+ */
+export class ValueMapper<Value> {
   #value: Value;
   #tokenState: TokenState;
 
@@ -417,10 +463,37 @@ export class ValueMapper<
 
   /**
    * Unwrap the current value.
-   * To be called at the end of the chain.
+   * To be called at the end of the mapping chain.
    */
   unwrap() {
     return this.#value;
+  }
+
+  /**
+   * Debug the content of the value mapper
+   * @internal
+   */
+  toString() {
+    let content: string = 'INVALID CONTENT';
+
+    if (this.#value instanceof ScalarValue) {
+      content = this.#value.toString();
+    } else if (this.#value instanceof AliasReference) {
+      content = this.#value.toString();
+    } else if (this.#value instanceof ObjectValue) {
+      content = this.#value.toString();
+    } else if (this.#value instanceof ArrayValue) {
+      content = this.#value.toString();
+    }
+
+    return `ValueMapper for "${this.#tokenState.stringPath}" {
+${indentLines(2, content)}
+}`;
+  }
+
+  // Override console.log in Node.js environment
+  [Symbol.for('nodejs.util.inspect.custom')](_depth: unknown, _opts: unknown) {
+    return this.toString();
   }
 }
 

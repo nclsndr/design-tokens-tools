@@ -39,7 +39,13 @@ describe('parseJSONTokenTree', () => {
     };
 
     const analyzedResult = parseJSONTokenTree(tree).match({
-      Ok: (result) => result,
+      Ok: (result) => ({
+        ...result,
+        groups: [
+          result.groups[0].map((g) => ({ ...g, id: 'ID' })),
+          result.groups[1],
+        ],
+      }),
       Error: (errors) => {
         throw new Error(errors.map((e) => e.message).join('\n'));
       },
@@ -110,14 +116,12 @@ describe('parseJSONTokenTree', () => {
       groups: [
         [
           {
-            path: [],
-            childrenCount: 2,
-          },
-          {
+            id: expect.any(String),
             path: ['base'],
             childrenCount: 1,
           },
           {
+            id: expect.any(String),
             path: ['semantic'],
             childrenCount: 1,
           },
@@ -168,6 +172,7 @@ describe('parseJSONTokenTree', () => {
           {
             type: 'Value',
             isCritical: false,
+            nodeId: expect.any(String),
             treePath: ['base', 'primary'],
             nodeKey: '$value',
             valuePath: [],
@@ -177,6 +182,7 @@ describe('parseJSONTokenTree', () => {
           {
             type: 'Value',
             isCritical: false,
+            nodeId: expect.any(String),
             treePath: ['semantic', 'primary'],
             nodeKey: '$type',
             valuePath: [],
@@ -187,14 +193,14 @@ describe('parseJSONTokenTree', () => {
       ],
       groups: [
         [
-          { path: [], childrenCount: 3 },
-          { path: ['base'], childrenCount: 1 },
-          { path: ['semantic'], childrenCount: 1 },
+          { id: expect.any(String), path: ['base'], childrenCount: 1 },
+          { id: expect.any(String), path: ['semantic'], childrenCount: 1 },
         ],
         [
           {
             type: 'Type',
             isCritical: false,
+            nodeId: expect.any(String),
             treePath: ['invalidGroup'],
             nodeKey: '$description',
             valuePath: [],
@@ -231,9 +237,11 @@ describe('parseJSONTokenTree', () => {
         [
           {
             isCritical: false,
-            message: 'Circular references detected.',
+            message:
+              'Circular references detected while resolving token type for token "base.primary".',
             referenceToTreePath: ['base', 'primary'],
             type: 'Computation',
+            nodeId: '',
             treePath: ['base', 'primary'],
             valuePath: [],
           },
@@ -241,8 +249,12 @@ describe('parseJSONTokenTree', () => {
       ],
       groups: [
         [
-          { path: [], childrenCount: 1 },
-          { path: ['base'], tokenType: 'color', childrenCount: 1 },
+          {
+            id: expect.any(String),
+            path: ['base'],
+            tokenType: 'color',
+            childrenCount: 1,
+          },
         ],
         [],
       ],

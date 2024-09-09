@@ -2,8 +2,8 @@ import { Result } from '@swan-io/boxed';
 import { CubicBezier } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
-import { AnalyzerContext } from '../../parser/internals/AnalyzerContext.js';
-import { AnalyzedValue } from '../../parser/internals/AnalyzedToken.js';
+import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
+import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
 import { withAlias } from '../withAlias.js';
 
 export type CubicBezierRawValue = [number, number, number, number];
@@ -16,6 +16,7 @@ export function parseCubicBezierRawValue(
     return Result.Error([
       new ValidationError({
         type: 'Type',
+        nodeId: ctx.nodeId,
         treePath: ctx.path,
         nodeKey: ctx.nodeKey,
         valuePath: ctx.valuePath,
@@ -30,6 +31,7 @@ export function parseCubicBezierRawValue(
       errors.push(
         new ValidationError({
           type: 'Type',
+          nodeId: ctx.nodeId,
           treePath: ctx.path,
           nodeKey: ctx.nodeKey,
           valuePath: ctx.valuePath,
@@ -43,6 +45,7 @@ export function parseCubicBezierRawValue(
       errors.push(
         new ValidationError({
           type: 'Value',
+          nodeId: ctx.nodeId,
           treePath: ctx.path,
           nodeKey: ctx.nodeKey,
           valuePath: ctx.valuePath,

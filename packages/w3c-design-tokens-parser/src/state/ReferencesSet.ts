@@ -1,52 +1,23 @@
 import { Reference } from './Reference.js';
-import { type JSON } from 'design-tokens-format-module';
-import { Option } from '@swan-io/boxed';
+import { TreeState } from './TreeState.js';
 
 export class ReferencesSet {
+  readonly #treeState: TreeState;
   readonly #nodes: Array<Reference> = [];
 
-  get nodes() {
-    return this.#nodes.slice();
+  constructor(treeState: TreeState) {
+    this.#treeState = treeState;
   }
 
   get size() {
     return this.#nodes.length;
   }
 
-  get({
-    fromTreePath,
-    fromValuePath,
-  }: {
-    fromTreePath: JSON.ValuePath;
-    fromValuePath: JSON.ValuePath;
-  }): Option<Reference> {
-    const found = this.#nodes.find(
-      (reference) =>
-        reference.fromTreePath.equals(fromTreePath) &&
-        reference.fromValuePath.equals(fromValuePath),
-    );
-    return found ? Option.Some(found) : Option.None();
+  getManyFromId(fromId: string) {
+    return this.#nodes.filter((reference) => reference.fromId === fromId);
   }
 
-  getManyFrom({
-    fromTreePath,
-    fromValuePath,
-  }: {
-    fromTreePath: JSON.ValuePath;
-    fromValuePath?: JSON.ValuePath;
-  }) {
-    return this.#nodes.filter((reference) => {
-      const matchesFromTreePath = reference.fromTreePath.equals(fromTreePath);
-      if (matchesFromTreePath && fromValuePath) {
-        return (
-          matchesFromTreePath && reference.fromValuePath.equals(fromValuePath)
-        );
-      }
-      return matchesFromTreePath;
-    });
-  }
-
-  register(...references: Array<Reference>) {
+  add(...references: Array<Reference>) {
     this.#nodes.push(...references);
     return this;
   }

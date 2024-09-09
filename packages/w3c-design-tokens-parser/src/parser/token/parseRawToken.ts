@@ -3,8 +3,8 @@ import { type JSON } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
 import { parseTreeNodeExtensions } from '../tree/parseTreeNodeExtensions.js';
-import { AnalyzedToken } from '../internals/AnalyzedToken.js';
-import { AnalyzerContext } from '../internals/AnalyzerContext.js';
+import { AnalyzedToken } from './AnalyzedToken.js';
+import { AnalyzerContext } from '../utils/AnalyzerContext.js';
 import { recursivelyResolveTokenType } from './recursivelyResolveTokenType.js';
 import { parseTreeNodeDescription } from '../tree/parseTreeNodeDescription.js';
 import { getTokenValueParser } from '../../definitions/getTokenValueParser.js';
@@ -31,6 +31,7 @@ export function parseRawToken(
     validationErrors.push(
       new ValidationError({
         type: 'Value',
+        nodeId: ctx.nodeId,
         treePath: ctx.path,
         message: `${ctx.varName} has unexpected properties: ${Object.entries(
           rest,
@@ -44,30 +45,41 @@ export function parseRawToken(
   return Result.all([
     recursivelyResolveTokenType(ctx.jsonTokenTree, ctx.path)
       .tapError((e) => validationErrors.push(...e))
-      .flatMap(({ resolvedType: type }) =>
+      .flatMap(({ resolvedType: type, resolution: resolutionType }) =>
         getTokenValueParser(type)($value, {
           varName: `${ctx.varName}.$value`,
+          nodeId: ctx.nodeId,
           path: ctx.path,
           valuePath: [],
           nodeKey: '$value',
         })
-          .map((value) => ({ type, value }))
+          .map((value) => ({ resolutionType, type, value }))
           .tapError((e) => validationErrors.push(...e)),
       ),
     parseTreeNodeDescription($description, {
       varName: `${ctx.varName}.$description`,
+      nodeId: ctx.nodeId,
       path: ctx.path,
       nodeKey: '$description',
     }).tapError((e) => validationErrors.push(...e)),
     parseTreeNodeExtensions($extensions, {
       varName: `${ctx.varName}.$extensions`,
+      nodeId: ctx.nodeId,
       path: ctx.path,
       nodeKey: '$extensions',
     }).tapError((e) => validationErrors.push(...e)),
   ])
-    .flatMap(([{ type, value }, description, extensions]) => {
+    .flatMap(([{ type, resolutionType, value }, description, extensions]) => {
       return Result.Ok(
-        new AnalyzedToken(ctx.path, type, value, description, extensions),
+        new AnalyzedToken(
+          ctx.nodeId,
+          ctx.path,
+          type,
+          value,
+          resolutionType,
+          description,
+          extensions,
+        ),
       );
     })
     .flatMapError(() => Result.Error(validationErrors));

@@ -1,10 +1,10 @@
 import { Result } from '@swan-io/boxed';
 
 import { parseAliasableColorValue } from './color.js';
-import { AnalyzerContext } from '../../parser/internals/AnalyzerContext.js';
-import { AnalyzedValue } from '../../parser/internals/AnalyzedToken.js';
+import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
+import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
 import { ValidationError } from '../../utils/validationError.js';
-import { makeParseObject } from '../../parser/internals/parseObject.js';
+import { makeParseObject } from '../../parser/utils/parseObject.js';
 import { parseAliasableNumberValue } from './number.js';
 import { clamp } from '../../utils/clamp.js';
 import { withAlias } from '../withAlias.js';
@@ -34,6 +34,7 @@ function parseGradientRawValue(
     return Result.Error([
       new ValidationError({
         type: 'Type',
+        nodeId: ctx.nodeId,
         treePath: ctx.path,
         nodeKey: ctx.nodeKey,
         valuePath: ctx.valuePath,

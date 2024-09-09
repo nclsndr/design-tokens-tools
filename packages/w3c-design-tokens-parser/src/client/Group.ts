@@ -74,4 +74,20 @@ export class Group {
   toJSON() {
     return this.#state.toJSON();
   }
+
+  // Override console.log in Node.js environment
+  [Symbol.for('nodejs.util.inspect.custom')](_depth: unknown, _opts: unknown) {
+    return `Group {
+  path: ${this.#state.stringPath},
+  type: ${this.#state.tokenType ? `"${this.#state.tokenType}"` : `undefined`},${
+    this.#state.description
+      ? `  description: "${this.#state.description}",`
+      : ''
+  }${
+    this.#state.extensions
+      ? `  extensions: ${JSON.stringify(this.#state.extensions)},`
+      : ''
+  }
+}`;
+  }
 }

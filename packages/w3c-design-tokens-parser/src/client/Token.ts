@@ -58,7 +58,13 @@ export class Token<Type extends TokenTypeName = TokenTypeName> {
     type: TokenTypeName;
     description: string | undefined;
     extensions: Record<string, any> | undefined;
-    references: Array<Reference>;
+    references: Array<{
+      fromTreePath: string;
+      fromValuePath: string;
+      toTreePath: string;
+      isFullyLinked: boolean;
+      isShallowlyLinked: boolean;
+    }>;
     rawJSONValue: DesignToken['$value'];
   } {
     return {
@@ -66,7 +72,13 @@ export class Token<Type extends TokenTypeName = TokenTypeName> {
       type: this.#state.type,
       description: this.#state.description,
       extensions: this.#state.extensions,
-      references: this.#state.references.nodes,
+      references: this.#state.referencesArray.map((r) => ({
+        fromTreePath: r.fromTreePath.string,
+        fromValuePath: r.fromValuePath.string,
+        toTreePath: r.toTreePath.string,
+        isFullyLinked: r.isFullyLinked,
+        isShallowlyLinked: r.isShallowlyLinked,
+      })),
       rawJSONValue: this.#state.getJSONValue(),
     };
   }
@@ -79,9 +91,9 @@ export class Token<Type extends TokenTypeName = TokenTypeName> {
    * Get the ValueMapper utility to work with the token value
    * @param options
    */
-  getValueMapper(options?: {
+  getValueMapper<T extends TokenTypeName = Type>(options?: {
     resolveAtDepth?: number;
-  }): PickSwappedValueSignature<Type> {
+  }): PickSwappedValueSignature<T> {
     // @ts-expect-error
     return this.#state.getValueMapper(options);
   }
@@ -100,8 +112,8 @@ export class Token<Type extends TokenTypeName = TokenTypeName> {
   /**
    * Get the JSON representation of the token
    */
-  getJSONToken() {
-    return this.#state.getJSONToken();
+  getJSONToken(options?: { withExplicitType?: boolean }) {
+    return this.#state.getJSONToken(options);
   }
 
   /**
@@ -114,15 +126,31 @@ export class Token<Type extends TokenTypeName = TokenTypeName> {
   // Override console.log in Node.js environment
   [Symbol.for('nodejs.util.inspect.custom')](_depth: unknown, _opts: unknown) {
     const rawValues = this.#state.rawValueParts.nodes;
-    return `TokenState {
-  path: ${JSON.stringify(this.#state.path)},
-  type: "${this.#state.type}",
+    const references = this.#state.referencesArray;
+    return `Token {
+  path: ${this.#state.stringPath},
+  type: "${this.#state.type}",${
+    this.#state.description
+      ? `  description: "${this.#state.description}",`
+      : ''
+  }${
+    this.#state.extensions
+      ? `  extensions: ${JSON.stringify(this.#state.extensions)},`
+      : ''
+  }
   rawValues: ${
     rawValues.length > 0
       ? `[
     ${rawValues.map((node) => node.toString()).join(',\n    ')}
   ]`
       : '[]'
+  }
+  references: ${
+    references.length > 0
+      ? `[
+    ${references.map((ref) => ref.toString()).join(',\n    ')}
+  ]`
+      : `[]`
   }
 }`;
   }

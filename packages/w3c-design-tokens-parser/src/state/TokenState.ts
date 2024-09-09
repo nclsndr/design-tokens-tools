@@ -1,12 +1,13 @@
 import { DesignToken, TokenTypeName } from 'design-tokens-format-module';
-import { type JSON, ALIAS_PATH_SEPARATOR } from 'design-tokens-format-module';
+import { type JSON } from 'design-tokens-format-module';
 
 import type { TreeState } from './TreeState.js';
 import { TreeNode } from './TreeNode.js';
 import { RawValueParts } from './RawValueParts.js';
 import { deepSetJSONValue } from '../utils/deepSetJSONValue.js';
 import { makeAliasStringPath } from '../parser/alias/makeAliasStringPath.js';
-import { AnalyzedValue } from '../parser/internals/AnalyzedToken.js';
+import { AnalyzedValue } from '../parser/token/AnalyzedToken.js';
+import { ResolutionType } from '../parser/token/recursivelyResolveTokenType.js';
 import { registerTokenRawValue } from './internals/registerTokenRawValue.js';
 import { ReferencesSet } from './ReferencesSet.js';
 import {
@@ -21,17 +22,21 @@ export class TokenState<
   Type extends TokenTypeName = TokenTypeName,
 > extends TreeNode {
   #type: Type;
+  #typeResolution: ResolutionType;
   #treeState: TreeState;
   #rawValueParts: RawValueParts;
   constructor(
+    id: string,
     path: JSON.ValuePath,
     type: Type,
+    typeResolution: ResolutionType,
     description: string | undefined,
     extensions: Record<string, any> | undefined,
     treeState: TreeState,
   ) {
-    super(path, description, extensions);
+    super(id, path, description, extensions);
     this.#type = type;
+    this.#typeResolution = typeResolution;
     this.#treeState = treeState;
     this.#rawValueParts = new RawValueParts();
   }
@@ -44,19 +49,21 @@ export class TokenState<
     return this.#rawValueParts;
   }
 
-  get references() {
-    return new ReferencesSet().register(
-      ...this.#treeState.references.getManyFrom({
-        fromTreePath: this.path,
-      }),
+  get referencesSet() {
+    return new ReferencesSet(this.#treeState).add(
+      ...this.#treeState.references.getManyFromId(this.id),
     );
+  }
+
+  get referencesArray() {
+    return this.#treeState.references.getManyFromId(this.id);
   }
 
   get type() {
     return this.#type;
   }
 
-  registerAnalyzedValue(analyzedValue: AnalyzedValue) {
+  registerAnalyzedValueRawParts(analyzedValue: AnalyzedValue) {
     return registerTokenRawValue(analyzedValue, this);
   }
 
@@ -71,22 +78,24 @@ export class TokenState<
     const aliasReferences: Array<AliasReference> = [];
     const scalarValues: Array<ScalarValue> = [];
 
-    if (resolveAtDepth !== undefined && resolveAtDepth !== 0) {
-      for (const ref of this.references) {
+    if (resolveAtDepth !== undefined && resolveAtDepth > 0) {
+      for (const ref of this.referencesSet) {
         const { raws, refs } = ref.resolve(resolveAtDepth ?? Infinity);
-        scalarValues.push(...raws.map((r) => new ScalarValue(r, r.path, this)));
+        scalarValues.push(
+          ...raws.map((r) => new ScalarValue(r.value, r.path, this)),
+        );
         aliasReferences.push(...refs.map((r) => new AliasReference(r, this)));
       }
     } else {
       aliasReferences.push(
-        ...this.references.nodes.map(
+        ...this.referencesArray.map(
           (reference) => new AliasReference(reference, this),
         ),
       );
     }
 
     const nativeScalarValues = this.rawValueParts.nodes.map(
-      (r) => new ScalarValue(r, r.path, this),
+      (r) => new ScalarValue(r.value, r.path, this),
     );
 
     const mergedValues = [
@@ -104,31 +113,35 @@ export class TokenState<
     ) as any;
   }
 
-  // getResolvedJSONValue(): DesignToken['$value'] {
-  //   let acc: any =
-  //     this.type === 'gradient' || this.type === 'cubicBezier' ? [] : {};
-  //
-  //   this.references.map((ref) => {
-  //     ref.isFullyResolved;
-  //   });
-  //
-  //   return acc;
-  // }
-
   getJSONValue(): DesignToken['$value'] {
     let acc: any =
       this.type === 'gradient' || this.type === 'cubicBezier' ? [] : {};
 
-    for (const node of this.references.nodes) {
-      if (node.isTopLevel) {
-        acc = makeAliasStringPath(node.toTreePath.array);
-      } else {
-        deepSetJSONValue(
-          acc,
-          node.fromValuePath.array,
-          `{${node.toTreePath.array.join(ALIAS_PATH_SEPARATOR)}}`,
-        );
-      }
+    for (const ref of this.referencesArray) {
+      this.#treeState.tokenStates.getOneById(ref.toId).match({
+        Some: (tokenState) => {
+          if (ref.isTopLevel) {
+            acc = makeAliasStringPath(tokenState.path);
+          } else {
+            deepSetJSONValue(
+              acc,
+              ref.fromValuePath.array,
+              makeAliasStringPath(tokenState.path),
+            );
+          }
+        },
+        None: () => {
+          if (ref.isTopLevel) {
+            acc = makeAliasStringPath(ref.toTreePath.array);
+          } else {
+            deepSetJSONValue(
+              acc,
+              ref.fromValuePath.array,
+              makeAliasStringPath(ref.toTreePath.array),
+            );
+          }
+        },
+      });
     }
 
     for (const node of this.#rawValueParts.set) {
@@ -142,11 +155,15 @@ export class TokenState<
     return acc;
   }
 
-  getJSONToken(): DesignToken {
+  getJSONToken(options?: { withExplicitType?: boolean }): DesignToken {
+    const withExplicitType = options?.withExplicitType ?? false;
+
     const token: DesignToken = {
-      $type: this.#type,
       $value: this.getJSONValue() as any,
     };
+    if (withExplicitType || this.#typeResolution === 'explicit') {
+      token.$type = this.#type;
+    }
     if (this.description) {
       token.$description = this.description;
     }
@@ -171,6 +188,7 @@ export class TokenState<
   [Symbol.for('nodejs.util.inspect.custom')](_depth: unknown, _opts: unknown) {
     const rawValues = this.#rawValueParts.nodes;
     return `TokenState {
+  id: "${this.id}",
   path: ${JSON.stringify(this.path)},
   type: "${this.#type}",
   rawValues: ${
@@ -181,9 +199,9 @@ export class TokenState<
       : '[]'
   },
   references: ${
-    this.references.size > 0
+    this.referencesArray.length > 0
       ? `[
-    ${this.references.map((node) => node.toString()).join(',\n    ')}
+    ${this.referencesArray.map((node) => node.toString()).join(',\n    ')}
   ]`
       : '[]'
   }

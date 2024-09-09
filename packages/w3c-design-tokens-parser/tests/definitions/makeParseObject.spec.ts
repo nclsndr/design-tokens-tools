@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { makeParseObject } from '../../src/parser/internals/parseObject';
+import { makeParseObject } from '../../src/parser/utils/parseObject';
 import { Result } from '@swan-io/boxed';
 
 import { ValidationError } from '../../src/utils/validationError';
@@ -14,6 +14,7 @@ describe.concurrent('makeParseObject', () => {
         return Result.Error([
           new ValidationError({
             type: 'Type',
+            nodeId: ctx.nodeId,
             treePath: ctx.path,
             valuePath: ctx.valuePath,
             message: `${ctx.varName} must be a boolean. Got "${typeof v}".`,
@@ -27,6 +28,7 @@ describe.concurrent('makeParseObject', () => {
           return Result.Error([
             new ValidationError({
               type: 'Type',
+              nodeId: ctx.nodeId,
               treePath: ctx.path,
               valuePath: ctx.valuePath,
               message: `${ctx.varName} must be a string. Got "${typeof v}".`,
@@ -47,6 +49,7 @@ describe.concurrent('makeParseObject', () => {
       {
         varName: 'foo',
         path: ['foo'],
+        nodeId: 'abc',
         valuePath: [],
       },
     );
@@ -65,6 +68,7 @@ describe.concurrent('makeParseObject', () => {
     const result = validateObjectMock('foo', {
       varName: 'foo',
       path: ['foo'],
+      nodeId: 'abc',
       valuePath: [],
     });
 
@@ -74,7 +78,7 @@ describe.concurrent('makeParseObject', () => {
         Error: (errors) => JSON.stringify(errors),
       }),
     ).toStrictEqual(
-      '[{"type":"Type","isCritical":false,"treePath":["foo"],"valuePath":[],"message":"foo must be an object. Got \\"string\\"."}]',
+      '[{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["foo"],"valuePath":[],"message":"foo must be an object. Got \\"string\\"."}]',
     );
   });
   it('should fail when the candidate misses a mandatory property', () => {
@@ -85,6 +89,7 @@ describe.concurrent('makeParseObject', () => {
       {
         varName: 'foo',
         path: ['foo'],
+        nodeId: 'abc',
         valuePath: [],
       },
     );
@@ -95,7 +100,7 @@ describe.concurrent('makeParseObject', () => {
         Error: (errors) => JSON.stringify(errors),
       }),
     ).toStrictEqual(
-      '[{"type":"Value","isCritical":false,"treePath":["foo"],"valuePath":[],"message":"foo must have a \\"second\\" property."}]',
+      '[{"type":"Value","isCritical":false,"nodeId":"abc","treePath":["foo"],"valuePath":[],"message":"foo must have a \\"second\\" property."}]',
     );
   });
   it('should fail when the candidate provides invalid values', () => {
@@ -107,6 +112,7 @@ describe.concurrent('makeParseObject', () => {
       {
         varName: 'foo',
         path: ['foo'],
+        nodeId: 'abc',
         valuePath: [],
       },
     );
@@ -117,7 +123,7 @@ describe.concurrent('makeParseObject', () => {
         Error: (errors) => JSON.stringify(errors),
       }),
     ).toStrictEqual(
-      '[{"type":"Type","isCritical":false,"treePath":["foo"],"valuePath":["first"],"message":"foo.first must be a boolean. Got \\"string\\"."},{"type":"Type","isCritical":false,"treePath":["foo"],"valuePath":["second"],"message":"foo.second must be a string. Got \\"number\\"."}]',
+      '[{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["foo"],"valuePath":["first"],"message":"foo.first must be a boolean. Got \\"string\\"."},{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["foo"],"valuePath":["second"],"message":"foo.second must be a string. Got \\"number\\"."}]',
     );
   });
 });

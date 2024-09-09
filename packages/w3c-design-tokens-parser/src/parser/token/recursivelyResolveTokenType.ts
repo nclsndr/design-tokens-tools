@@ -33,6 +33,7 @@ export function recursivelyResolveTokenType(
       return parseTokenTypeName(maybeToken.$type, {
         allowUndefined: false,
         varName: `${path.join(ALIAS_PATH_SEPARATOR)}.$type`,
+        nodeId: '',
         path: path,
         valuePath: [],
         nodeKey: '$type',
@@ -72,9 +73,10 @@ export function recursivelyResolveTokenType(
                 return Result.Error([
                   new ValidationError({
                     type: 'Computation',
+                    nodeId: '',
                     treePath: path,
                     referenceToTreePath: value,
-                    message: `Circular references detected.`,
+                    message: `Circular references detected while resolving token type for token "${path.join(ALIAS_PATH_SEPARATOR)}".`,
                   }),
                 ]);
               }
@@ -97,6 +99,7 @@ export function recursivelyResolveTokenType(
   return Result.Error([
     new ValidationError({
       type: 'Value',
+      nodeId: '',
       treePath: path,
       valuePath: undefined,
       message: `Path "${path.join(ALIAS_PATH_SEPARATOR)}" does not resolve to a valid token.`,

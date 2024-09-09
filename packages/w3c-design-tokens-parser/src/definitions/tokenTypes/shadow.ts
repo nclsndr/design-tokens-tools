@@ -4,9 +4,9 @@ import { Shadow } from 'design-tokens-format-module';
 import { parseAliasableColorValue } from './color.js';
 import { parseAliasableDimensionValue } from './dimension.js';
 import { ValidationError } from '../../utils/validationError.js';
-import { AnalyzedValue } from '../../parser/internals/AnalyzedToken.js';
-import { AnalyzerContext } from '../../parser/internals/AnalyzerContext.js';
-import { makeParseObject } from '../../parser/internals/parseObject.js';
+import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
+import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
+import { makeParseObject } from '../../parser/utils/parseObject.js';
 import { withAlias } from '../withAlias.js';
 
 const parseShadowRawValue = makeParseObject({

@@ -3,15 +3,7 @@
 exports[`parseJSONTokenTree > should parse a token tree of raw values of all types 1`] = `
 {
   "groups": [
-    [
-      {
-        "childrenCount": 14,
-        "description": undefined,
-        "extensions": undefined,
-        "path": [],
-        "tokenType": undefined,
-      },
-    ],
+    [],
     [],
   ],
   "tokenTree": {

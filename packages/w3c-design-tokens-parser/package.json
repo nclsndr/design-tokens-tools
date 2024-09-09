@@ -10,7 +10,8 @@
     "test": "vitest",
     "build": "tsc --build",
     "build:schemas": "tsc --project schemas/tsconfig.json && node schemas/index.js",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "benchmark": "0x --output-dir benchmark/output benchmark/parse.js"
   },
   "main": "./dist/index.js",
   "exports": {
@@ -19,9 +20,11 @@
   },
   "dependencies": {
     "@swan-io/boxed": "^2.3.0",
-    "design-tokens-format-module": "^0.9.7"
+    "design-tokens-format-module": "^0.9.7",
+    "hyperid": "^3.3.0"
   },
   "devDependencies": {
+    "0x": "^5.7.0",
     "@types/node": "^20.14.10",
     "@vitest/coverage-v8": "^1.6.0",
     "prettier": "^3.3.2",

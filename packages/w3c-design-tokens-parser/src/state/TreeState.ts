@@ -1,20 +1,20 @@
 import { ReferencesSet } from './ReferencesSet.js';
-import { TreeNodesSet } from './TreeNodesSet.js';
+import { TreeNodesMap } from './TreeNodesMap.js';
 import { TokenState } from './TokenState.js';
 import { GroupState } from './GroupState.js';
 import { ValidationErrorsSet } from './ValidationErrorsSet.js';
 
 export class TreeState {
-  #tokens: TreeNodesSet<TokenState>;
-  #groups: TreeNodesSet<GroupState>;
+  #tokens: TreeNodesMap<TokenState>;
+  #groups: TreeNodesMap<GroupState>;
   #references: ReferencesSet;
 
   #validationErrors: ValidationErrorsSet;
 
   constructor() {
-    this.#tokens = new TreeNodesSet();
-    this.#groups = new TreeNodesSet();
-    this.#references = new ReferencesSet();
+    this.#tokens = new TreeNodesMap();
+    this.#groups = new TreeNodesMap();
+    this.#references = new ReferencesSet(this);
     this.#validationErrors = new ValidationErrorsSet();
   }
 

@@ -1,4 +1,4 @@
-import { TokenTypeName, type JSON } from 'design-tokens-format-module';
+import { TokenTypeName } from 'design-tokens-format-module';
 import { JSONPath } from '../../utils/JSONPath.js';
 
 export type LinkedReferenceResolutionTrace = {

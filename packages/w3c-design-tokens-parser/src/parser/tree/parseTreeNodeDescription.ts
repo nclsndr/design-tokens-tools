@@ -1,4 +1,4 @@
-import { AnalyzerContext } from '../internals/AnalyzerContext.js';
+import { AnalyzerContext } from '../utils/AnalyzerContext.js';
 import { Result } from '@swan-io/boxed';
 import { ValidationError } from '../../utils/validationError.js';
 
@@ -11,6 +11,7 @@ export function parseTreeNodeDescription(
     return Result.Error([
       new ValidationError({
         type: 'Type',
+        nodeId: ctx.nodeId,
         treePath: ctx.path,
         nodeKey: ctx.nodeKey,
         message: `${ctx.varName} must be a string. Got "${typeof value}".`,

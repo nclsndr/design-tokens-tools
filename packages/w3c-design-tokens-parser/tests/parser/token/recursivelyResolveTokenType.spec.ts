@@ -212,7 +212,7 @@ describe('recursivelyResolveTokenType', () => {
         Error: (x) => JSON.stringify(x),
       }),
     ).toBe(
-      '[{"type":"Value","isCritical":false,"treePath":["semantic","border"],"valuePath":[],"message":"Could not resolve $type from token up to root."}]',
+      '[{"type":"Value","isCritical":false,"nodeId":"","treePath":["semantic","border"],"valuePath":[],"message":"Could not resolve $type from token up to root."}]',
     );
   });
   it('should fail to resolve when alias is circular', () => {
@@ -233,7 +233,7 @@ describe('recursivelyResolveTokenType', () => {
         Error: (x) => JSON.stringify(x),
       }),
     ).toBe(
-      '[{"type":"Computation","isCritical":false,"treePath":["base","blue"],"valuePath":[],"referenceToTreePath":["base","blue"],"message":"Circular references detected."}]',
+      '[{"type":"Computation","isCritical":false,"nodeId":"","treePath":["base","blue"],"valuePath":[],"referenceToTreePath":["base","blue"],"message":"Circular references detected while resolving token type for token \\"base.blue\\"."}]',
     );
   });
   it('should fail to resolve when alias is deeply circular', () => {

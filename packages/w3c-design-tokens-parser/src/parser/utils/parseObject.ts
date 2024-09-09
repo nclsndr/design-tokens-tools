@@ -39,6 +39,7 @@ export function makeParseObject<
       return Result.Error([
         new ValidationError({
           type: 'Type',
+          nodeId: ctx.nodeId,
           treePath: ctx.path,
           valuePath: ctx.valuePath,
           message: `${ctx.varName} must be an object. Got "${typeof candidate}".`,
@@ -61,6 +62,7 @@ export function makeParseObject<
         errors.push(
           new ValidationError({
             type: 'Value',
+            nodeId: ctx.nodeId,
             treePath: ctx.path,
             valuePath: ctx.valuePath,
             message: `${ctx.varName} must have a "${k}" property.`,

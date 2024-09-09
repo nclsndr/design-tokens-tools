@@ -5,7 +5,7 @@ import {
   matchIsTokenTypeName,
 } from 'design-tokens-format-module';
 
-import { AnalyzerContext } from '../parser/internals/AnalyzerContext.js';
+import { AnalyzerContext } from '../parser/utils/AnalyzerContext.js';
 import { ValidationError } from '../utils/validationError.js';
 
 export function parseTokenTypeName<AllowUndefined extends boolean = false>(
@@ -28,6 +28,7 @@ export function parseTokenTypeName<AllowUndefined extends boolean = false>(
   return Result.Error([
     new ValidationError({
       type: 'Value',
+      nodeId: ctx.nodeId,
       treePath: ctx.path,
       valuePath: ctx.valuePath,
       nodeKey: ctx.nodeKey,

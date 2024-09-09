@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { parseGroup } from '../../src/parser/group/parseGroup';
+import { parseRawGroup } from '../../../src/parser/group/parseRawGroup';
 
-describe('parseGroup', () => {
+describe('parseRawGroup', () => {
   it('should parse a group definition with description and extensions values', () => {
     const tree = {
       $description: 'A group of colors',
@@ -14,14 +14,16 @@ describe('parseGroup', () => {
       },
     };
 
-    const result = parseGroup(tree, {
+    const result = parseRawGroup(tree, {
       varName: 'aGroup',
+      nodeId: 'abc',
       path: ['aGroup'],
       valuePath: [],
     });
 
     expect(result.isOk()).toBe(true);
     expect(result.isOk() && result.get()).toStrictEqual({
+      id: expect.any(String),
       path: expect.any(Object),
       tokenType: undefined,
       childrenCount: 1,
@@ -34,14 +36,16 @@ describe('parseGroup', () => {
       $type: 'dimension',
     };
 
-    const result = parseGroup(tree, {
+    const result = parseRawGroup(tree, {
       varName: 'aGroup',
+      nodeId: 'abc',
       path: ['aGroup'],
       valuePath: [],
     });
 
     expect(result.isOk()).toBe(true);
     expect(result.isOk() && result.get()).toStrictEqual({
+      id: expect.any(String),
       path: expect.any(Object),
       tokenType: 'dimension',
       childrenCount: 0,
@@ -54,8 +58,9 @@ describe('parseGroup', () => {
       $type: 42,
     };
 
-    const result = parseGroup(tree, {
+    const result = parseRawGroup(tree, {
       varName: 'aGroup',
+      nodeId: 'abc',
       path: ['aGroup'],
       valuePath: [],
     });
@@ -75,8 +80,9 @@ describe('parseGroup', () => {
       },
     };
 
-    const result = parseGroup(tree, {
+    const result = parseRawGroup(tree, {
       varName: 'aGroup',
+      nodeId: 'abc',
       path: ['aGroup'],
       valuePath: [],
     });

@@ -1,9 +1,9 @@
 import { Result } from '@swan-io/boxed';
 import { AliasValue } from 'design-tokens-format-module';
 
-import { AnalyzedValue } from '../parser/internals/AnalyzedToken.js';
+import { AnalyzedValue } from '../parser/token/AnalyzedToken.js';
 import { ValidationError } from '../utils/validationError.js';
-import { AnalyzerContext } from '../parser/internals/AnalyzerContext.js';
+import { AnalyzerContext } from '../parser/utils/AnalyzerContext.js';
 import { captureAliasPath } from '../parser/alias/captureAliasPath.js';
 import { parseAliasValue } from '../parser/alias/parseAliasValue.js';
 

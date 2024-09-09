@@ -2,8 +2,8 @@ import { Result } from '@swan-io/boxed';
 import { tokenTypeNamesMapping } from 'design-tokens-format-module';
 
 import { ValidationError } from '../utils/validationError.js';
-import { AnalyzerContext } from '../parser/internals/AnalyzerContext.js';
-import { AnalyzedValue } from '../parser/internals/AnalyzedToken.js';
+import { AnalyzerContext } from '../parser/utils/AnalyzerContext.js';
+import { AnalyzedValue } from '../parser/token/AnalyzedToken.js';
 
 import { parseAliasableNumberValue } from './tokenTypes/number.js';
 import { parseAliasableBorderValue } from './tokenTypes/border.js';
@@ -60,6 +60,7 @@ export function getTokenValueParser(
         Result.Error([
           new ValidationError({
             type: 'Value',
+            nodeId: ctx.nodeId,
             treePath: ctx.path,
             valuePath: ctx.valuePath,
             message: `Unknown $type value: "${type}".`,
