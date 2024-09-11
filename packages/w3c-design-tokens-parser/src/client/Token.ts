@@ -22,6 +22,10 @@ export class Token<Type extends TokenTypeName = TokenTypeName> {
     return this.#state.path;
   }
 
+  get name() {
+    return this.#state.name;
+  }
+
   /**
    * The token string representation of the path
    */

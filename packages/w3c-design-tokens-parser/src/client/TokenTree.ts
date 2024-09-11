@@ -29,7 +29,7 @@ export class TokenTree {
   }
 
   /**
-   * Get validation errors
+   * Get parsing and validation errors
    */
   getErrors() {
     return this.#treeState.validationErrors.nodes;

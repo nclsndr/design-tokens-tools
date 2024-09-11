@@ -28,6 +28,9 @@ export class TreeNode {
   get path(): JSON.ValuePath {
     return this.#arrayPath;
   }
+  get name() {
+    return this.#arrayPath.at(-1) ?? '';
+  }
   get stringPath() {
     return this.#stringPath;
   }
