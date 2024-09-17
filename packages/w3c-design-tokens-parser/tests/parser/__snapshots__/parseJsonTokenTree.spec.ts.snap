@@ -3,7 +3,16 @@
 exports[`parseJSONTokenTree > should parse a token tree of raw values of all types 1`] = `
 {
   "groups": [
-    [],
+    [
+      {
+        "childrenCount": 14,
+        "description": undefined,
+        "extensions": undefined,
+        "id": "ID",
+        "path": [],
+        "tokenType": undefined,
+      },
+    ],
     [],
   ],
   "tokenTree": {
@@ -106,211 +115,46 @@ exports[`parseJSONTokenTree > should parse a token tree of raw values of all typ
   "tokens": [
     [
       {
-        "description": undefined,
-        "extensions": undefined,
-        "path": [
-          "borderToken",
-        ],
-        "type": "border",
-        "value": {
-          "raw": {
-            "color": "#676767",
-            "style": "solid",
-            "width": "1px",
-          },
-          "toReferences": [],
-        },
+        "id": "ID",
       },
       {
-        "description": undefined,
-        "extensions": undefined,
-        "path": [
-          "colorToken",
-        ],
-        "type": "color",
-        "value": {
-          "raw": "#a82222",
-          "toReferences": [],
-        },
+        "id": "ID",
       },
       {
-        "description": undefined,
-        "extensions": undefined,
-        "path": [
-          "cubicBezierToken",
-        ],
-        "type": "cubicBezier",
-        "value": {
-          "raw": [
-            0,
-            1,
-            1,
-            0,
-          ],
-          "toReferences": [],
-        },
+        "id": "ID",
       },
       {
-        "description": undefined,
-        "extensions": undefined,
-        "path": [
-          "dimensionToken",
-        ],
-        "type": "dimension",
-        "value": {
-          "raw": "12px",
-          "toReferences": [],
-        },
+        "id": "ID",
       },
       {
-        "description": undefined,
-        "extensions": undefined,
-        "path": [
-          "durationToken",
-        ],
-        "type": "duration",
-        "value": {
-          "raw": "1s",
-          "toReferences": [],
-        },
+        "id": "ID",
       },
       {
-        "description": undefined,
-        "extensions": undefined,
-        "path": [
-          "fontFamilyToken",
-        ],
-        "type": "fontFamily",
-        "value": {
-          "raw": "Arial",
-          "toReferences": [],
-        },
+        "id": "ID",
       },
       {
-        "description": undefined,
-        "extensions": undefined,
-        "path": [
-          "stringFontWeightToken",
-        ],
-        "type": "fontWeight",
-        "value": {
-          "raw": "bold",
-          "toReferences": [],
-        },
+        "id": "ID",
       },
       {
-        "description": undefined,
-        "extensions": undefined,
-        "path": [
-          "numberFontWeightToken",
-        ],
-        "type": "fontWeight",
-        "value": {
-          "raw": 700,
-          "toReferences": [],
-        },
+        "id": "ID",
       },
       {
-        "description": undefined,
-        "extensions": undefined,
-        "path": [
-          "gradientToken",
-        ],
-        "type": "gradient",
-        "value": {
-          "raw": [
-            {
-              "color": "#000000",
-              "position": 0,
-            },
-            {
-              "color": "#ffffff",
-              "position": 1,
-            },
-          ],
-          "toReferences": [],
-        },
+        "id": "ID",
       },
       {
-        "description": undefined,
-        "extensions": undefined,
-        "path": [
-          "numberToken",
-        ],
-        "type": "number",
-        "value": {
-          "raw": 12,
-          "toReferences": [],
-        },
+        "id": "ID",
       },
       {
-        "description": undefined,
-        "extensions": undefined,
-        "path": [
-          "shadowToken",
-        ],
-        "type": "shadow",
-        "value": {
-          "raw": {
-            "blur": "3px",
-            "color": "#000000",
-            "offsetX": "1px",
-            "offsetY": "2px",
-            "spread": "4px",
-          },
-          "toReferences": [],
-        },
+        "id": "ID",
       },
       {
-        "description": undefined,
-        "extensions": undefined,
-        "path": [
-          "strokeStyleToken",
-        ],
-        "type": "strokeStyle",
-        "value": {
-          "raw": "solid",
-          "toReferences": [],
-        },
+        "id": "ID",
       },
       {
-        "description": undefined,
-        "extensions": undefined,
-        "path": [
-          "transitionToken",
-        ],
-        "type": "transition",
-        "value": {
-          "raw": {
-            "delay": "0s",
-            "duration": "1s",
-            "timingFunction": [
-              0,
-              0.1,
-              0.7,
-              0.5,
-            ],
-          },
-          "toReferences": [],
-        },
+        "id": "ID",
       },
       {
-        "description": undefined,
-        "extensions": undefined,
-        "path": [
-          "typographyToken",
-        ],
-        "type": "typography",
-        "value": {
-          "raw": {
-            "fontFamily": "Arial",
-            "fontSize": "12px",
-            "fontWeight": "bold",
-            "letterSpacing": "1px",
-            "lineHeight": 1.5,
-          },
-          "toReferences": [],
-        },
+        "id": "ID",
       },
     ],
     [],

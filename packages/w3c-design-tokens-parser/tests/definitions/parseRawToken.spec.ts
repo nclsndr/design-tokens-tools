@@ -10,6 +10,7 @@ describe.concurrent('parseRawToken', () => {
     };
 
     const result = parseRawToken(rawJsonToken, {
+      nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
       valuePath: [],
@@ -24,6 +25,7 @@ describe.concurrent('parseRawToken', () => {
         Error: (_) => undefined,
       }),
     ).toStrictEqual({
+      id: 'abc',
       path: ['aToken'],
       type: 'number',
       value: { raw: 42, toReferences: [] },
@@ -38,6 +40,7 @@ describe.concurrent('parseRawToken', () => {
     };
 
     const result = parseRawToken(rawJsonToken, {
+      nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
       valuePath: [],
@@ -52,6 +55,7 @@ describe.concurrent('parseRawToken', () => {
         Error: (_) => undefined,
       }),
     ).toStrictEqual({
+      id: 'abc',
       path: ['aToken'],
       type: 'color',
       value: { raw: '#ff0000', toReferences: [] },
@@ -65,6 +69,7 @@ describe.concurrent('parseRawToken', () => {
       $value: '#ff0000BB',
     };
     const result = parseRawToken(rawJsonToken, {
+      nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
       valuePath: [],
@@ -79,6 +84,7 @@ describe.concurrent('parseRawToken', () => {
         Error: (_) => undefined,
       }),
     ).toStrictEqual({
+      id: 'abc',
       path: ['aToken'],
       type: 'color',
       value: { raw: '#ff0000BB', toReferences: [] },
@@ -92,6 +98,7 @@ describe.concurrent('parseRawToken', () => {
       $value: '16px',
     };
     const result = parseRawToken(rawJsonToken, {
+      nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
       valuePath: [],
@@ -106,6 +113,7 @@ describe.concurrent('parseRawToken', () => {
         Error: (_) => undefined,
       }),
     ).toStrictEqual({
+      id: 'abc',
       path: ['aToken'],
       type: 'dimension',
       value: { raw: '16px', toReferences: [] },
@@ -122,6 +130,7 @@ describe.concurrent('parseRawToken', () => {
     };
 
     const result = parseRawToken(rawJsonToken, {
+      nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
       valuePath: [],
@@ -136,6 +145,7 @@ describe.concurrent('parseRawToken', () => {
         Error: (_) => undefined,
       }),
     ).toStrictEqual({
+      id: 'abc',
       path: ['aToken'],
       type: 'number',
       value: { raw: 42, toReferences: [] },
@@ -152,6 +162,7 @@ describe.concurrent('parseRawToken', () => {
     };
 
     const result = parseRawToken(rawJsonToken, {
+      nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
       valuePath: [],
@@ -166,7 +177,7 @@ describe.concurrent('parseRawToken', () => {
         Error: (err) => JSON.stringify(err),
       }),
     ).toStrictEqual(
-      '[{"type":"Type","isCritical":false,"treePath":["aToken"],"nodeKey":"$description","valuePath":[],"message":"aToken.$description must be a string. Got \\"boolean\\"."},{"type":"Type","isCritical":false,"treePath":["aToken"],"nodeKey":"$extensions","valuePath":[],"message":"aToken.$extensions must be an object. Got \\"boolean\\"."}]',
+      '[{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["aToken"],"nodeKey":"$description","valuePath":[],"message":"aToken.$description must be a string. Got \\"boolean\\"."},{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["aToken"],"nodeKey":"$extensions","valuePath":[],"message":"aToken.$extensions must be an object. Got \\"boolean\\"."}]',
     );
   });
   it('should fail to parse an invalid token value', () => {
@@ -178,6 +189,7 @@ describe.concurrent('parseRawToken', () => {
       $extensions: 'invalid extensions',
     };
     const result = parseRawToken(rawJsonToken, {
+      nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
       valuePath: [],
@@ -195,6 +207,7 @@ describe.concurrent('parseRawToken', () => {
       $value: 42,
     };
     const result = parseRawToken(rawJsonToken, {
+      nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
       valuePath: [],
@@ -216,6 +229,7 @@ describe.concurrent('parseRawToken', () => {
     };
 
     const result = parseRawToken(rawJsonToken, {
+      nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
       valuePath: [],

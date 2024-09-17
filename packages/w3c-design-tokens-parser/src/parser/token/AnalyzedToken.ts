@@ -80,6 +80,7 @@ export class AnalyzedToken<
    */
   toJSON() {
     return {
+      id: this.#id,
       path: this.#path.slice(),
       type: this.#type,
       value: this.#value,
@@ -93,6 +94,7 @@ export class AnalyzedToken<
    */
   toString() {
     return JSON.stringify({
+      id: this.#id,
       path: this.#path.slice(),
       type: this.#type,
       value: this.#value,

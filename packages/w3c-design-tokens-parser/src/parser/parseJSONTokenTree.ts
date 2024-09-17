@@ -15,6 +15,14 @@ import { AnalyzedGroup } from './group/AnalyzedGroup.js';
 import { parseTreeNode } from './tree/parseTreeNode.js';
 import { makeUniqueId } from '../utils/uniqueId.js';
 
+export function endsWith(
+  arr: Array<string | number>,
+  end: string | number,
+): boolean {
+  if (arr.length === 0) return false;
+  return arr[arr.length - 1] === end;
+}
+
 export type AnalyzedTokenResult = Result<AnalyzedToken, Array<ValidationError>>;
 export type AnalyzedGroupResult = Result<AnalyzedGroup, Array<ValidationError>>;
 
@@ -35,6 +43,13 @@ export function parseJSONTokenTree(root: unknown): Result<
     const analyzedGroups: Array<AnalyzedGroupResult> = [];
 
     traverseJSONValue(jsonTokenTree, (value, rawPath) => {
+      if (
+        endsWith(rawPath, '$description') ||
+        endsWith(rawPath, '$extensions')
+      ) {
+        return false;
+      }
+
       const nodeId = makeUniqueId();
 
       if (matchIsToken(value)) {
@@ -49,16 +64,13 @@ export function parseJSONTokenTree(root: unknown): Result<
 
         return false;
       } else if (matchIsGroup(value)) {
-        // Skip root group
-        if (rawPath.length > 0) {
-          analyzedGroups.push(
-            parseRawGroup(value, {
-              nodeId: nodeId,
-              path: rawPath,
-              varName: `${rawPath.join(ALIAS_PATH_SEPARATOR)}`,
-            }),
-          );
-        }
+        analyzedGroups.push(
+          parseRawGroup(value, {
+            nodeId: nodeId,
+            path: rawPath,
+            varName: `${rawPath.join(ALIAS_PATH_SEPARATOR)}`,
+          }),
+        );
 
         return true;
       }

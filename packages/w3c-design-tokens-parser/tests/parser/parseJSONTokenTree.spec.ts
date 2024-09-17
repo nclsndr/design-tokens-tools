@@ -51,7 +51,121 @@ describe('parseJSONTokenTree', () => {
       },
     });
 
-    expect(analyzedResult).toMatchSnapshot();
+    expect({
+      ...analyzedResult,
+      tokens: [
+        analyzedResult.tokens[0].map((token) => ({
+          ...token,
+          id: 'ID',
+        })),
+        analyzedResult.tokens[1],
+      ],
+      groups: [
+        analyzedResult.groups[0].map((group) => ({
+          ...group,
+          id: 'ID',
+        })),
+        analyzedResult.groups[1],
+      ],
+    }).toMatchSnapshot();
+  });
+  it('should parse a token tree with $description and $extensions at the root level', () => {
+    const tree: JSONTokenTree = {
+      $description: 'A description for the token tree.',
+      $extensions: {
+        someExtension: 'Some value',
+      },
+      base: {
+        primary: colorToken,
+      },
+    };
+
+    const analyzedResult = parseJSONTokenTree(tree).match({
+      Ok: (result) => result,
+      Error: (errors) => {
+        throw new Error(errors.map((e) => e.message).join('\n'));
+      },
+    });
+
+    expect(JSON.parse(JSON.stringify(analyzedResult))).toStrictEqual({
+      tokenTree: {
+        $description: 'A description for the token tree.',
+        $extensions: {
+          someExtension: 'Some value',
+        },
+        base: {
+          primary: {
+            $type: 'color',
+            $value: '#a82222',
+          },
+        },
+      },
+      tokens: [
+        [
+          {
+            id: expect.any(String),
+            path: ['base', 'primary'],
+            type: 'color',
+            value: {
+              raw: '#a82222',
+              toReferences: [],
+            },
+          },
+        ],
+        [],
+      ],
+      groups: [
+        [
+          {
+            id: expect.any(String),
+            path: [],
+            childrenCount: 1,
+            description: 'A description for the token tree.',
+            extensions: {
+              someExtension: 'Some value',
+            },
+          },
+          {
+            id: expect.any(String),
+            path: ['base'],
+            childrenCount: 1,
+          },
+        ],
+        [],
+      ],
+    });
+  });
+  it('should parse a token tree with a token at the top level', () => {
+    const tree: JSONTokenTree = colorToken;
+
+    const analyzedResult = parseJSONTokenTree(tree).match({
+      Ok: (result) => result,
+      Error: (errors) => {
+        throw new Error(errors.map((e) => e.message).join('\n'));
+      },
+    });
+
+    expect(JSON.parse(JSON.stringify(analyzedResult))).toStrictEqual({
+      tokenTree: {
+        $type: 'color',
+        $value: '#a82222',
+      },
+      tokens: [
+        [
+          {
+            id: expect.any(String),
+            path: [],
+            type: 'color',
+            value: {
+              raw: '#a82222',
+              toReferences: [],
+            },
+          },
+        ],
+        [],
+      ],
+      groups: [[], []],
+    });
   });
   it('should parse a token tree with references to other tokens', () => {
     const tree: JSONTokenTree = {
@@ -89,6 +203,7 @@ describe('parseJSONTokenTree', () => {
       tokens: [
         [
           {
+            id: expect.any(String),
             path: ['base', 'primary'],
             type: 'color',
             value: {
@@ -97,6 +212,7 @@ describe('parseJSONTokenTree', () => {
             },
           },
           {
+            id: expect.any(String),
             path: ['semantic', 'primary'],
             type: 'color',
             value: {
@@ -115,6 +231,11 @@ describe('parseJSONTokenTree', () => {
       ],
       groups: [
         [
+          {
+            id: expect.any(String),
+            path: [],
+            childrenCount: 2,
+          },
           {
             id: expect.any(String),
             path: ['base'],
@@ -193,6 +314,7 @@ describe('parseJSONTokenTree', () => {
       ],
       groups: [
         [
+          { id: expect.any(String), path: [], childrenCount: 3 },
           { id: expect.any(String), path: ['base'], childrenCount: 1 },
           { id: expect.any(String), path: ['semantic'], childrenCount: 1 },
         ],
@@ -249,6 +371,7 @@ describe('parseJSONTokenTree', () => {
       ],
       groups: [
         [
+          { id: expect.any(String), path: [], childrenCount: 1 },
           {
             id: expect.any(String),
             path: ['base'],

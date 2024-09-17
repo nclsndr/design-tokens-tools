@@ -96,8 +96,8 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0(typescript@5.5.4)
       design-tokens-format-module:
-        specifier: ^0.9.7
-        version: 0.9.7
+        specifier: ^0.9.8
+        version: 0.9.8
       hyperid:
         specifier: ^3.3.0
         version: 3.3.0
@@ -1713,8 +1713,8 @@ packages:
   des.js@1.1.0:
     resolution: {integrity: sha512-r17GxjhUCjSRy8aiJpr8/UadFIzMzJGexI3Nmz4ADi9LYSFx4gTBp80+NaX/YsXWWLhpZ7v/v/ubEc/bCNfKwg==}
 
-  design-tokens-format-module@0.9.7:
-    resolution: {integrity: sha512-uFfKTkPjUDI7xVoe0mWLSu6qJlD6fSWfYoBLr6ac7Y1qgaaR0P9XAp2NUXWHYmLFhkLjiz42Jqcd6xMMjVP2dw==}
+  design-tokens-format-module@0.9.8:
+    resolution: {integrity: sha512-pciCN69awHGLsKaGC0Vl0I3P5F7+JihVYpI+LZHtYQg6rTAGBficstEqgHiUNHDqtHl4WHhQvTqdAnN0bryZqQ==}
 
   detect-node-es@1.1.0:
     resolution: {integrity: sha512-ypdmJU/TbBby2Dxibuv7ZLW3Bs1QEmM7nHjEANfohJLvE0XVujisn1qPJcZxg+qDucsr+bP6fLD1rPS3AhJ7EQ==}
@@ -4937,7 +4937,7 @@ snapshots:
       inherits: 2.0.4
       minimalistic-assert: 1.0.1
 
-  design-tokens-format-module@0.9.7: {}
+  design-tokens-format-module@0.9.8: {}
 
   detect-node-es@1.1.0: {}
 

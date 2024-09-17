@@ -340,8 +340,9 @@ describe('TokenTree', () => {
 
       const results = tokenTree.getAllGroups();
 
-      expect(results).toHaveLength(3);
+      expect(results).toHaveLength(4);
       expect(results.map((t) => t.stringPath)).toStrictEqual([
+        '',
         'color',
         'color.blue',
         'space',
