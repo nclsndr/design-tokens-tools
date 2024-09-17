@@ -1,23 +1,30 @@
 {
   "name": "@nclsndr/w3c-design-tokens-parser",
-  "description": "",
   "version": "0.0.1",
-  "homepage": "https://github.com/nclsndr/design-tokens-format-module",
+  "description": "a TypeScript implementation of the parser for the W3C Design Tokens Format Module specification",
+  "keywords": [
+    "design token format module",
+    "design tokens",
+    "design system",
+    "dtcg"
+  ],
+  "homepage": "https://github.com/nclsndr/design-tokens-tools/tree/main/packages/w3c-design-tokens-parser",
   "license": "MIT",
   "author": "Nico Andre <hello@nclsndr.com>",
   "type": "module",
   "scripts": {
     "test": "vitest",
-    "build": "tsc --build",
-    "build:schemas": "tsc --project schemas/tsconfig.json && node schemas/index.js",
+    "build": "rm -rf dist && tsc --build",
     "tsc": "tsc",
     "benchmark": "0x --output-dir benchmark/output benchmark/parse.js"
   },
-  "main": "./dist/index.js",
   "exports": {
-    ".": "./dist/index.js",
-    "./types": "./dist/types.js"
+    ".": "./dist/index.js"
   },
+  "files": [
+    "dist",
+    "docs"
+  ],
   "dependencies": {
     "@swan-io/boxed": "^2.3.0",
     "design-tokens-format-module": "^0.9.7",
