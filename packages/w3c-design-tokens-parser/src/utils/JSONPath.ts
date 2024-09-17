@@ -55,6 +55,10 @@ export class JSONPath {
     return this.#array.length;
   }
 
+  join(separator: string) {
+    return this.#array.join(separator);
+  }
+
   equals(path: JSON.ValuePath) {
     return this.#string === path.join(ALIAS_PATH_SEPARATOR);
   }

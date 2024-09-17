@@ -1,5 +1,9 @@
-import { DesignToken, TokenTypeName } from 'design-tokens-format-module';
-import { type JSON } from 'design-tokens-format-module';
+import type {
+  DesignToken,
+  TokenTypeName,
+  JSON,
+  PickTokenByType,
+} from 'design-tokens-format-module';
 
 import type { TreeState } from './TreeState.js';
 import { TreeNode } from './TreeNode.js';
@@ -113,35 +117,60 @@ export class TokenState<
     ) as any;
   }
 
-  getJSONValue(): DesignToken['$value'] {
+  getJSONValue(options?: { resolveToDepth?: number }) {
+    const resolveToDepth =
+      options?.resolveToDepth === -1 ? Infinity : options?.resolveToDepth;
+
     let acc: any =
       this.type === 'gradient' || this.type === 'cubicBezier' ? [] : {};
 
     for (const ref of this.referencesArray) {
-      this.#treeState.tokenStates.getOneById(ref.toId).match({
-        Some: (tokenState) => {
+      if (resolveToDepth !== undefined) {
+        const { raws, refs } = ref.resolve(resolveToDepth);
+        for (const raw of raws) {
           if (ref.isTopLevel) {
-            acc = makeAliasStringPath(tokenState.path);
+            acc = raw.value;
+          } else {
+            deepSetJSONValue(acc, raw.path.array, raw.value);
+          }
+        }
+        for (const innerRef of refs) {
+          if (ref.isTopLevel) {
+            acc = makeAliasStringPath(innerRef.toTreePath.array);
           } else {
             deepSetJSONValue(
               acc,
-              ref.fromValuePath.array,
-              makeAliasStringPath(tokenState.path),
+              innerRef.fromValuePath.array,
+              makeAliasStringPath(innerRef.toTreePath.array),
             );
           }
-        },
-        None: () => {
-          if (ref.isTopLevel) {
-            acc = makeAliasStringPath(ref.toTreePath.array);
-          } else {
-            deepSetJSONValue(
-              acc,
-              ref.fromValuePath.array,
-              makeAliasStringPath(ref.toTreePath.array),
-            );
-          }
-        },
-      });
+        }
+      } else {
+        this.#treeState.tokenStates.getOneById(ref.toId).match({
+          Some: (tokenState) => {
+            if (ref.isTopLevel) {
+              acc = makeAliasStringPath(tokenState.path);
+            } else {
+              deepSetJSONValue(
+                acc,
+                ref.fromValuePath.array,
+                makeAliasStringPath(tokenState.path),
+              );
+            }
+          },
+          None: () => {
+            if (ref.isTopLevel) {
+              acc = makeAliasStringPath(ref.toTreePath.array);
+            } else {
+              deepSetJSONValue(
+                acc,
+                ref.fromValuePath.array,
+                makeAliasStringPath(ref.toTreePath.array),
+              );
+            }
+          },
+        });
+      }
     }
 
     for (const node of this.#rawValueParts.set) {
@@ -155,11 +184,14 @@ export class TokenState<
     return acc;
   }
 
-  getJSONToken(options?: { withExplicitType?: boolean }): DesignToken {
+  getJSONToken(options?: {
+    withExplicitType?: boolean;
+    resolveToDepth?: number;
+  }) {
     const withExplicitType = options?.withExplicitType ?? false;
 
     const token: DesignToken = {
-      $value: this.getJSONValue() as any,
+      $value: this.getJSONValue(options) as any,
     };
     if (withExplicitType || this.#typeResolution === 'explicit') {
       token.$type = this.#type;
@@ -208,3 +240,5 @@ export class TokenState<
 }`;
   }
 }
+
+type TT = PickTokenByType<'color'>;

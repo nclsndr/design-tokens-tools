@@ -2,7 +2,6 @@
 
 This package provides a TypeScript implementation of the parser for the [W3C Design Tokens Format Module](https://tr.designtokens.org/format) specification. It also includes several methods to work with the tokens and their values.
 
-
 ## Installation
 
 ### Using npm
@@ -38,12 +37,12 @@ const tokens = {
     blue: {
       100: {
         $value: '#0d3181',
-      }
-    }
-  }
+      },
+    },
+  },
 };
 
-const tokenTree = parseDesignTokens()
+const tokenTree = parseDesignTokens();
 ```
 
 The `TokenTree` exposes various methods to either get the parse errors, the tokens, or work with the values of the tokens.
@@ -63,40 +62,116 @@ tokenTree.getAllTokensByType('color');
 // With a callback style
 tokenTree.mapTokensByType('color', (token) => {
   // ...
-})
+});
 
 // Get groups
-tokenTree.getAllGroups()
+tokenTree.getAllGroups();
 tokenTree.getGroup(['color']);
 ```
 
 Once we grabbed some tokens, we can use the `Token` methods to move further.
 
+The most basic operation is to get the JSON value of a token. Let's take the following:
+
 ```typescript
-import { colorToken } from './tokens';
+const tokens: JSONTokenTree = {
+  color: {
+    $type: 'color',
+    blue: {
+      $value: '#0000FF',
+    },
+    accent: {
+      $value: '{color.blue}',
+    },
+    borderActive: {
+      $value: '{color.accent}',
+    },
+  },
+  border: {
+    $type: 'border',
+    active: {
+      $value: {
+        width: '1px',
+        style: 'solid',
+        color: '{color.borderActive}',
+      },
+    },
+  },
+};
+const tokenTree = parseDesignTokens(tokens);
 
-const colorTokens = tokenTree.getAllTokensByType('color');
+const fullyResolvedColorValues = tokenTree.mapTokensByType('color', (token) => {
+  console.log(token.summary);
 
-const cssColorTokens = tokenTree.mapTokensByType('color', (colorToken) => {
-  console.log(colorToken.summary);
-
-  return {
-    key: colorToken.name,
-    value: colorToken
-      .getValueMapper()
-      .mapScalarValue((scalarValue) => scalarValue.raw)
-      .mapAliasReference(
-        (aliasReference) =>
-          `var(--${aliasReference.to.treePath.array.join('-')})`,
-      )
-      .unwrap(),
-  };
+  return token.getJSONValue({
+    resolveToDepth: Infinity,
+    // resolveToDepth allows to resolve the token value to a certain depth.
+    // resolveToDepth: -1 is equivalent to resolveToDepth: Infinity
+  });
 });
+console.log(fullyResolvedColorValues); // [ '#0000FF', '#0000FF', '#0000FF' ]
+
+const partiallyResolvedColorValues = tokenTree.mapTokensByType(
+  'color',
+  (token) => {
+    return token.getJSONValue({
+      resolveToDepth: 1, // resolving aliases up to 1 level
+    });
+  },
+);
+console.log(partiallyResolvedColorValues); // [ '#0000FF', '#0000FF', '{color.blue}' ]
 ```
 
+Whenever we want to work with the value of a token, we need to consider all the potential forms the value might take.
 The `token
 .getValueMapper()` method provides an API to generalize the approach to the token values where most of them can be aliased at any point in the tree.
 
+With a color, we might have a raw value or an alias reference.
+
+```typescript
+const colorValues = tokenTree.mapTokensByType('color', (colorToken) => {
+  return colorToken
+    .getValueMapper()
+    .mapScalarValue((scalarValue) => scalarValue.raw)
+    .mapAliasReference(
+      (aliasReference) =>
+        `var(--${aliasReference.to.treePath.array.join('-')})`,
+    )
+    .unwrap();
+});
+console.log(colorValues); // [ '#0000FF', 'var(--color-blue)', 'var(--color-accent)' ]
+```
+
+With a border, we might have an alias reference or an object, which might contain an alias reference for each of its properties.
+
+```typescript
+const borderValues = tokenTree.mapTokensByType('border', (token) => {
+  return token
+    .getValueMapper()
+    .mapAliasReference((ref) => `var(--${ref.to.treePath.join('-')})`)
+    .mapObjectValue((obj) =>
+      obj.flatMap((value) => {
+        const width = value.width
+          .mapAliasReference((ref) => `var(--${ref.to.treePath.join('-')}`)
+          .mapScalarValue((value) => value.raw)
+          .unwrap();
+        const style = value.style
+          .mapAliasReference((ref) => `var(--${ref.to.treePath.join('-')}`)
+          .mapScalarValue((value) => value.raw)
+          .unwrap();
+        const color = value.color
+          .mapAliasReference((ref) => `var(--${ref.to.treePath.join('-')}`)
+          .mapScalarValue((value) => value.raw)
+          .unwrap();
+
+        return [width, style, color].join(' ');
+      }),
+    )
+    .unwrap();
+});
+
+console.log(borderValues); // [ '1px solid var(--color-borderActive' ]
+```
 
 In order to cut down the complexity of aliases one would have to resolve, the `token
 .getValueMapper()` methods takes a `resolveAtDepth` option, which can bring back the raw value of the token at a certain depth, as far as the referenced token exists.
@@ -107,7 +182,7 @@ const cssColorTokens = tokenTree.mapTokensByType('color', (colorToken) => {
     key: colorToken.name,
     value: colorToken
       .getValueMapper({
-        resolveAtDepth: Infinity
+        resolveAtDepth: Infinity,
       })
       .mapScalarValue((scalarValue) => scalarValue.raw)
       .mapAliasReference(

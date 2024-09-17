@@ -180,6 +180,134 @@ describe('Token', () => {
         style: 'solid',
       });
     });
+    it('should get the fully resolved value with `resolveToDepth: -1`', () => {
+      const tokens: JSONTokenTree = {
+        color: {
+          blue: {
+            $type: 'color',
+            $value: '#cfd5e6',
+          },
+          cyan: {
+            $value: '{color.blue}',
+          },
+        },
+        border: {
+          $type: 'border',
+          $value: {
+            color: '{color.cyan}',
+            width: '1px',
+            style: 'solid',
+          },
+        },
+      };
+      const tokenTree = parseDesignTokens(tokens);
+
+      const cyanToken = tokenTree.getToken(['color', 'cyan']).match({
+        Some: (token) => token,
+        None: () => {
+          throw new Error('Token not found');
+        },
+      });
+      expect(cyanToken.getJSONValue({ resolveToDepth: -1 })).toBe('#cfd5e6');
+
+      const borderToken = tokenTree.getToken(['border']).match({
+        Some: (token) => token,
+        None: () => {
+          throw new Error('Token not found');
+        },
+      });
+      expect(borderToken.getJSONValue({ resolveToDepth: -1 })).toStrictEqual({
+        color: '#cfd5e6',
+        width: '1px',
+        style: 'solid',
+      });
+    });
+    it('should get the partially resolved value with `resolveToDepth: 1`', () => {
+      const tokens: JSONTokenTree = {
+        color: {
+          blue: {
+            $type: 'color',
+            $value: '#cfd5e6',
+          },
+          cyan: {
+            $value: '{color.blue}',
+          },
+        },
+        border: {
+          $type: 'border',
+          $value: {
+            color: '{color.cyan}',
+            width: '1px',
+            style: 'solid',
+          },
+        },
+      };
+      const tokenTree = parseDesignTokens(tokens);
+
+      const cyanToken = tokenTree.getToken(['color', 'cyan']).match({
+        Some: (token) => token,
+        None: () => {
+          throw new Error('Token not found');
+        },
+      });
+      expect(cyanToken.getJSONValue({ resolveToDepth: 1 })).toBe('#cfd5e6');
+
+      const borderToken = tokenTree.getToken(['border']).match({
+        Some: (token) => token,
+        None: () => {
+          throw new Error('Token not found');
+        },
+      });
+      expect(borderToken.getJSONValue({ resolveToDepth: 1 })).toStrictEqual({
+        color: '{color.blue}',
+        width: '1px',
+        style: 'solid',
+      });
+    });
+    it('should get the non-resolved value with `resolveToDepth: 0`', () => {
+      const tokens: JSONTokenTree = {
+        color: {
+          blue: {
+            $type: 'color',
+            $value: '#cfd5e6',
+          },
+          cyan: {
+            $value: '{color.blue}',
+          },
+        },
+        border: {
+          $type: 'border',
+          $value: {
+            color: '{color.cyan}',
+            width: '1px',
+            style: 'solid',
+          },
+        },
+      };
+      const tokenTree = parseDesignTokens(tokens);
+
+      const cyanToken = tokenTree.getToken(['color', 'cyan']).match({
+        Some: (token) => token,
+        None: () => {
+          throw new Error('Token not found');
+        },
+      });
+      expect(cyanToken.getJSONValue({ resolveToDepth: 0 })).toBe(
+        '{color.blue}',
+      );
+
+      const borderToken = tokenTree.getToken(['border']).match({
+        Some: (token) => token,
+        None: () => {
+          throw new Error('Token not found');
+        },
+      });
+      expect(borderToken.getJSONValue({ resolveToDepth: 0 })).toStrictEqual({
+        color: '{color.cyan}',
+        width: '1px',
+        style: 'solid',
+      });
+    });
   });
   describe('getJSONToken', () => {
     it('should get the JSON token as initially provided', () => {
@@ -298,6 +426,56 @@ describe('Token', () => {
         $extensions: {
           'com.example': true,
         },
+      });
+    });
+    it('should get the JSON token with resolved values', () => {
+      const tokens: JSONTokenTree = {
+        color: {
+          $type: 'color',
+          blue: {
+            $type: 'color',
+            $value: '#cfd5e6',
+          },
+          cyan: {
+            $value: '{color.blue}',
+          },
+          indigo: {
+            $value: '{color.cyan}',
+          },
+        },
+      };
+
+      const tokenTree = parseDesignTokens(tokens);
+
+      const blueToken = tokenTree.getToken(['color', 'blue']).match({
+        Some: (token) => token,
+        None: () => {
+          throw new Error('Token not found');
+        },
+      });
+      expect(blueToken.getJSONToken({ resolveToDepth: -1 })).toStrictEqual({
+        $value: '#cfd5e6',
+        $type: 'color',
+      });
+
+      const cyanToken = tokenTree.getToken(['color', 'cyan']).match({
+        Some: (token) => token,
+        None: () => {
+          throw new Error('Token not found');
+        },
+      });
+      expect(cyanToken.getJSONToken({ resolveToDepth: -1 })).toStrictEqual({
+        $value: '#cfd5e6',
+      });
+
+      const indigoToken = tokenTree.getToken(['color', 'indigo']).match({
+        Some: (token) => token,
+        None: () => {
+          throw new Error('Token not found');
+        },
+      });
+      expect(indigoToken.getJSONToken({ resolveToDepth: -1 })).toStrictEqual({
+        $value: '#cfd5e6',
       });
     });
   });

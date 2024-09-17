@@ -27,7 +27,7 @@
   ],
   "dependencies": {
     "@swan-io/boxed": "^2.3.0",
-    "design-tokens-format-module": "^0.9.8",
+    "design-tokens-format-module": "^0.9.9",
     "hyperid": "^3.3.0"
   },
   "devDependencies": {

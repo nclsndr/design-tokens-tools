@@ -1,11 +1,11 @@
 import {
   DesignToken,
   type JSON,
-  TokenTypeName,
+  type TokenTypeName,
+  type PickTokenByType,
 } from 'design-tokens-format-module';
 
 import { TokenState } from '../state/TokenState.js';
-import { Reference } from '../state/Reference.js';
 import { PickSwappedValueSignature } from '../state/ValueMapper.js';
 
 export class Token<Type extends TokenTypeName = TokenTypeName> {
@@ -108,15 +108,23 @@ export class Token<Type extends TokenTypeName = TokenTypeName> {
 
   /**
    * Get the JSON representation of the token value
+   * @param options
    */
-  getJSONValue() {
-    return this.#state.getJSONValue();
+  getJSONValue(options?: {
+    resolveToDepth?: number;
+  }): PickTokenByType<Type>['$value'] {
+    return this.#state.getJSONValue(options);
   }
 
   /**
    * Get the JSON representation of the token
+   * @param options
    */
-  getJSONToken(options?: { withExplicitType?: boolean }) {
+  getJSONToken(options?: {
+    withExplicitType?: boolean;
+    resolveToDepth?: number;
+  }): PickTokenByType<Type> {
+    //  @ts-expect-error - TokenState returns a broader type for performance reasons
     return this.#state.getJSONToken(options);
   }
 

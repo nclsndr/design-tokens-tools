@@ -4,15 +4,14 @@ import {
   type JSON,
   TokenTypeName,
 } from 'design-tokens-format-module';
+import { Option } from '@swan-io/boxed';
 
 import { Reference } from './Reference.js';
 import { TokenState } from './TokenState.js';
 import { JSONPath } from '../utils/JSONPath.js';
-import { RawValuePart } from './RawValuePart.js';
 import { Token } from '../client/Token.js';
 import { indentLines } from '../utils/indentLines.js';
 import { PickTokenTypeAliasingCompatibilityEntry } from '../definitions/TokenTypeAliasingCompatibility.js';
-import { Option } from '@swan-io/boxed';
 
 export type SwapValueSignature<
   Key extends string,
