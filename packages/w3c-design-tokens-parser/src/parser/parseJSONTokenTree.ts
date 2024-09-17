@@ -34,7 +34,25 @@ export function parseJSONTokenTree(root: unknown): Result<
   },
   ValidationError[]
 > {
-  return parseTreeNode(root, {
+  let jsonTree: unknown;
+  if (typeof root === 'string') {
+    try {
+      jsonTree = JSON.parse(root);
+    } catch (error) {
+      return Result.Error([
+        new ValidationError({
+          nodeId: '',
+          type: 'Computation',
+          message: 'Failed to parse JSON string',
+          treePath: [],
+        }),
+      ]);
+    }
+  } else {
+    jsonTree = root;
+  }
+
+  return parseTreeNode(jsonTree, {
     varName: '[root]',
     nodeId: '',
     path: [],

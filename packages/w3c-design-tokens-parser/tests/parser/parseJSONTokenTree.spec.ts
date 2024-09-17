@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { JSONTokenTree } from 'design-tokens-format-module';
 
-import { parseJSONTokenTree } from '../../src/parser/parseJSONTokenTree';
 import {
   borderToken,
   colorToken,
@@ -19,7 +18,93 @@ import {
   typographyToken,
 } from '../_fixtures/tokens';
 
+import { parseJSONTokenTree } from '../../src/parser/parseJSONTokenTree';
+
 describe('parseJSONTokenTree', () => {
+  it('should parse a token tree embedded in a string', () => {
+    const tokens: JSONTokenTree = {
+      base: {
+        primary: colorToken,
+      },
+      semantic: {
+        primary: {
+          $value: '{base.primary}',
+        },
+      },
+    };
+
+    const analyzedResult = parseJSONTokenTree(JSON.stringify(tokens)).match({
+      Ok: (result) => result,
+      Error: (errors) => {
+        throw new Error(errors.map((e) => e.message).join('\n'));
+      },
+    });
+
+    expect(JSON.parse(JSON.stringify(analyzedResult))).toStrictEqual({
+      tokenTree: {
+        base: {
+          primary: {
+            $type: 'color',
+            $value: '#a82222',
+          },
+        },
+        semantic: {
+          primary: {
+            $value: '{base.primary}',
+          },
+        },
+      },
+      tokens: [
+        [
+          {
+            id: expect.any(String),
+            path: ['base', 'primary'],
+            type: 'color',
+            value: {
+              raw: '#a82222',
+              toReferences: [],
+            },
+          },
+          {
+            id: expect.any(String),
+            path: ['semantic', 'primary'],
+            type: 'color',
+            value: {
+              raw: '{base.primary}',
+              toReferences: [
+                {
+                  fromTreePath: ['semantic', 'primary'],
+                  fromValuePath: [],
+                  toTreePath: ['base', 'primary'],
+                },
+              ],
+            },
+          },
+        ],
+        [],
+      ],
+      groups: [
+        [
+          {
+            id: expect.any(String),
+            path: [],
+            childrenCount: 2,
+          },
+          {
+            id: expect.any(String),
+            path: ['base'],
+            childrenCount: 1,
+          },
+          {
+            id: expect.any(String),
+            path: ['semantic'],
+            childrenCount: 1,
+          },
+        ],
+        [],
+      ],
+    });
+  });
   it('should parse a token tree of raw values of all types', () => {
     const tree: JSONTokenTree = {
       borderToken,
@@ -167,6 +252,7 @@ describe('parseJSONTokenTree', () => {
       groups: [[], []],
     });
   });
+
   it('should parse a token tree with references to other tokens', () => {
     const tree: JSONTokenTree = {
       base: {
