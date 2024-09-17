@@ -10,6 +10,7 @@ describe.concurrent('parseAliasableGradientValue', () => {
         { position: 1, color: '#ffffff' },
       ],
       {
+        nodeId: 'abc',
         varName: 'foo',
         path: ['foo'],
         valuePath: [],
@@ -31,6 +32,7 @@ describe.concurrent('parseAliasableGradientValue', () => {
   });
   it('should parse a gradient with a top level alias', () => {
     const result = parseAliasableGradientValue('{gradients.foo}', {
+      nodeId: 'abc',
       varName: 'foo',
       path: ['foo'],
       valuePath: [],
@@ -52,6 +54,7 @@ describe.concurrent('parseAliasableGradientValue', () => {
         { position: '{gradients.stop.2}', color: '{colors.blue}' },
       ],
       {
+        nodeId: 'abc',
         varName: 'foo',
         path: ['foo'],
         valuePath: [],

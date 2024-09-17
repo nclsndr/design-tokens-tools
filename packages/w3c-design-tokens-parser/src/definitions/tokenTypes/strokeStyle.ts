@@ -10,6 +10,7 @@ import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
 import { ValidationError } from '../../utils/validationError.js';
 import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
 import { withAlias } from '../withAlias.js';
+import { makeParseObject } from '../../parser/utils/parseObject.js';
 
 export const strokeStyleStringValues = [
   'solid',
@@ -106,6 +107,11 @@ export function parseStrokeStyleDashArrayValue(
   );
 }
 
+const parseStrokeObjectValue = makeParseObject({
+  dashArray: { parser: parseStrokeStyleDashArrayValue },
+  lineCap: { parser: parseStrokeStyleLineCapValue },
+});
+
 export function parseStrokeStyleRawValue(
   value: unknown,
   ctx: AnalyzerContext,
@@ -128,61 +134,13 @@ export function parseStrokeStyleRawValue(
       }),
     ]);
   } else if (typeof value === 'object' && value !== null) {
-    // TODO @Nico: Refactor using makeParseObject
-    if (!('dashArray' in value) || !('lineCap' in value)) {
-      return Result.Error([
-        new ValidationError({
-          type: 'Value',
-          nodeId: ctx.nodeId,
-          treePath: ctx.path,
-          nodeKey: ctx.nodeKey,
-          valuePath: ctx.valuePath,
-          message: `${ctx.varName} must have "dashArray" and "lineCap" properties. Got "${value}".`,
-        }),
-      ]);
-    }
-    const dashArrayResult = parseStrokeStyleDashArrayValue(value.dashArray, {
-      ...ctx,
-      valuePath: (ctx.valuePath ?? []).concat(['dashArray']),
-      varName: `${ctx.varName}.dashArray`,
-    });
-    const lineCapResult = parseStrokeStyleLineCapValue(value.lineCap, {
-      ...ctx,
-      valuePath: (ctx.valuePath ?? []).concat(['lineCap']),
-      varName: `${ctx.varName}.lineCap`,
-    });
-
-    let errors: Array<ValidationError> = [];
-    if (dashArrayResult.isError()) {
-      errors = errors.concat(dashArrayResult.error);
-    }
-    if (lineCapResult.isError()) {
-      errors = errors.concat(lineCapResult.error);
-    }
-    if (errors.length > 0) {
-      return Result.Error(errors);
-    }
-
-    if (dashArrayResult.isOk() && lineCapResult.isOk()) {
-      return Result.Ok({
-        raw: {
-          dashArray: dashArrayResult.value.map((x) => x.raw),
-          lineCap: lineCapResult.value,
-        },
-        toReferences: dashArrayResult.value.map((x) => x.toReferences).flat(),
-      });
-    }
-
-    return Result.Error([
-      new ValidationError({
-        type: 'Value',
-        nodeId: ctx.nodeId,
-        treePath: ctx.path,
-        nodeKey: ctx.nodeKey,
-        valuePath: ctx.valuePath,
-        message: `${ctx.varName} must have "dashArray" and "lineCap" properties. Got "${value}".`,
-      }),
-    ]);
+    return parseStrokeObjectValue(value, ctx).map((analyzed) => ({
+      raw: {
+        dashArray: analyzed.dashArray.map((x) => x.raw),
+        lineCap: analyzed.lineCap,
+      },
+      toReferences: analyzed.dashArray.flatMap((x) => x.toReferences),
+    }));
   }
   return Result.Error([
     new ValidationError({

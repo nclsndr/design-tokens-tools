@@ -11,6 +11,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
         timingFunction: [0, 0, 1, 1],
       },
       {
+        nodeId: 'abc',
         varName: 'transitions.a-transition',
         path: ['transitions', 'a-transition'],
         valuePath: [],
@@ -28,6 +29,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
   });
   it('should parse a transition value with a top level alias', () => {
     const result = parseAliasableTransitionValue('{transitions.b-transition}', {
+      nodeId: 'abc',
       varName: 'transitions.a-transition',
       path: ['transitions', 'a-transition'],
       valuePath: [],
@@ -52,6 +54,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
         timingFunction: '{cubicBezier.easeInOut}',
       },
       {
+        nodeId: 'abc',
         varName: 'transitions.a-transition',
         path: ['transitions', 'a-transition'],
         valuePath: [],
@@ -83,6 +86,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
   });
   it('should fail when the value is not an object', () => {
     const result = parseAliasableTransitionValue('foo', {
+      nodeId: 'abc',
       varName: 'transitions.a-transition',
       path: ['transitions', 'a-transition'],
       valuePath: [],
@@ -100,6 +104,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
         timingFunction: [0, 0, 1, 1],
       },
       {
+        nodeId: 'abc',
         varName: 'transitions.a-transition',
         path: ['transitions', 'a-transition'],
         valuePath: [],
@@ -118,6 +123,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
         timingFunction: [0, 0, 1, 1],
       },
       {
+        nodeId: 'abc',
         varName: 'transitions.a-transition',
         path: ['transitions', 'a-transition'],
         valuePath: [],
@@ -136,6 +142,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
         delay: '0s',
       },
       {
+        nodeId: 'abc',
         varName: 'transitions.a-transition',
         path: ['transitions', 'a-transition'],
         valuePath: [],

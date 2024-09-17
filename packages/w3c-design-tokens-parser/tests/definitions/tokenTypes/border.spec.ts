@@ -11,6 +11,7 @@ describe.concurrent('parseAliasableBorderValue', () => {
         style: 'solid',
       },
       {
+        nodeId: 'abc',
         varName: 'borders.a-border',
         path: ['borders', 'a-border'],
         valuePath: [],
@@ -28,6 +29,7 @@ describe.concurrent('parseAliasableBorderValue', () => {
   });
   it('should parse an aliased value', () => {
     const result = parseAliasableBorderValue('{borders.b-border}', {
+      nodeId: 'abc',
       varName: 'borders.a-border',
       path: ['borders', 'a-border'],
       valuePath: [],
@@ -51,6 +53,7 @@ describe.concurrent('parseAliasableBorderValue', () => {
         style: '{border.property.solid}',
       },
       {
+        nodeId: 'abc',
         varName: 'borders.a-border',
         path: ['borders', 'a-border'],
         valuePath: [],
@@ -85,6 +88,7 @@ describe.concurrent('parseAliasableBorderValue', () => {
     expect(
       (
         parseAliasableBorderValue('not an object', {
+          nodeId: 'abc',
           varName: 'borders.a-border',
           path: ['borders', 'a-border'],
           valuePath: [],
@@ -99,6 +103,7 @@ describe.concurrent('parseAliasableBorderValue', () => {
         style: 'solid',
       },
       {
+        nodeId: 'abc',
         varName: 'borders.a-border',
         path: ['borders', 'a-border'],
         valuePath: [],
@@ -117,6 +122,7 @@ describe.concurrent('parseAliasableBorderValue', () => {
         style: 'solid',
       },
       {
+        nodeId: 'abc',
         varName: 'borders.a-border',
         path: ['borders', 'a-border'],
         valuePath: [],
@@ -135,6 +141,7 @@ describe.concurrent('parseAliasableBorderValue', () => {
         width: '1px',
       },
       {
+        nodeId: 'abc',
         varName: 'borders.a-border',
         path: ['borders', 'a-border'],
         valuePath: [],
@@ -154,6 +161,7 @@ describe.concurrent('parseAliasableBorderValue', () => {
         style: 'solid',
       },
       {
+        nodeId: 'abc',
         varName: 'borders.a-border',
         path: ['borders', 'a-border'],
         valuePath: [],

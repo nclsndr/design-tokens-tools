@@ -13,6 +13,7 @@ describe.concurrent('parseAliasableTypographyValue', () => {
         letterSpacing: '0.5px',
       },
       {
+        nodeId: 'abc',
         varName: 'foo',
         path: ['foo'],
         valuePath: [],
@@ -32,6 +33,7 @@ describe.concurrent('parseAliasableTypographyValue', () => {
   });
   it('should parse a typography value with a top level alias', () => {
     const result = parseAliasableTypographyValue('{typography.foo}', {
+      nodeId: 'abc',
       varName: 'foo',
       path: ['foo'],
       valuePath: [],
@@ -49,6 +51,7 @@ describe.concurrent('parseAliasableTypographyValue', () => {
         letterSpacing: '{letterSpacing.foo}',
       },
       {
+        nodeId: 'abc',
         varName: 'foo',
         path: ['foo'],
         valuePath: [],

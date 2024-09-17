@@ -13,6 +13,7 @@ describe.concurrent('parseRawStrokeStyleValue', () => {
           parseAliasableStrokeStyleValue(value, {
             valuePath: [],
             path: ['test'],
+            nodeId: 'abc',
             varName: 'test',
           }) as any
         ).value,
@@ -30,6 +31,7 @@ describe.concurrent('parseRawStrokeStyleValue', () => {
         parseAliasableStrokeStyleValue(value, {
           valuePath: [],
           path: ['test'],
+          nodeId: 'abc',
           varName: 'test',
         }) as any
       ).value,
@@ -55,6 +57,7 @@ describe.concurrent('parseRawStrokeStyleValue', () => {
         parseAliasableStrokeStyleValue(value, {
           valuePath: [],
           path: ['test'],
+          nodeId: 'abc',
           varName: 'test',
         }) as any
       ).value,
@@ -77,12 +80,13 @@ describe.concurrent('parseRawStrokeStyleValue', () => {
           parseAliasableStrokeStyleValue(42, {
             valuePath: [],
             path: ['test'],
+            nodeId: 'abc',
             varName: 'test',
           }) as any
         ).error,
       ),
     ).toStrictEqual(
-      '[{"type":"Type","isCritical":false,"treePath":["test"],"valuePath":[],"message":"test must be a string or an object. Got \\"number\\"."}]',
+      '[{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["test"],"valuePath":[],"message":"test must be a string or an object. Got \\"number\\"."}]',
     );
 
     expect(
@@ -91,12 +95,13 @@ describe.concurrent('parseRawStrokeStyleValue', () => {
           parseAliasableStrokeStyleValue(true, {
             valuePath: [],
             path: ['test'],
+            nodeId: 'abc',
             varName: 'test',
           }) as any
         ).error,
       ),
     ).toStrictEqual(
-      '[{"type":"Type","isCritical":false,"treePath":["test"],"valuePath":[],"message":"test must be a string or an object. Got \\"boolean\\"."}]',
+      '[{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["test"],"valuePath":[],"message":"test must be a string or an object. Got \\"boolean\\"."}]',
     );
 
     expect(
@@ -105,12 +110,13 @@ describe.concurrent('parseRawStrokeStyleValue', () => {
           parseAliasableStrokeStyleValue(null, {
             valuePath: [],
             path: ['test'],
+            nodeId: 'abc',
             varName: 'test',
           }) as any
         ).error,
       ),
     ).toStrictEqual(
-      '[{"type":"Type","isCritical":false,"treePath":["test"],"valuePath":[],"message":"test must be a string or an object. Got \\"object\\"."}]',
+      '[{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["test"],"valuePath":[],"message":"test must be a string or an object. Got \\"object\\"."}]',
     );
   });
 });
