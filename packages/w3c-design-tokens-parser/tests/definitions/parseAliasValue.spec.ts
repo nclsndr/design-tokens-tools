@@ -5,6 +5,7 @@ import { parseAliasValue } from '../../src/parser/alias/parseAliasValue';
 describe.concurrent('parseAliasValue', () => {
   it('should parse a valid alias string value', () => {
     const result = parseAliasValue('{my.alias}', {
+      nodeId: 'abc',
       varName: 'alias',
       valuePath: [],
       path: ['my', 'alias'],
@@ -15,6 +16,7 @@ describe.concurrent('parseAliasValue', () => {
   });
   it('should fail to parse without heading brace', () => {
     const result = parseAliasValue('my.alias}', {
+      nodeId: 'abc',
       varName: 'Value',
       valuePath: [],
       path: ['my', 'alias'],
@@ -28,6 +30,7 @@ describe.concurrent('parseAliasValue', () => {
   });
   it('should fail to parse without trailing brace', () => {
     const result = parseAliasValue('{my.alias', {
+      nodeId: 'abc',
       varName: 'Value',
       valuePath: [],
       path: ['my', 'alias'],
