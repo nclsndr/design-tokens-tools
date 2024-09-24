@@ -1,4 +1,4 @@
-import { Cause, Effect, Exit } from 'effect';
+import { Cause, Effect, Either, Exit } from 'effect';
 import {
   matchIsToken,
   matchIsGroup,
@@ -102,57 +102,72 @@ export const parseJSONTokenTree: (input: unknown) => Effect.Effect<
         return false;
       });
 
-      const tokenErrors: Array<ValidationError> = [];
-      const analyzedTokens: Array<AnalyzedToken> = [];
-      for (const tokenEffect of analyzedTokenEffects) {
-        Exit.match(Effect.runSyncExit(tokenEffect), {
-          onSuccess: (value) => {
-            analyzedTokens.push(value);
-          },
-          onFailure: (cause) => {
-            Cause.match(cause, {
-              onEmpty: undefined,
-              onFail: (errors) => {
-                tokenErrors.push(...errors);
+      return Effect.all([
+        Effect.all(analyzedTokenEffects, {
+          mode: 'either',
+        }).pipe(
+          Effect.map((values) => {
+            return values.reduce<{
+              analyzedTokens: Array<AnalyzedToken>;
+              tokenErrors: Array<ValidationError>;
+            }>(
+              (acc, c) => {
+                Either.match(c, {
+                  onRight: (v) => {
+                    acc.analyzedTokens.push(v);
+                  },
+                  onLeft: (errors) => {
+                    acc.tokenErrors.push(...errors);
+                  },
+                });
+                return acc;
               },
-              onDie: () => {},
-              onInterrupt: () => {},
-              onSequential: () => {},
-              onParallel: () => {},
-            });
-          },
-        });
-      }
-
-      const groupErrors: Array<ValidationError> = [];
-      const analyzedGroups: Array<AnalyzedGroup> = [];
-
-      for (const groupEffect of analyzedGroupEffects) {
-        Exit.match(Effect.runSyncExit(groupEffect), {
-          onSuccess: (value) => {
-            analyzedGroups.push(value);
-          },
-          onFailure: (cause) => {
-            Cause.match(cause, {
-              onEmpty: undefined,
-              onFail: (errors) => {
-                groupErrors.push(...errors);
+              {
+                analyzedTokens: [],
+                tokenErrors: [],
               },
-              onDie: () => {},
-              onInterrupt: () => {},
-              onSequential: () => {},
-              onParallel: () => {},
-            });
-          },
-        });
-      }
-
-      return Effect.succeed({
-        tokenTree: jsonTokenTree,
-        analyzedTokens,
-        analyzedGroups,
-        tokenErrors,
-        groupErrors,
-      });
+            );
+          }),
+        ),
+        Effect.all(analyzedGroupEffects, {
+          mode: 'either',
+        }).pipe(
+          Effect.map((values) => {
+            return values.reduce<{
+              analyzedGroups: Array<AnalyzedGroup>;
+              groupErrors: Array<ValidationError>;
+            }>(
+              (acc, c) => {
+                Either.match(c, {
+                  onRight: (v) => {
+                    acc.analyzedGroups.push(v);
+                  },
+                  onLeft: (errors) => {
+                    acc.groupErrors.push(...errors);
+                  },
+                });
+                return acc;
+              },
+              {
+                analyzedGroups: [],
+                groupErrors: [],
+              },
+            );
+          }),
+        ),
+      ]).pipe(
+        Effect.map(
+          ([
+            { analyzedTokens, tokenErrors },
+            { analyzedGroups, groupErrors },
+          ]) => ({
+            tokenTree: jsonTokenTree,
+            analyzedTokens,
+            analyzedGroups,
+            tokenErrors,
+            groupErrors,
+          }),
+        ),
+      );
     }),
   );
