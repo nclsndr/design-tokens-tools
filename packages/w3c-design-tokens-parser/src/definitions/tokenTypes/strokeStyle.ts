@@ -1,4 +1,4 @@
-import { Result } from '@swan-io/boxed';
+import { Effect, Either } from 'effect';
 import {
   Dimension,
   StrokeStyle,
@@ -31,9 +31,9 @@ export type StrokeStyleLineCapValues =
 export function parseStrokeStyleLineCapValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<StrokeStyleLineCapValues, ValidationError[]> {
+): Effect.Effect<StrokeStyleLineCapValues, ValidationError[]> {
   if (typeof value !== 'string') {
-    return Result.Error([
+    return Effect.fail([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -45,7 +45,7 @@ export function parseStrokeStyleLineCapValue(
     ]);
   }
   if (!strokeStyleLineCapValues.includes(value as any)) {
-    return Result.Error([
+    return Effect.fail([
       new ValidationError({
         type: 'Value',
         nodeId: ctx.nodeId,
@@ -58,18 +58,18 @@ export function parseStrokeStyleLineCapValue(
       }),
     ]);
   }
-  return Result.Ok(value as StrokeStyleLineCapValues);
+  return Effect.succeed(value as StrokeStyleLineCapValues);
 }
 
 export function parseStrokeStyleDashArrayValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<
+): Effect.Effect<
   Array<AnalyzedValue<Dimension.Value> | AnalyzedValue<AliasValue>>,
   Array<ValidationError>
 > {
   if (!Array.isArray(value)) {
-    return Result.Error([
+    return Effect.fail([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -81,7 +81,7 @@ export function parseStrokeStyleDashArrayValue(
     ]);
   }
 
-  const analyzedValueResults = value.map((v, i) =>
+  const analyzedValueEffects = value.map((v, i) =>
     parseAliasableDimensionValue(v, {
       ...ctx,
       valuePath: (ctx.valuePath ?? []).concat([i]),
@@ -89,21 +89,34 @@ export function parseStrokeStyleDashArrayValue(
     }),
   );
 
-  const errors = analyzedValueResults
-    .filter((r) => r.isError())
-    .map((r) => r.error)
-    .flat();
-  if (errors.length > 0) {
-    return Result.Error(errors);
-  }
+  return Effect.all(analyzedValueEffects, {
+    concurrency: 'unbounded',
+    mode: 'either',
+  }).pipe(
+    Effect.flatMap((analyzedValueEitherItems) => {
+      const errors = analyzedValueEitherItems.reduce<Array<ValidationError>>(
+        (acc, c) => {
+          if (Either.isLeft(c)) {
+            acc.push(...c.left);
+          }
+          return acc;
+        },
+        [],
+      );
 
-  return Result.Ok(
-    analyzedValueResults.reduce<
-      Array<AnalyzedValue<Dimension.Value> | AnalyzedValue<AliasValue>>
-    >((acc, c) => {
-      if (c.isOk()) acc.push(c.value);
-      return acc;
-    }, []),
+      return errors.length > 0
+        ? Effect.fail(errors)
+        : Effect.succeed(
+            analyzedValueEitherItems.reduce<
+              Array<AnalyzedValue<Dimension.Value> | AnalyzedValue<AliasValue>>
+            >((acc, c) => {
+              if (Either.isRight(c)) {
+                acc.push(c.right);
+              }
+              return acc;
+            }, []),
+          );
+    }),
   );
 }
 
@@ -115,15 +128,15 @@ const parseStrokeObjectValue = makeParseObject({
 export function parseStrokeStyleRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<AnalyzedValue<StrokeStyle.RawValue>, Array<ValidationError>> {
+): Effect.Effect<AnalyzedValue<StrokeStyle.RawValue>, Array<ValidationError>> {
   if (typeof value === 'string') {
     if (strokeStyleStringValues.includes(value as any)) {
-      return Result.Ok({
+      return Effect.succeed({
         raw: value as StrokeStyle.RawValue,
         toReferences: [],
       });
     }
-    return Result.Error([
+    return Effect.fail([
       new ValidationError({
         type: 'Value',
         nodeId: ctx.nodeId,
@@ -134,15 +147,17 @@ export function parseStrokeStyleRawValue(
       }),
     ]);
   } else if (typeof value === 'object' && value !== null) {
-    return parseStrokeObjectValue(value, ctx).map((analyzed) => ({
-      raw: {
-        dashArray: analyzed.dashArray.map((x) => x.raw),
-        lineCap: analyzed.lineCap,
-      },
-      toReferences: analyzed.dashArray.flatMap((x) => x.toReferences),
-    }));
+    return parseStrokeObjectValue(value, ctx).pipe(
+      Effect.map((analyzed) => ({
+        raw: {
+          dashArray: analyzed.dashArray.map((x) => x.raw),
+          lineCap: analyzed.lineCap,
+        },
+        toReferences: analyzed.dashArray.flatMap((x) => x.toReferences),
+      })),
+    );
   }
-  return Result.Error([
+  return Effect.fail([
     new ValidationError({
       type: 'Type',
       nodeId: ctx.nodeId,

@@ -1,4 +1,4 @@
-import { Result } from '@swan-io/boxed';
+import { Effect } from 'effect';
 import { Dimension } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
@@ -11,9 +11,9 @@ export const dimensionValuePattern = '^(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:px|rem)$';
 export function parseDimensionStringRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<AnalyzedValue<Dimension.Value>, ValidationError[]> {
+): Effect.Effect<AnalyzedValue<Dimension.Value>, ValidationError[]> {
   if (typeof value !== 'string') {
-    return Result.Error([
+    return Effect.fail([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -25,7 +25,7 @@ export function parseDimensionStringRawValue(
     ]);
   }
   if (!value.match(dimensionValuePattern)) {
-    return Result.Error([
+    return Effect.fail([
       new ValidationError({
         type: 'Value',
         nodeId: ctx.nodeId,
@@ -36,7 +36,7 @@ export function parseDimensionStringRawValue(
       }),
     ]);
   }
-  return Result.Ok({
+  return Effect.succeed({
     raw: value as Dimension.RawValue,
     toReferences: [],
   });

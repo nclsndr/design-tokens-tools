@@ -1,5 +1,8 @@
-import { Result } from '@swan-io/boxed';
-import { tokenTypeNamesMapping } from 'design-tokens-format-module';
+import { Effect } from 'effect';
+import {
+  TokenTypeName,
+  tokenTypeNamesMapping,
+} from 'design-tokens-format-module';
 
 import { ValidationError } from '../utils/validationError.js';
 import { AnalyzerContext } from '../parser/utils/AnalyzerContext.js';
@@ -27,7 +30,7 @@ export function getTokenValueParser(
 ): (
   value: unknown,
   ctx: AnalyzerContext,
-) => Result<AnalyzedValue, Array<ValidationError>> {
+) => Effect.Effect<AnalyzedValue, Array<ValidationError>> {
   switch (type) {
     case tokenTypeNamesMapping.number:
       return parseAliasableNumberValue;
@@ -57,7 +60,7 @@ export function getTokenValueParser(
       return parseAliasableTypographyValue;
     default: {
       return (_, ctx) =>
-        Result.Error([
+        Effect.fail([
           new ValidationError({
             type: 'Value',
             nodeId: ctx.nodeId,

@@ -1,4 +1,4 @@
-import { Result } from '@swan-io/boxed';
+import { Effect } from 'effect';
 import { type JSON } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
@@ -7,10 +7,10 @@ import { AnalyzerContext } from '../utils/AnalyzerContext.js';
 export function parseTreeNodeExtensions(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<JSON.Object | undefined, ValidationError[]> {
-  if (value === undefined) return Result.Ok(undefined);
+): Effect.Effect<JSON.Object | undefined, ValidationError[]> {
+  if (value === undefined) return Effect.succeed(undefined);
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-    return Result.Error([
+    return Effect.fail([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -20,5 +20,5 @@ export function parseTreeNodeExtensions(
       }),
     ]);
   }
-  return Result.Ok(value as JSON.Object);
+  return Effect.succeed(value as JSON.Object);
 }

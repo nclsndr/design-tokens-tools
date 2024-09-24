@@ -1,4 +1,4 @@
-import { Result } from '@swan-io/boxed';
+import { Effect } from 'effect';
 import { Color } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
@@ -12,9 +12,9 @@ export const hexadecimalColorValuePattern =
 export function parseColorStringRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<AnalyzedValue<Color.RawValue>, ValidationError[]> {
+): Effect.Effect<AnalyzedValue<Color.RawValue>, ValidationError[]> {
   if (typeof value !== 'string') {
-    return Result.Error([
+    return Effect.fail([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -26,7 +26,7 @@ export function parseColorStringRawValue(
     ]);
   }
   if (!value.match(hexadecimalColorValuePattern)) {
-    return Result.Error([
+    return Effect.fail([
       new ValidationError({
         type: 'Value',
         nodeId: ctx.nodeId,
@@ -37,7 +37,7 @@ export function parseColorStringRawValue(
       }),
     ]);
   }
-  return Result.Ok({
+  return Effect.succeed({
     raw: value as Color.RawValue,
     toReferences: [],
   });

@@ -1,3 +1,4 @@
+import { Effect } from 'effect';
 import { parseJSONTokenTree } from '../parser/parseJSONTokenTree.js';
 import { findAnalyzedTokenByPath } from '../parser/token/findAnalyzedTokenByPath.js';
 import { TokenState } from './TokenState.js';
@@ -9,40 +10,45 @@ import { captureAnalyzedTokensReferenceErrors } from '../parser/token/captureAna
 export function buildTreeState(value: unknown) {
   const treeState = new TreeState();
 
-  parseJSONTokenTree(value).match({
-    Ok: ({ tokens, groups }) => {
-      const [analyzedTokens, tokenErrors] = tokens;
-      const [analyzedGroups, groupErrors] = groups;
+  return parseJSONTokenTree(value).pipe(
+    Effect.match({
+      onSuccess: ({
+        analyzedTokens,
+        analyzedGroups,
+        tokenErrors,
+        groupErrors,
+      }) => {
+        if (tokenErrors.length > 0 || groupErrors.length > 0) {
+          treeState.validationErrors.add(...tokenErrors);
+        }
 
-      if (tokenErrors.length > 0 || groupErrors.length > 0) {
-        treeState.validationErrors.add(...tokenErrors);
-      }
+        const { referenceErrors, referenceErrorsFreeAnalyzedTokens } =
+          captureAnalyzedTokensReferenceErrors(analyzedTokens);
 
-      const { referenceErrors, referenceErrorsFreeAnalyzedTokens } =
-        captureAnalyzedTokensReferenceErrors(analyzedTokens);
+        treeState.validationErrors.add(...referenceErrors);
 
-      treeState.validationErrors.add(...referenceErrors);
+        for (const analyzedToken of referenceErrorsFreeAnalyzedTokens) {
+          const tokenState = new TokenState(
+            analyzedToken.id,
+            analyzedToken.path,
+            analyzedToken.type,
+            analyzedToken.typeResolution,
+            analyzedToken.description,
+            analyzedToken.extensions,
+            treeState,
+          );
+          // Register the raw value parts
+          tokenState.registerAnalyzedValueRawParts(analyzedToken.value);
 
-      for (const analyzedToken of referenceErrorsFreeAnalyzedTokens) {
-        const tokenState = new TokenState(
-          analyzedToken.id,
-          analyzedToken.path,
-          analyzedToken.type,
-          analyzedToken.typeResolution,
-          analyzedToken.description,
-          analyzedToken.extensions,
-          treeState,
-        );
-        // Register the raw value parts
-        tokenState.registerAnalyzedValueRawParts(analyzedToken.value);
+          // Register token within the tree
+          treeState.tokenStates.add(tokenState);
 
-        // Register token within the tree
-        treeState.tokenStates.add(tokenState);
-
-        // Built up the reference states to add in treeState
-        for (const analyzedRef of analyzedToken.value.toReferences) {
-          findAnalyzedTokenByPath(analyzedTokens, analyzedRef.toTreePath).match(
-            {
+          // Built up the reference states to add in treeState
+          for (const analyzedRef of analyzedToken.value.toReferences) {
+            findAnalyzedTokenByPath(
+              analyzedTokens,
+              analyzedRef.toTreePath,
+            ).match({
               Some: (foundAnalyzedToken) => {
                 treeState.references.add(
                   new Reference(
@@ -67,28 +73,29 @@ export function buildTreeState(value: unknown) {
                   ),
                 );
               },
-            },
+            });
+          }
+        }
+
+        for (const analyzedGroup of analyzedGroups) {
+          treeState.groupStates.add(
+            new GroupState(
+              analyzedGroup.id,
+              analyzedGroup.path,
+              analyzedGroup.tokenType,
+              analyzedGroup.description,
+              analyzedGroup.extensions,
+              treeState,
+            ),
           );
         }
-      }
 
-      for (const analyzedGroup of analyzedGroups) {
-        treeState.groupStates.add(
-          new GroupState(
-            analyzedGroup.id,
-            analyzedGroup.path,
-            analyzedGroup.tokenType,
-            analyzedGroup.description,
-            analyzedGroup.extensions,
-            treeState,
-          ),
-        );
-      }
-    },
-    Error: (errors) => {
-      treeState.validationErrors.add(...errors);
-    },
-  });
-
-  return treeState;
+        return treeState;
+      },
+      onFailure: (errors) => {
+        treeState.validationErrors.add(...errors);
+        return treeState;
+      },
+    }),
+  );
 }

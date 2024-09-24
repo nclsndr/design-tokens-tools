@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { Effect, Exit } from 'effect';
 import { JSONTokenTree } from 'design-tokens-format-module';
 
 import {
@@ -39,7 +40,12 @@ describe('TokenState', () => {
         typographyToken,
       };
 
-      const treeState = buildTreeState(tokens);
+      const treeState = Exit.match(Effect.runSyncExit(buildTreeState(tokens)), {
+        onSuccess: (treeState) => treeState,
+        onFailure: (error) => {
+          throw error;
+        },
+      });
 
       const values = treeState.tokenStates.map((t) => t.getJSONToken());
 
@@ -51,7 +57,7 @@ describe('TokenState', () => {
         { $type: 'color', $value: '#a82222' },
         { $type: 'cubicBezier', $value: [0, 1, 1, 0] },
         { $type: 'dimension', $value: '12px' },
-        { $type: 'duration', $value: '1s' },
+        { $type: 'duration', $value: '1ms' },
         { $type: 'fontFamily', $value: 'Arial' },
         { $type: 'fontWeight', $value: 'bold' },
         { $type: 'fontWeight', $value: 700 },
@@ -83,8 +89,8 @@ describe('TokenState', () => {
         {
           $type: 'transition',
           $value: {
-            duration: '1s',
-            delay: '0s',
+            duration: '100ms',
+            delay: '0ms',
             timingFunction: [0, 0.1, 0.7, 0.5],
           },
         },
@@ -147,7 +153,12 @@ describe('TokenState', () => {
         },
       };
 
-      const treeState = buildTreeState(tokens);
+      const treeState = Exit.match(Effect.runSyncExit(buildTreeState(tokens)), {
+        onSuccess: (treeState) => treeState,
+        onFailure: (error) => {
+          throw error;
+        },
+      });
 
       const values = treeState.tokenStates.map((t) => t.getJSONToken());
 

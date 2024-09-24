@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import { Cause, Effect, Exit } from 'effect';
+
 import { parseRawGroup } from '../../../src/parser/group/parseRawGroup';
 
 describe('parseRawGroup', () => {
@@ -14,15 +16,19 @@ describe('parseRawGroup', () => {
       },
     };
 
-    const result = parseRawGroup(tree, {
+    const program = parseRawGroup(tree, {
       varName: 'aGroup',
       nodeId: 'abc',
       path: ['aGroup'],
       valuePath: [],
     });
 
-    expect(result.isOk()).toBe(true);
-    expect(result.isOk() && result.get()).toStrictEqual({
+    expect(
+      Exit.match(Effect.runSyncExit(program), {
+        onSuccess: (result) => result,
+        onFailure: (error) => error,
+      }),
+    ).toStrictEqual({
       id: expect.any(String),
       path: expect.any(Object),
       tokenType: undefined,
@@ -36,15 +42,19 @@ describe('parseRawGroup', () => {
       $type: 'dimension',
     };
 
-    const result = parseRawGroup(tree, {
+    const program = parseRawGroup(tree, {
       varName: 'aGroup',
       nodeId: 'abc',
       path: ['aGroup'],
       valuePath: [],
     });
 
-    expect(result.isOk()).toBe(true);
-    expect(result.isOk() && result.get()).toStrictEqual({
+    expect(
+      Exit.match(Effect.runSyncExit(program), {
+        onSuccess: (result) => result,
+        onFailure: (error) => error,
+      }),
+    ).toStrictEqual({
       id: expect.any(String),
       path: expect.any(Object),
       tokenType: 'dimension',
@@ -58,18 +68,38 @@ describe('parseRawGroup', () => {
       $type: 42,
     };
 
-    const result = parseRawGroup(tree, {
+    const program = parseRawGroup(tree, {
       varName: 'aGroup',
       nodeId: 'abc',
       path: ['aGroup'],
       valuePath: [],
     });
 
-    expect(result.isError()).toBe(true);
-    expect(result.isError() && result.getError()).toHaveLength(1);
-    expect(result.isError() && result.getError()[0].message).toContain(
-      'aGroup.$type must be a valid type among:',
-    );
+    expect(
+      Exit.match(Effect.runSyncExit(program), {
+        onSuccess: (result) => result,
+        onFailure: (cause) =>
+          Cause.match(cause, {
+            onEmpty: undefined,
+            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
+            onDie: () => undefined,
+            onInterrupt: () => undefined,
+            onSequential: () => undefined,
+            onParallel: () => undefined,
+          }),
+      }),
+    ).toStrictEqual([
+      {
+        type: 'Value',
+        isCritical: false,
+        nodeId: 'abc',
+        treePath: ['aGroup'],
+        nodeKey: '$type',
+        valuePath: [],
+        message:
+          'aGroup.$type must be a valid type among: "color", "dimension", "fontFamily", "fontWeight", "duration", "cubicBezier", "number", "strokeStyle", "border", "transition", "shadow", "gradient", "typography". Got "42".',
+      },
+    ]);
   });
   it('should fail when description is not a string', () => {
     const tree = {
@@ -80,17 +110,36 @@ describe('parseRawGroup', () => {
       },
     };
 
-    const result = parseRawGroup(tree, {
+    const program = parseRawGroup(tree, {
       varName: 'aGroup',
       nodeId: 'abc',
       path: ['aGroup'],
       valuePath: [],
     });
 
-    expect(result.isError()).toBe(true);
-    expect(result.isError() && result.getError()).toHaveLength(1);
-    expect(result.isError() && result.getError()[0].message).toBe(
-      'aGroup.$description must be a string. Got "number".',
-    );
+    expect(
+      Exit.match(Effect.runSyncExit(program), {
+        onSuccess: (result) => result,
+        onFailure: (cause) =>
+          Cause.match(cause, {
+            onEmpty: undefined,
+            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
+            onDie: () => undefined,
+            onInterrupt: () => undefined,
+            onSequential: () => undefined,
+            onParallel: () => undefined,
+          }),
+      }),
+    ).toStrictEqual([
+      {
+        type: 'Type',
+        isCritical: false,
+        nodeId: 'abc',
+        treePath: ['aGroup'],
+        nodeKey: '$description',
+        valuePath: [],
+        message: 'aGroup.$description must be a string. Got "number".',
+      },
+    ]);
   });
 });

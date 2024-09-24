@@ -1,4 +1,4 @@
-import { Result } from '@swan-io/boxed';
+import { Effect } from 'effect';
 import {
   TokenTypeName,
   tokenTypeNames,
@@ -11,21 +11,21 @@ import { ValidationError } from '../utils/validationError.js';
 export function parseTokenTypeName<AllowUndefined extends boolean = false>(
   value: unknown,
   ctx: { allowUndefined: AllowUndefined } & AnalyzerContext,
-): Result<
+): Effect.Effect<
   AllowUndefined extends false ? TokenTypeName : TokenTypeName | undefined,
   ValidationError[]
 > {
   if (ctx.allowUndefined && value === undefined) {
-    return Result.Ok(
+    return Effect.succeed(
       undefined as AllowUndefined extends false
         ? TokenTypeName
         : TokenTypeName | undefined,
     );
   }
   if (matchIsTokenTypeName(value)) {
-    return Result.Ok(value);
+    return Effect.succeed(value);
   }
-  return Result.Error([
+  return Effect.fail([
     new ValidationError({
       type: 'Value',
       nodeId: ctx.nodeId,

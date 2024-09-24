@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
+import { Effect, Exit } from 'effect';
 import { JSONTokenTree } from 'design-tokens-format-module';
+
 import { parseJSONTokenTree } from '../../../src/parser/parseJSONTokenTree';
+
 import { captureAnalyzedTokensReferenceErrors } from '../../../src/parser/token/captureAnalyzedTokensReferenceErrors';
 
 describe('captureAnalyzedTokensReferenceErrors', () => {
@@ -14,12 +17,19 @@ describe('captureAnalyzedTokensReferenceErrors', () => {
       },
     };
 
-    const [analyzedTokens, errors] = parseJSONTokenTree(tokens).match({
-      Ok: ({ tokens }) => tokens,
-      Error: (error) => {
-        throw error;
+    const [analyzedTokens, errors] = Exit.match(
+      Effect.runSyncExit(parseJSONTokenTree(tokens)),
+      {
+        onSuccess: ({ analyzedTokens, tokenErrors }) => [
+          analyzedTokens,
+          tokenErrors,
+        ],
+        onFailure: (error) => {
+          throw error;
+        },
       },
-    });
+    );
+
     expect(errors).toHaveLength(0);
 
     const { referenceErrors, referenceErrorsFreeAnalyzedTokens } =
@@ -55,12 +65,18 @@ describe('captureAnalyzedTokensReferenceErrors', () => {
       },
     };
 
-    const [analyzedTokens, errors] = parseJSONTokenTree(tokens).match({
-      Ok: ({ tokens }) => tokens,
-      Error: (error) => {
-        throw error;
+    const [analyzedTokens, errors] = Exit.match(
+      Effect.runSyncExit(parseJSONTokenTree(tokens)),
+      {
+        onSuccess: ({ analyzedTokens, tokenErrors }) => [
+          analyzedTokens,
+          tokenErrors,
+        ],
+        onFailure: (error) => {
+          throw error;
+        },
       },
-    });
+    );
     expect(errors).toHaveLength(0);
 
     const { referenceErrors, referenceErrorsFreeAnalyzedTokens } =
@@ -112,12 +128,18 @@ describe('captureAnalyzedTokensReferenceErrors', () => {
       },
     };
 
-    const [analyzedTokens, errors] = parseJSONTokenTree(tokens).match({
-      Ok: ({ tokens }) => tokens,
-      Error: (error) => {
-        throw error;
+    const [analyzedTokens, errors] = Exit.match(
+      Effect.runSyncExit(parseJSONTokenTree(tokens)),
+      {
+        onSuccess: ({ analyzedTokens, tokenErrors }) => [
+          analyzedTokens,
+          tokenErrors,
+        ],
+        onFailure: (error) => {
+          throw error;
+        },
       },
-    });
+    );
     expect(errors).toHaveLength(0);
 
     const { referenceErrors, referenceErrorsFreeAnalyzedTokens } =
@@ -179,12 +201,18 @@ describe('captureAnalyzedTokensReferenceErrors', () => {
       },
     };
 
-    const [analyzedTokens, errors] = parseJSONTokenTree(tokens).match({
-      Ok: ({ tokens }) => tokens,
-      Error: (error) => {
-        throw error;
+    const [analyzedTokens, errors] = Exit.match(
+      Effect.runSyncExit(parseJSONTokenTree(tokens)),
+      {
+        onSuccess: ({ analyzedTokens, tokenErrors }) => [
+          analyzedTokens,
+          tokenErrors,
+        ],
+        onFailure: (error) => {
+          throw error;
+        },
       },
-    });
+    );
     expect(errors).toHaveLength(0);
 
     const { referenceErrors, referenceErrorsFreeAnalyzedTokens } =
@@ -228,12 +256,18 @@ describe('captureAnalyzedTokensReferenceErrors', () => {
       },
     };
 
-    const [analyzedTokens, errors] = parseJSONTokenTree(tokens).match({
-      Ok: ({ tokens }) => tokens,
-      Error: (error) => {
-        throw error;
+    const [analyzedTokens, errors] = Exit.match(
+      Effect.runSyncExit(parseJSONTokenTree(tokens)),
+      {
+        onSuccess: ({ analyzedTokens, tokenErrors }) => [
+          analyzedTokens,
+          tokenErrors,
+        ],
+        onFailure: (error) => {
+          throw error;
+        },
       },
-    });
+    );
     expect(errors).toHaveLength(0);
 
     const { referenceErrors, referenceErrorsFreeAnalyzedTokens } =
@@ -273,12 +307,18 @@ describe('captureAnalyzedTokensReferenceErrors', () => {
       },
     };
 
-    const [analyzedTokens, errors] = parseJSONTokenTree(tokens).match({
-      Ok: ({ tokens }) => tokens,
-      Error: (error) => {
-        throw error;
+    const [analyzedTokens, errors] = Exit.match(
+      Effect.runSyncExit(parseJSONTokenTree(tokens)),
+      {
+        onSuccess: ({ analyzedTokens, tokenErrors }) => [
+          analyzedTokens,
+          tokenErrors,
+        ],
+        onFailure: (error) => {
+          throw error;
+        },
       },
-    });
+    );
     expect(errors).toHaveLength(0);
 
     const { referenceErrors, referenceErrorsFreeAnalyzedTokens } =
@@ -326,12 +366,18 @@ describe('captureAnalyzedTokensReferenceErrors', () => {
       },
     };
 
-    const [analyzedTokens, errors] = parseJSONTokenTree(tokens).match({
-      Ok: ({ tokens }) => tokens,
-      Error: (error) => {
-        throw error;
+    const [analyzedTokens, errors] = Exit.match(
+      Effect.runSyncExit(parseJSONTokenTree(tokens)),
+      {
+        onSuccess: ({ analyzedTokens, tokenErrors }) => [
+          analyzedTokens,
+          tokenErrors,
+        ],
+        onFailure: (error) => {
+          throw error;
+        },
       },
-    });
+    );
     expect(errors).toHaveLength(0);
 
     const { referenceErrors, referenceErrorsFreeAnalyzedTokens } =
@@ -385,12 +431,18 @@ describe('captureAnalyzedTokensReferenceErrors', () => {
       },
     };
 
-    const [analyzedTokens, errors] = parseJSONTokenTree(tokens).match({
-      Ok: ({ tokens }) => tokens,
-      Error: (error) => {
-        throw error;
+    const [analyzedTokens, errors] = Exit.match(
+      Effect.runSyncExit(parseJSONTokenTree(tokens)),
+      {
+        onSuccess: ({ analyzedTokens, tokenErrors }) => [
+          analyzedTokens,
+          tokenErrors,
+        ],
+        onFailure: (error) => {
+          throw error;
+        },
       },
-    });
+    );
     expect(errors).toHaveLength(0);
 
     const { referenceErrors, referenceErrorsFreeAnalyzedTokens } =
@@ -471,12 +523,18 @@ describe('captureAnalyzedTokensReferenceErrors', () => {
       },
     };
 
-    const [analyzedTokens, errors] = parseJSONTokenTree(tokens).match({
-      Ok: ({ tokens }) => tokens,
-      Error: (error) => {
-        throw error;
+    const [analyzedTokens, errors] = Exit.match(
+      Effect.runSyncExit(parseJSONTokenTree(tokens)),
+      {
+        onSuccess: ({ analyzedTokens, tokenErrors }) => [
+          analyzedTokens,
+          tokenErrors,
+        ],
+        onFailure: (error) => {
+          throw error;
+        },
       },
-    });
+    );
     expect(errors).toHaveLength(0);
 
     const { referenceErrors, referenceErrorsFreeAnalyzedTokens } =

@@ -1,18 +1,18 @@
-import { Result } from '@swan-io/boxed';
+import { Effect, Either } from 'effect';
 import { ALIAS_PATH_SEPARATOR } from 'design-tokens-format-module';
 
 import type { AnalyzerContext } from './AnalyzerContext.js';
 import { ValidationError } from '../../utils/validationError.js';
 
 export function makeParseObject<
-  R extends Result<any, Array<ValidationError>>,
+  R extends Effect.Effect<any, Array<ValidationError>>,
   P extends {
     [k: string]: {
       parser: (
         value: unknown,
         ctx: AnalyzerContext,
-      ) => R extends Result<infer Ok, any>
-        ? Result<Ok, Array<ValidationError>>
+      ) => R extends Effect.Effect<infer Ok, any>
+        ? Effect.Effect<Ok, Array<ValidationError>>
         : never;
     };
   },
@@ -20,9 +20,9 @@ export function makeParseObject<
   return function parseObject(
     candidate: unknown,
     ctx: AnalyzerContext,
-  ): Result<
+  ): Effect.Effect<
     {
-      [key in keyof P]: ReturnType<P[key]['parser']> extends Result<
+      [key in keyof P]: ReturnType<P[key]['parser']> extends Effect.Effect<
         infer Ok,
         any
       >
@@ -36,7 +36,7 @@ export function makeParseObject<
       candidate === null ||
       Array.isArray(candidate)
     ) {
-      return Result.Error([
+      return Effect.fail([
         new ValidationError({
           type: 'Type',
           nodeId: ctx.nodeId,
@@ -47,47 +47,64 @@ export function makeParseObject<
       ]);
     }
 
-    const errors: Array<ValidationError> = [];
-    const final: {
-      [key in keyof P]: ReturnType<P[key]['parser']> extends Result<
-        infer Ok,
-        any
-      >
-        ? Ok
-        : never;
-    } = {} as any;
+    return Effect.all(
+      Object.entries(pattern).map(([k, { parser }]) => {
+        if (!(k in candidate)) {
+          return Effect.fail({
+            key: k,
+            errors: [
+              new ValidationError({
+                type: 'Value',
+                nodeId: ctx.nodeId,
+                treePath: ctx.path,
+                valuePath: ctx.valuePath,
+                message: `${ctx.varName} must have a "${k}" property.`,
+              }),
+            ],
+          });
+        }
 
-    for (const [k, { parser }] of Object.entries(pattern)) {
-      if (!(k in candidate)) {
-        errors.push(
-          new ValidationError({
-            type: 'Value',
-            nodeId: ctx.nodeId,
-            treePath: ctx.path,
-            valuePath: ctx.valuePath,
-            message: `${ctx.varName} must have a "${k}" property.`,
-          }),
+        return parser((candidate as { [key in keyof P]: any })[k], {
+          ...ctx,
+          varName: `${ctx.varName}${ALIAS_PATH_SEPARATOR}${k}`,
+          valuePath: (ctx.valuePath ?? []).concat([k]),
+        }).pipe(
+          Effect.map((v) => ({ key: k, value: v })),
+          Effect.mapError((err) => ({ key: k, errors: err })),
         );
-        continue;
-      }
+      }),
+      {
+        concurrency: 'unbounded',
+        mode: 'either',
+      },
+    ).pipe(
+      Effect.flatMap((items) => {
+        const errors = items.flatMap((item) =>
+          Either.isLeft(item) ? item.left.errors : [],
+        );
 
-      parser((candidate as { [key in keyof P]: any })[k], {
-        ...ctx,
-        varName: `${ctx.varName}${ALIAS_PATH_SEPARATOR}${k}`,
-        valuePath: (ctx.valuePath ?? []).concat([k]),
-      }).match({
-        Ok: (parsed) => {
-          final[k as keyof P] = parsed;
-        },
-        Error: (error) => {
-          errors.push(...error);
-        },
-      });
-    }
+        if (errors.length > 0) {
+          return Effect.fail(errors);
+        }
+        const final: {
+          [key in keyof P]: ReturnType<P[key]['parser']> extends Effect.Effect<
+            infer Ok,
+            any
+          >
+            ? Ok
+            : never;
+        } = {} as any;
 
-    if (errors.length) {
-      return Result.Error(errors);
-    }
-    return Result.Ok(final);
+        return Effect.succeed(
+          items.reduce((acc, item) => {
+            if (Either.isRight(item)) {
+              // @ts-expect-error - is generic and can be only indexed for reading
+              acc[item.right.key] = item.right.value;
+            }
+            return acc;
+          }, final),
+        );
+      }),
+    );
   };
 }

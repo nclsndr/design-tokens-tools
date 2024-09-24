@@ -1,4 +1,4 @@
-import { Result } from '@swan-io/boxed';
+import { Effect } from 'effect';
 import { Number } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
@@ -9,9 +9,9 @@ import { withAlias } from '../withAlias.js';
 export function parseNumberRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<AnalyzedValue<Number.RawValue>, ValidationError[]> {
+): Effect.Effect<AnalyzedValue<Number.RawValue>, ValidationError[]> {
   if (typeof value !== 'number') {
-    return Result.Error([
+    return Effect.fail([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -22,7 +22,7 @@ export function parseNumberRawValue(
       }),
     ]);
   }
-  return Result.Ok({
+  return Effect.succeed({
     raw: value,
     toReferences: [],
   });

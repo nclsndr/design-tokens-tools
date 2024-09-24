@@ -1,4 +1,4 @@
-import { Result } from '@swan-io/boxed';
+import { Effect } from 'effect';
 import { Duration } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
@@ -6,14 +6,14 @@ import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
 import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
 import { withAlias } from '../withAlias.js';
 
-export const durationValuePattern = '^(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:ms|s)$';
+export const durationValuePattern = '^(?:\\d+(?:\\.\\d*)?|\\.\\d+)ms$';
 
 export function parseDurationStringRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<AnalyzedValue<Duration.Value>, ValidationError[]> {
+): Effect.Effect<AnalyzedValue<Duration.Value>, ValidationError[]> {
   if (typeof value !== 'string') {
-    return Result.Error([
+    return Effect.fail([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -25,18 +25,18 @@ export function parseDurationStringRawValue(
     ]);
   }
   if (!value.match(durationValuePattern)) {
-    return Result.Error([
+    return Effect.fail([
       new ValidationError({
         type: 'Value',
         nodeId: ctx.nodeId,
         treePath: ctx.path,
         nodeKey: ctx.nodeKey,
         valuePath: ctx.valuePath,
-        message: `${ctx.varName} must be a number followed by "px" or "rem". Got: "${value}".`,
+        message: `${ctx.varName} must be a number followed by "ms". Got: "${value}".`,
       }),
     ]);
   }
-  return Result.Ok({
+  return Effect.succeed({
     raw: value as Duration.RawValue,
     toReferences: [],
   });
