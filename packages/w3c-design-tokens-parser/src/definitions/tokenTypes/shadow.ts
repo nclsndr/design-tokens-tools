@@ -32,7 +32,6 @@ export const parseAliasableShadowValue = withAlias(
           }),
         ),
         {
-          concurrency: 'unbounded',
           mode: 'either',
         },
       ).pipe(

@@ -54,7 +54,6 @@ function parseGradientRawValue(
       }),
     ),
     {
-      concurrency: 'unbounded',
       mode: 'either',
     },
   ).pipe(

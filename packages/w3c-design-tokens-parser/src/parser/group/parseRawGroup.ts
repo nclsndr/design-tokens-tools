@@ -39,7 +39,6 @@ export function parseRawGroup(
           }),
         ],
         {
-          concurrency: 'unbounded',
           mode: 'either',
         },
       ).pipe(

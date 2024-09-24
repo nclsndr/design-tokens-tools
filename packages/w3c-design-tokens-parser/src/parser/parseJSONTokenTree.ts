@@ -102,60 +102,63 @@ export const parseJSONTokenTree: (input: unknown) => Effect.Effect<
         return false;
       });
 
-      return Effect.all([
-        Effect.all(analyzedTokenEffects, {
-          mode: 'either',
-        }).pipe(
-          Effect.map((values) => {
-            return values.reduce<{
-              analyzedTokens: Array<AnalyzedToken>;
-              tokenErrors: Array<ValidationError>;
-            }>(
-              (acc, c) => {
-                Either.match(c, {
-                  onRight: (v) => {
-                    acc.analyzedTokens.push(v);
-                  },
-                  onLeft: (errors) => {
-                    acc.tokenErrors.push(...errors);
-                  },
-                });
-                return acc;
-              },
-              {
-                analyzedTokens: [],
-                tokenErrors: [],
-              },
-            );
-          }),
-        ),
-        Effect.all(analyzedGroupEffects, {
-          mode: 'either',
-        }).pipe(
-          Effect.map((values) => {
-            return values.reduce<{
-              analyzedGroups: Array<AnalyzedGroup>;
-              groupErrors: Array<ValidationError>;
-            }>(
-              (acc, c) => {
-                Either.match(c, {
-                  onRight: (v) => {
-                    acc.analyzedGroups.push(v);
-                  },
-                  onLeft: (errors) => {
-                    acc.groupErrors.push(...errors);
-                  },
-                });
-                return acc;
-              },
-              {
-                analyzedGroups: [],
-                groupErrors: [],
-              },
-            );
-          }),
-        ),
-      ]).pipe(
+      return Effect.all(
+        [
+          Effect.all(analyzedTokenEffects, {
+            mode: 'either',
+          }).pipe(
+            Effect.map((values) => {
+              return values.reduce<{
+                analyzedTokens: Array<AnalyzedToken>;
+                tokenErrors: Array<ValidationError>;
+              }>(
+                (acc, c) => {
+                  Either.match(c, {
+                    onRight: (v) => {
+                      acc.analyzedTokens.push(v);
+                    },
+                    onLeft: (errors) => {
+                      acc.tokenErrors.push(...errors);
+                    },
+                  });
+                  return acc;
+                },
+                {
+                  analyzedTokens: [],
+                  tokenErrors: [],
+                },
+              );
+            }),
+          ),
+          Effect.all(analyzedGroupEffects, {
+            mode: 'either',
+          }).pipe(
+            Effect.map((values) => {
+              return values.reduce<{
+                analyzedGroups: Array<AnalyzedGroup>;
+                groupErrors: Array<ValidationError>;
+              }>(
+                (acc, c) => {
+                  Either.match(c, {
+                    onRight: (v) => {
+                      acc.analyzedGroups.push(v);
+                    },
+                    onLeft: (errors) => {
+                      acc.groupErrors.push(...errors);
+                    },
+                  });
+                  return acc;
+                },
+                {
+                  analyzedGroups: [],
+                  groupErrors: [],
+                },
+              );
+            }),
+          ),
+        ],
+        {},
+      ).pipe(
         Effect.map(
           ([
             { analyzedTokens, tokenErrors },

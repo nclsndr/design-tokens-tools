@@ -90,7 +90,6 @@ export function parseStrokeStyleDashArrayValue(
   );
 
   return Effect.all(analyzedValueEffects, {
-    concurrency: 'unbounded',
     mode: 'either',
   }).pipe(
     Effect.flatMap((analyzedValueEitherItems) => {

@@ -74,7 +74,6 @@ export function makeParseObject<
         );
       }),
       {
-        concurrency: 'unbounded',
         mode: 'either',
       },
     ).pipe(

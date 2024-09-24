@@ -66,7 +66,6 @@ export function parseRawToken(
       }),
     ],
     {
-      concurrency: 'unbounded',
       mode: 'either',
     },
   ).pipe(
