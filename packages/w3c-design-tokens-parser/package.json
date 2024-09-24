@@ -16,7 +16,8 @@
     "test": "vitest",
     "build": "rm -rf dist && tsc --build",
     "tsc": "tsc",
-    "benchmark": "0x --output-dir benchmark/output benchmark/parse.js"
+    "benchmark:flamegraph": "0x --output-dir benchmark/output benchmark/parse.js",
+    "benchmark:perf": "node benchmark/perf.js"
   },
   "exports": {
     ".": "./dist/index.js"
