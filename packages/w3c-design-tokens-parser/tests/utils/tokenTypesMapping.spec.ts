@@ -5,6 +5,7 @@ import {
   matchTypeAgainstMapping,
   TokenTypesMapping,
 } from '../../src/utils/tokenTypesMapping';
+import { Either } from 'effect';
 
 describe('matchTypeAgainstMapping', () => {
   it('should match a shallow token type', () => {
@@ -17,9 +18,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (value) => value,
-        Error: (_) => undefined,
+      Either.match(result, {
+        onRight: (value) => value,
+        onLeft: (err) => {
+          throw new Error(err.expectedType);
+        },
       }),
     ).toBe(true);
   });
@@ -33,9 +36,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (value) => value,
-        Error: (_) => undefined,
+      Either.match(result, {
+        onRight: (value) => value,
+        onLeft: (err) => {
+          throw new Error(err.expectedType);
+        },
       }),
     ).toBe(true);
   });
@@ -49,9 +54,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (value) => value,
-        Error: (_) => undefined,
+      Either.match(result, {
+        onRight: (value) => value,
+        onLeft: (err) => {
+          throw new Error(err.expectedType);
+        },
       }),
     ).toBe(true);
   });
@@ -67,9 +74,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (value) => value,
-        Error: (_) => undefined,
+      Either.match(result, {
+        onRight: (value) => value,
+        onLeft: (err) => {
+          throw new Error(err.expectedType);
+        },
       }),
     ).toBe(true);
   });
@@ -92,9 +101,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (value) => value,
-        Error: (_) => undefined,
+      Either.match(result, {
+        onRight: (value) => value,
+        onLeft: (err) => {
+          throw new Error(err.expectedType);
+        },
       }),
     ).toBe(true);
   });
@@ -114,9 +125,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (value) => value,
-        Error: (_) => undefined,
+      Either.match(result, {
+        onRight: (value) => value,
+        onLeft: (err) => {
+          throw new Error(err.expectedType);
+        },
       }),
     ).toBe(true);
   });
@@ -133,9 +146,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (value) => value,
-        Error: (_) => undefined,
+      Either.match(result, {
+        onRight: (value) => value,
+        onLeft: (err) => {
+          throw new Error(err.expectedType);
+        },
       }),
     ).toBe(true);
   });
@@ -152,9 +167,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (value) => value,
-        Error: (_) => undefined,
+      Either.match(result, {
+        onRight: (value) => value,
+        onLeft: (err) => {
+          throw new Error(err.expectedType);
+        },
       }),
     ).toBe(true);
   });
@@ -169,9 +186,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (_) => undefined,
-        Error: (err) => err,
+      Either.match(result, {
+        onRight: (v) => {
+          throw v;
+        },
+        onLeft: (err) => err,
       }),
     ).toStrictEqual({
       expectedType: 'Token(string)',
@@ -187,9 +206,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (_) => undefined,
-        Error: (err) => err,
+      Either.match(result, {
+        onRight: (v) => {
+          throw v;
+        },
+        onLeft: (err) => err,
       }),
     ).toStrictEqual({
       expectedType: "typeof === 'number'",
@@ -205,9 +226,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (_) => undefined,
-        Error: (err) => err,
+      Either.match(result, {
+        onRight: (v) => {
+          throw v;
+        },
+        onLeft: (err) => err,
       }),
     ).toStrictEqual({
       expectedType: 'const(42: number)',
@@ -225,9 +248,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (_) => undefined,
-        Error: (err) => err,
+      Either.match(result, {
+        onRight: (v) => {
+          throw v;
+        },
+        onLeft: (err) => err,
       }),
     ).toStrictEqual({
       expectedType: "Token(string) | typeof === 'number'",
@@ -262,9 +287,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (_) => undefined,
-        Error: (err) => err,
+      Either.match(result, {
+        onRight: (v) => {
+          throw v;
+        },
+        onLeft: (err) => err,
       }),
     ).toStrictEqual({
       expectedType:
@@ -286,9 +313,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (_) => undefined,
-        Error: (err) => err,
+      Either.match(result, {
+        onRight: (v) => {
+          throw v;
+        },
+        onLeft: (err) => err,
       }),
     ).toStrictEqual({
       expectedType: `Token(string)`,
@@ -310,9 +339,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (_) => undefined,
-        Error: (err) => err,
+      Either.match(result, {
+        onRight: (v) => {
+          throw v;
+        },
+        onLeft: (err) => err,
       }),
     ).toStrictEqual({
       expectedType: 'key: "title", "author" - got: "description"',
@@ -335,9 +366,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (_) => undefined,
-        Error: (err) => err,
+      Either.match(result, {
+        onRight: (v) => {
+          throw v;
+        },
+        onLeft: (err) => err,
       }),
     ).toStrictEqual({
       expectedType: 'Token(string) | Token(number)',
@@ -356,9 +389,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (_) => undefined,
-        Error: (err) => err,
+      Either.match(result, {
+        onRight: (v) => {
+          throw v;
+        },
+        onLeft: (err) => err,
       }),
     ).toStrictEqual({
       expectedType: 'Token(string)',
@@ -377,9 +412,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (_) => undefined,
-        Error: (err) => err,
+      Either.match(result, {
+        onRight: (v) => {
+          throw v;
+        },
+        onLeft: (err) => err,
       }),
     ).toStrictEqual({
       expectedType: 'Token(number)',
@@ -398,9 +435,11 @@ describe('matchTypeAgainstMapping', () => {
     const result = matchTypeAgainstMapping(input, mapping, treePath, valuePath);
 
     expect(
-      result.match({
-        Ok: (_) => undefined,
-        Error: (err) => err,
+      Either.match(result, {
+        onRight: (v) => {
+          throw v;
+        },
+        onLeft: (err) => err,
       }),
     ).toStrictEqual({
       expectedType: 'index: 0, 1 - got: 2',

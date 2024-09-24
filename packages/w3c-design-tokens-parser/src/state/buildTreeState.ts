@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Effect, Option } from 'effect';
 import { parseJSONTokenTree } from '../parser/parseJSONTokenTree.js';
 import { findAnalyzedTokenByPath } from '../parser/token/findAnalyzedTokenByPath.js';
 import { TokenState } from './TokenState.js';
@@ -48,32 +48,34 @@ export function buildTreeState(value: unknown) {
             findAnalyzedTokenByPath(
               analyzedTokens,
               analyzedRef.toTreePath,
-            ).match({
-              Some: (foundAnalyzedToken) => {
-                treeState.references.add(
-                  new Reference(
-                    analyzedToken.id,
-                    analyzedRef.fromValuePath,
-                    foundAnalyzedToken.id,
-                    undefined,
-                    foundAnalyzedToken.type,
-                    treeState,
-                  ),
-                );
-              },
-              None: () => {
-                treeState.references.add(
-                  new Reference(
-                    analyzedToken.id,
-                    analyzedRef.fromValuePath,
-                    undefined,
-                    analyzedRef.toTreePath,
-                    undefined,
-                    treeState,
-                  ),
-                );
-              },
-            });
+            ).pipe(
+              Option.match({
+                onSome: (foundAnalyzedToken) => {
+                  treeState.references.add(
+                    new Reference(
+                      analyzedToken.id,
+                      analyzedRef.fromValuePath,
+                      foundAnalyzedToken.id,
+                      undefined,
+                      foundAnalyzedToken.type,
+                      treeState,
+                    ),
+                  );
+                },
+                onNone: () => {
+                  treeState.references.add(
+                    new Reference(
+                      analyzedToken.id,
+                      analyzedRef.fromValuePath,
+                      undefined,
+                      analyzedRef.toTreePath,
+                      undefined,
+                      treeState,
+                    ),
+                  );
+                },
+              }),
+            );
           }
         }
 

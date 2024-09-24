@@ -3,6 +3,7 @@ import {
   JSONTokenTree,
   TokenTypeName,
 } from 'design-tokens-format-module';
+import { Option } from 'effect';
 
 import { TreeState } from '../state/TreeState.js';
 import { Token } from './Token.js';
@@ -62,9 +63,10 @@ export class TokenTree {
    * @param path
    */
   getToken(path: JSON.ValuePath) {
-    return this.#treeState.tokenStates
-      .getOneByPath(path)
-      .map((tokenState) => new Token(tokenState));
+    return Option.match(this.#treeState.tokenStates.getOneByPath(path), {
+      onSome: (tokenState) => new Token(tokenState),
+      onNone: () => undefined,
+    });
   }
 
   /**
@@ -73,10 +75,13 @@ export class TokenTree {
    * @param path
    */
   getTokenOfType<T extends TokenTypeName>(type: T, path: JSON.ValuePath) {
-    return this.#treeState.tokenStates
-      .getOneByPath(path)
-      .filter((tokenState) => tokenState.type === type)
-      .map((tokenState) => new Token<T>(tokenState));
+    return this.#treeState.tokenStates.getOneByPath(path).pipe(
+      Option.filter((tokenState) => tokenState.type === type),
+      Option.match({
+        onSome: (tokenState) => new Token(tokenState),
+        onNone: () => undefined,
+      }),
+    );
   }
 
   /**
@@ -109,9 +114,10 @@ export class TokenTree {
    * @param path
    */
   getGroup(path: JSON.ValuePath) {
-    return this.#treeState.groupStates
-      .getOneByPath(path)
-      .map((groupState) => new Group(groupState));
+    return Option.match(this.#treeState.groupStates.getOneByPath(path), {
+      onSome: (groupState) => new Group(groupState),
+      onNone: () => undefined,
+    });
   }
 
   /* ------------------------------------------

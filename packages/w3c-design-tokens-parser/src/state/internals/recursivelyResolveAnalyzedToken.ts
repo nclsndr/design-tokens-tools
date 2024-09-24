@@ -4,6 +4,7 @@ import { AnalyzedToken } from '../../parser/token/AnalyzedToken.js';
 import { findAnalyzedTokenByPath } from '../../parser/token/findAnalyzedTokenByPath.js';
 import { ReferenceResolutionTrace } from './ReferenceResolutionTrace.js';
 import { JSONPath } from '../../utils/JSONPath.js';
+import { Option } from 'effect';
 
 export function recursivelyResolveAnalyzedToken(
   analyzedTokens: Array<AnalyzedToken>,
@@ -30,24 +31,26 @@ export function recursivelyResolveAnalyzedToken(
 
   return acc.concat(
     analyzedToken.value.toReferences.flatMap((ref) => {
-      return findAnalyzedTokenByPath(analyzedTokens, ref.toTreePath).match({
-        Some: (at) => {
-          return recursivelyResolveAnalyzedToken(
-            analyzedTokens,
-            at,
-            ref.fromTreePath,
-            ref.fromValuePath,
-          );
-        },
-        None: () => [
-          {
-            status: 'unlinked',
-            fromTreePath: JSONPath.fromJSONValuePath(ref.fromTreePath),
-            fromValuePath: JSONPath.fromJSONValuePath(ref.fromValuePath),
-            toTreePath: JSONPath.fromJSONValuePath(ref.toTreePath),
+      return findAnalyzedTokenByPath(analyzedTokens, ref.toTreePath).pipe(
+        Option.match({
+          onSome: (at) => {
+            return recursivelyResolveAnalyzedToken(
+              analyzedTokens,
+              at,
+              ref.fromTreePath,
+              ref.fromValuePath,
+            );
           },
-        ],
-      });
+          onNone: () => [
+            {
+              status: 'unlinked',
+              fromTreePath: JSONPath.fromJSONValuePath(ref.fromTreePath),
+              fromValuePath: JSONPath.fromJSONValuePath(ref.fromValuePath),
+              toTreePath: JSONPath.fromJSONValuePath(ref.toTreePath),
+            },
+          ],
+        }),
+      );
     }),
   );
 }

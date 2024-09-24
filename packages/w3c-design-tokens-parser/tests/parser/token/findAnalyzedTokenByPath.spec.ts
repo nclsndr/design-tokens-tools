@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { findAnalyzedTokenByPath } from '../../../src/parser/token/findAnalyzedTokenByPath';
 import { JSONTokenTree } from 'design-tokens-format-module';
 import { parseJSONTokenTree } from '../../../src/parser/parseJSONTokenTree';
-import { Effect, Exit } from 'effect';
+import { Effect, Exit, Option } from 'effect';
 
 describe.concurrent('findAnalyzedTokenByPath', () => {
   it('returns Some when token with matching path is found', () => {
@@ -26,7 +26,7 @@ describe.concurrent('findAnalyzedTokenByPath', () => {
     );
     const result = findAnalyzedTokenByPath(analyzedTokens, ['color', '100']);
 
-    if (!result.isSome()) throw new Error('Expected Some, got None');
+    if (!Option.isSome(result)) throw new Error('Expected Some, got None');
 
     expect(result.value.path).toStrictEqual(['color', '100']);
   });
@@ -50,7 +50,7 @@ describe.concurrent('findAnalyzedTokenByPath', () => {
     );
     const result = findAnalyzedTokenByPath(analyzedTokens, 'color.100');
 
-    if (!result.isSome()) throw new Error('Expected Some, got None');
+    if (!Option.isSome(result)) throw new Error('Expected Some, got None');
 
     expect(result.value.path).toStrictEqual(['color', '100']);
   });
@@ -74,6 +74,6 @@ describe.concurrent('findAnalyzedTokenByPath', () => {
     );
     const result = findAnalyzedTokenByPath(analyzedTokens, ['color', '200']);
 
-    expect(result.isNone()).toBe(true);
+    expect(Option.isNone(result)).toBe(true);
   });
 });

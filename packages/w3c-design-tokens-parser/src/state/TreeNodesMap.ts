@@ -1,4 +1,4 @@
-import { Option } from '@swan-io/boxed';
+import { Option } from 'effect';
 import { type JSON } from 'design-tokens-format-module';
 
 import { TreeNode } from './TreeNode.js';
@@ -27,10 +27,10 @@ export class TreeNodesMap<T extends TreeNode> {
    * Get a node by its id
    * @param id
    */
-  getOneById(id: string | undefined): Option<T> {
-    if (id === undefined) return Option.None();
+  getOneById(id: string | undefined): Option.Option<T> {
+    if (id === undefined) return Option.none();
     const maybeNode = this.#nodes.get(id);
-    return maybeNode ? Option.Some(maybeNode) : Option.None();
+    return maybeNode ? Option.some(maybeNode) : Option.none();
   }
 
   /**
@@ -38,19 +38,19 @@ export class TreeNodesMap<T extends TreeNode> {
    * Use `getOneById` for better performance
    * @param path
    */
-  getOneByPath(path: JSON.ValuePath | JSONPath): Option<T> {
+  getOneByPath(path: JSON.ValuePath | JSONPath): Option.Option<T> {
     for (const [id, node] of this.#nodes) {
       if (path instanceof JSONPath) {
         if (node.equalsJSONPath(path)) {
-          return Option.Some(node);
+          return Option.some(node);
         }
       } else {
         if (node.matchPath(path)) {
-          return Option.Some(node);
+          return Option.some(node);
         }
       }
     }
-    return Option.None();
+    return Option.none();
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Option } from '@swan-io/boxed';
+import { Option } from 'effect';
 import { type JSON } from 'design-tokens-format-module';
 
 import { RawValuePart } from './RawValuePart.js';
@@ -18,11 +18,11 @@ export class RawValueParts {
     return this.#nodes.size;
   }
 
-  get(path: JSON.ValuePath): Option<RawValuePart> {
+  get(path: JSON.ValuePath): Option.Option<RawValuePart> {
     const found = Array.from(this.#nodes).find((node) =>
       node.path.equals(path),
     );
-    return found ? Option.Some(found) : Option.None();
+    return found ? Option.some(found) : Option.none();
   }
 
   add(node: RawValuePart) {

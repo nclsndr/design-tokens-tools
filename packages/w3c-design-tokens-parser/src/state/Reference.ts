@@ -1,4 +1,6 @@
+import { Option } from 'effect';
 import { type JSON, TokenTypeName } from 'design-tokens-format-module';
+
 import { JSONPath } from '../utils/JSONPath.js';
 import { TreeState } from './TreeState.js';
 import { RawValuePart } from './RawValuePart.js';
@@ -44,17 +46,17 @@ export class Reference {
   }
 
   get fromTreePath() {
-    return this.#treeState.tokenStates.getOneById(this.#fromId).match({
-      Some: (tokenState) => JSONPath.fromJSONValuePath(tokenState.path),
-      None: () => {
+    return Option.match(this.#treeState.tokenStates.getOneById(this.#fromId), {
+      onSome: (tokenState) => JSONPath.fromJSONValuePath(tokenState.path),
+      onNone: () => {
         throw new Error('Token state not found for ' + this.#fromId);
       },
     });
   }
   get toTreePath() {
-    return this.#treeState.tokenStates.getOneById(this.#toId).match({
-      Some: (tokenState) => JSONPath.fromJSONValuePath(tokenState.path),
-      None: () => {
+    return Option.match(this.#treeState.tokenStates.getOneById(this.#toId), {
+      onSome: (tokenState) => JSONPath.fromJSONValuePath(tokenState.path),
+      onNone: () => {
         // Reference is unlinked
         if (this.#toTreePathFallback !== undefined) {
           return this.#toTreePathFallback;
@@ -68,9 +70,9 @@ export class Reference {
    * Whether the reference is resolvable at the first level
    */
   get isShallowlyLinked() {
-    return this.#treeState.tokenStates.getOneById(this.#toId).match({
-      Some: () => true,
-      None: () => false,
+    return Option.match(this.#treeState.tokenStates.getOneById(this.#toId), {
+      onSome: () => true,
+      onNone: () => false,
     });
   }
 
@@ -78,13 +80,13 @@ export class Reference {
    * Whether the reference is recursively resolvable
    */
   get isFullyLinked(): boolean {
-    return this.#treeState.tokenStates.getOneById(this.#toId).match({
-      Some: (tokenState) => {
+    return Option.match(this.#treeState.tokenStates.getOneById(this.#toId), {
+      onSome: (tokenState) => {
         return tokenState.referencesArray.reduce((acc, ref) => {
           return acc && ref.isFullyLinked;
         }, true);
       },
-      None: () => false,
+      onNone: () => false,
     });
   }
 
@@ -109,8 +111,8 @@ export class Reference {
     const currentRef = !hasValuePath ? prevRef : this;
 
     if (depth === currentDepth) {
-      this.#treeState.tokenStates.getOneById(this.#toId).match({
-        Some: (tokenState) => {
+      Option.match(this.#treeState.tokenStates.getOneById(this.#toId), {
+        onSome: (tokenState) => {
           acc.refs.push(
             new Reference(
               prevRef.fromId,
@@ -122,7 +124,7 @@ export class Reference {
             ),
           );
         },
-        None: () => {
+        onNone: () => {
           acc.refs.push(
             new Reference(
               prevRef.fromId,
@@ -138,8 +140,8 @@ export class Reference {
       return acc;
     }
 
-    this.#treeState.tokenStates.getOneById(this.#toId).match({
-      Some: (tokenState) => {
+    Option.match(this.#treeState.tokenStates.getOneById(this.#toId), {
+      onSome: (tokenState) => {
         // We collect the raw value parts encountered along the way
         for (const rawPart of tokenState.rawValueParts) {
           acc.raws.push(
@@ -155,7 +157,7 @@ export class Reference {
           ref.resolve(depth, currentDepth + 1, currentRef, acc);
         }
       },
-      None: () => {
+      onNone: () => {
         acc.refs.push(
           new Reference(
             currentRef.fromId,

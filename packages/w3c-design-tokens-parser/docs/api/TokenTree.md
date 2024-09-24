@@ -46,7 +46,7 @@ declare function getAllTokensByType(type: TokenTypeName): Token<TokenTypeName>[]
 Get a token by its path.
 
 ```typescript
-declare function getToken(path: JSON.ValuePath): import("@swan-io/boxed").Option<Token<TokenTypeName>>;
+declare function getToken(path: JSON.ValuePath): Token<TokenTypeName> | undefined;
 ```
 
 ### `getTokenOfType`
@@ -54,7 +54,7 @@ declare function getToken(path: JSON.ValuePath): import("@swan-io/boxed").Option
 Get a token of a specific type by its path.
 
 ```typescript
-declare function getTokenOfType<T extends TokenTypeName>(type: T, path: JSON.ValuePath): import("@swan-io/boxed").Option<Token<T>>;
+declare function getTokenOfType<T extends TokenTypeName>(type: T, path: JSON.ValuePath): Token<T> | undefined;
 ```
 
 ### `mapTokensByType`
@@ -78,6 +78,6 @@ declare function getAllGroups(): Group[];
 Get a group by its path.
 
 ```typescript
-declare function getGroup(path: JSON.ValuePath): import("@swan-io/boxed").Option<Group>;
+declare function getGroup(path: JSON.ValuePath): Group | undefined;
 ```
 
