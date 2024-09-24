@@ -26,9 +26,7 @@
     "docs"
   ],
   "dependencies": {
-    "@effect/schema": "^0.73.4",
-    "@swan-io/boxed": "^2.3.0",
-    "design-tokens-format-module": "^0.9.9",
+    "design-tokens-format-module": "^0.9.10",
     "effect": "^3.8.3",
     "hyperid": "^3.3.0"
   },
