@@ -1,5 +1,7 @@
 # W3C Design Tokens Parser
 
+<img src="https://github.com/nclsndr/design-tokens-tools/blob/main/packages/w3c-design-tokens-parser/docs/_assets/tokens-parser.jpg?raw=true" width="400" />
+
 This package provides a TypeScript implementation of the parser for the [W3C Design Tokens Format Module](https://tr.designtokens.org/format) specification. It also includes several methods to work with the tokens and their values.
 
 ## Installation
