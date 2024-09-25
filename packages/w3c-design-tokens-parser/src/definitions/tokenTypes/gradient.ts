@@ -1,4 +1,4 @@
-import { Result } from '@swan-io/boxed';
+import { Either } from 'effect';
 
 import { parseAliasableColorValue } from './color.js';
 import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
@@ -9,29 +9,32 @@ import { parseAliasableNumberValue } from './number.js';
 import { clamp } from '../../utils/clamp.js';
 import { withAlias } from '../withAlias.js';
 import { Gradient } from 'design-tokens-format-module';
+import { mergeEitherItems } from '../../parser/utils/mergeEithers.js';
 
 const parseSingleGradientRawValue = makeParseObject({
-  color: {
-    parser: parseAliasableColorValue,
-  },
   position: {
     parser: (value, ctx) =>
-      parseAliasableNumberValue(value, ctx).map((analyzed) => ({
-        ...analyzed,
-        raw:
-          typeof analyzed.raw === 'number'
-            ? clamp(analyzed.raw, 0, 1)
-            : analyzed.raw,
-      })),
+      parseAliasableNumberValue(value, ctx).pipe(
+        Either.map((analyzed) => ({
+          ...analyzed,
+          raw:
+            typeof analyzed.raw === 'number'
+              ? clamp(analyzed.raw, 0, 1)
+              : analyzed.raw,
+        })),
+      ),
+  },
+  color: {
+    parser: parseAliasableColorValue,
   },
 });
 
 function parseGradientRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<AnalyzedValue<Gradient.RawValue>, Array<ValidationError>> {
+): Either.Either<AnalyzedValue<Gradient.RawValue>, Array<ValidationError>> {
   if (!Array.isArray(value)) {
-    return Result.Error([
+    return Either.left([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -43,32 +46,27 @@ function parseGradientRawValue(
     ]);
   }
 
-  const errors: Array<ValidationError> = [];
-  const final: AnalyzedValue<Gradient.RawValue> = { raw: [], toReferences: [] };
-
-  for (const [i, s] of value.entries()) {
-    parseSingleGradientRawValue(s, {
-      ...ctx,
-      varName: `${ctx.varName}[${i}]`,
-      valuePath: (ctx.valuePath ?? []).concat([i]),
-    })
-      .tapOk((analyzed) => {
-        final.raw.push({
-          color: analyzed.color.raw,
-          position: analyzed.position.raw,
-        });
-        final.toReferences.push(...analyzed.color.toReferences);
-        final.toReferences.push(...analyzed.position.toReferences);
-      })
-      .tapError((err) => {
-        errors.push(...err);
+  return mergeEitherItems(
+    value.map((s, i) =>
+      parseSingleGradientRawValue(s, {
+        ...ctx,
+        varName: `${ctx.varName}[${i}]`,
+        valuePath: (ctx.valuePath ?? []).concat([i]),
+      }),
+    ),
+    {
+      raw: [],
+      toReferences: [],
+    } as AnalyzedValue<Gradient.RawValue>,
+    (a, c) => {
+      a.raw.push({
+        color: c.color.raw,
+        position: c.position.raw,
       });
-  }
-
-  if (errors.length > 0) {
-    return Result.Error(errors);
-  }
-  return Result.Ok(final);
+      a.toReferences.push(...c.color.toReferences);
+      a.toReferences.push(...c.position.toReferences);
+    },
+  );
 }
 
 export const parseAliasableGradientValue = withAlias(parseGradientRawValue);

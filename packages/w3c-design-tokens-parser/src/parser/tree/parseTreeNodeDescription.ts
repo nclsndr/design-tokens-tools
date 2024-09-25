@@ -1,14 +1,15 @@
+import { Either } from 'effect';
+
 import { AnalyzerContext } from '../utils/AnalyzerContext.js';
-import { Result } from '@swan-io/boxed';
 import { ValidationError } from '../../utils/validationError.js';
 
 export function parseTreeNodeDescription(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<string | undefined, ValidationError[]> {
-  if (value === undefined) return Result.Ok(undefined);
+): Either.Either<string | undefined, ValidationError[]> {
+  if (value === undefined) return Either.right(undefined);
   if (typeof value !== 'string') {
-    return Result.Error([
+    return Either.left([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -18,5 +19,5 @@ export function parseTreeNodeDescription(
       }),
     ]);
   }
-  return Result.Ok(value);
+  return Either.right(value);
 }

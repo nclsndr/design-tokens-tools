@@ -1,12 +1,14 @@
-import { Option } from '@swan-io/boxed';
+import { Option } from 'effect';
 import { ALIAS_PATH_SEPARATOR, type JSON } from 'design-tokens-format-module';
 
-export function captureAliasPath(value: unknown): Option<JSON.ValuePath> {
+export function captureAliasPath(
+  value: unknown,
+): Option.Option<JSON.ValuePath> {
   if (typeof value !== 'string') {
-    return Option.None();
+    return Option.none();
   }
   if (!value.startsWith('{') || !value.endsWith('}')) {
-    return Option.None();
+    return Option.none();
   }
 
   let cleanPath = value;
@@ -16,5 +18,5 @@ export function captureAliasPath(value: unknown): Option<JSON.ValuePath> {
   if (value.endsWith('}')) {
     cleanPath = cleanPath.slice(0, -1);
   }
-  return Option.Some(cleanPath.split(ALIAS_PATH_SEPARATOR));
+  return Option.some(cleanPath.split(ALIAS_PATH_SEPARATOR));
 }

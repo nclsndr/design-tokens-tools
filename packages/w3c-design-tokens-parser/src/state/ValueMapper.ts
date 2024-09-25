@@ -4,7 +4,7 @@ import {
   type JSON,
   TokenTypeName,
 } from 'design-tokens-format-module';
-import { Option } from '@swan-io/boxed';
+import { Option } from 'effect';
 
 import { Reference } from './Reference.js';
 import { TokenState } from './TokenState.js';
@@ -270,10 +270,11 @@ export class AliasReference<
   /**
    * Get the Option for the referenced token
    */
-  getToken<T extends Type>(): Option<Token<T>> {
-    return this._tokenState.treeState.tokenStates
-      .getOneById(this.#reference.toId)
-      .map((tokenState) => new Token(tokenState));
+  getToken<T extends Type>(): Option.Option<Token<T>> {
+    return Option.map(
+      this._tokenState.treeState.tokenStates.getOneById(this.#reference.toId),
+      (tokenState) => new Token(tokenState),
+    );
   }
 
   /**
@@ -294,15 +295,16 @@ export class AliasReference<
     callback: (resolvedToken: Token<T>) => R,
   ): AliasReference<Type, R | Value> {
     if (this.#reference.isShallowlyLinked) {
-      this._tokenState.treeState.tokenStates
-        .getOneById(this.#reference.toId)
-        .match({
-          Some: (tokenState) => {
+      Option.match(
+        this._tokenState.treeState.tokenStates.getOneById(this.#reference.toId),
+        {
+          onSome: (tokenState) => {
             // @ts-expect-error
             this.#value = callback(new Token(tokenState));
           },
-          None: () => {},
-        });
+          onNone: () => {},
+        },
+      );
     }
     return this as any;
   }
@@ -315,15 +317,16 @@ export class AliasReference<
     callback: (resolvedToken: Token<T>) => R,
   ): AliasReference<Type, R | Value> {
     if (this.#reference.isFullyLinked) {
-      this._tokenState.treeState.tokenStates
-        .getOneById(this.#reference.toId)
-        .match({
-          Some: (tokenState) => {
+      Option.match(
+        this._tokenState.treeState.tokenStates.getOneById(this.#reference.toId),
+        {
+          onSome: (tokenState) => {
             // @ts-expect-error
             this.#value = callback(new Token(tokenState));
           },
-          None: () => {},
-        });
+          onNone: () => {},
+        },
+      );
     }
     return this as any;
   }

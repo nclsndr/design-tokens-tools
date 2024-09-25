@@ -1,4 +1,4 @@
-import { Result } from '@swan-io/boxed';
+import { Either } from 'effect';
 import { AliasValue } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
@@ -7,9 +7,9 @@ import { AnalyzerContext } from '../utils/AnalyzerContext.js';
 export function parseAliasValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<AliasValue, ValidationError[]> {
+): Either.Either<AliasValue, ValidationError[]> {
   if (typeof value !== 'string') {
-    return Result.Error([
+    return Either.left([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -20,7 +20,7 @@ export function parseAliasValue(
     ]);
   }
   if (!value.startsWith('{') || !value.endsWith('}')) {
-    return Result.Error([
+    return Either.left([
       new ValidationError({
         type: 'Value',
         nodeId: ctx.nodeId,
@@ -30,5 +30,5 @@ export function parseAliasValue(
       }),
     ]);
   }
-  return Result.Ok(value as AliasValue);
+  return Either.right(value as AliasValue);
 }

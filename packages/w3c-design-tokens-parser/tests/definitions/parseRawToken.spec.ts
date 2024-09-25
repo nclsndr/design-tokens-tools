@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
 import { parseRawToken } from '../../src/parser/token/parseRawToken';
+import { Either, Option } from 'effect';
 
 describe.concurrent('parseRawToken', () => {
   it('should parse a number token', () => {
@@ -19,19 +20,14 @@ describe.concurrent('parseRawToken', () => {
       },
     });
 
-    expect(
-      result.match({
-        Ok: (r) => r.toJSON(),
-        Error: (_) => undefined,
-      }),
-    ).toStrictEqual({
-      id: 'abc',
-      path: ['aToken'],
-      type: 'number',
-      value: { raw: 42, toReferences: [] },
-      description: undefined,
-      extensions: undefined,
-    });
+    expect(JSON.parse(JSON.stringify(Either.getOrThrow(result)))).toStrictEqual(
+      {
+        id: 'abc',
+        path: ['aToken'],
+        type: 'number',
+        value: { raw: 42, toReferences: [] },
+      },
+    );
   });
   it('should parse an opaque color token', () => {
     const rawJsonToken = {
@@ -49,19 +45,14 @@ describe.concurrent('parseRawToken', () => {
       },
     });
 
-    expect(
-      result.match({
-        Ok: (r) => r.toJSON(),
-        Error: (_) => undefined,
-      }),
-    ).toStrictEqual({
-      id: 'abc',
-      path: ['aToken'],
-      type: 'color',
-      value: { raw: '#ff0000', toReferences: [] },
-      description: undefined,
-      extensions: undefined,
-    });
+    expect(JSON.parse(JSON.stringify(Either.getOrThrow(result)))).toStrictEqual(
+      {
+        id: 'abc',
+        path: ['aToken'],
+        type: 'color',
+        value: { raw: '#ff0000', toReferences: [] },
+      },
+    );
   });
   it('should parse a transparent color token', () => {
     const rawJsonToken = {
@@ -78,19 +69,14 @@ describe.concurrent('parseRawToken', () => {
       },
     });
 
-    expect(
-      result.match({
-        Ok: (r) => r.toJSON(),
-        Error: (_) => undefined,
-      }),
-    ).toStrictEqual({
-      id: 'abc',
-      path: ['aToken'],
-      type: 'color',
-      value: { raw: '#ff0000BB', toReferences: [] },
-      description: undefined,
-      extensions: undefined,
-    });
+    expect(JSON.parse(JSON.stringify(Either.getOrThrow(result)))).toStrictEqual(
+      {
+        id: 'abc',
+        path: ['aToken'],
+        type: 'color',
+        value: { raw: '#ff0000BB', toReferences: [] },
+      },
+    );
   });
   it('should parse a dimension token', () => {
     const rawJsonToken = {
@@ -107,19 +93,14 @@ describe.concurrent('parseRawToken', () => {
       },
     });
 
-    expect(
-      result.match({
-        Ok: (r) => r.toJSON(),
-        Error: (_) => undefined,
-      }),
-    ).toStrictEqual({
-      id: 'abc',
-      path: ['aToken'],
-      type: 'dimension',
-      value: { raw: '16px', toReferences: [] },
-      description: undefined,
-      extensions: undefined,
-    });
+    expect(JSON.parse(JSON.stringify(Either.getOrThrow(result)))).toStrictEqual(
+      {
+        id: 'abc',
+        path: ['aToken'],
+        type: 'dimension',
+        value: { raw: '16px', toReferences: [] },
+      },
+    );
   });
   it('should parse the description and extensions of a token', () => {
     const rawJsonToken = {
@@ -139,19 +120,16 @@ describe.concurrent('parseRawToken', () => {
       },
     });
 
-    expect(
-      result.match({
-        Ok: (r) => r.toJSON(),
-        Error: (_) => undefined,
-      }),
-    ).toStrictEqual({
-      id: 'abc',
-      path: ['aToken'],
-      type: 'number',
-      value: { raw: 42, toReferences: [] },
-      description: 'A number token',
-      extensions: { 'com.nclsndr.usage': 'const' },
-    });
+    expect(JSON.parse(JSON.stringify(Either.getOrThrow(result)))).toStrictEqual(
+      {
+        id: 'abc',
+        path: ['aToken'],
+        type: 'number',
+        value: { raw: 42, toReferences: [] },
+        description: 'A number token',
+        extensions: { 'com.nclsndr.usage': 'const' },
+      },
+    );
   });
   it('should fail to parse both invalid description and extensions of a token', () => {
     const rawJsonToken = {
@@ -172,13 +150,27 @@ describe.concurrent('parseRawToken', () => {
     });
 
     expect(
-      result.match({
-        Ok: (_) => undefined,
-        Error: (err) => JSON.stringify(err),
-      }),
-    ).toStrictEqual(
-      '[{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["aToken"],"nodeKey":"$description","valuePath":[],"message":"aToken.$description must be a string. Got \\"boolean\\"."},{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["aToken"],"nodeKey":"$extensions","valuePath":[],"message":"aToken.$extensions must be an object. Got \\"boolean\\"."}]',
-    );
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
+    ).toStrictEqual([
+      {
+        isCritical: false,
+        message: 'aToken.$description must be a string. Got "boolean".',
+        nodeId: 'abc',
+        nodeKey: '$description',
+        treePath: ['aToken'],
+        type: 'Type',
+        valuePath: [],
+      },
+      {
+        isCritical: false,
+        message: 'aToken.$extensions must be an object. Got "boolean".',
+        nodeId: 'abc',
+        nodeKey: '$extensions',
+        treePath: ['aToken'],
+        type: 'Type',
+        valuePath: [],
+      },
+    ]);
   });
   it('should fail to parse an invalid token value', () => {
     const rawJsonToken = {
@@ -198,8 +190,37 @@ describe.concurrent('parseRawToken', () => {
       },
     });
 
-    expect(result.isError()).toBe(true);
-    expect(result.isError() && result.getError()).toHaveLength(3);
+    expect(
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
+    ).toStrictEqual([
+      {
+        type: 'Type',
+        isCritical: false,
+        nodeId: 'abc',
+        treePath: ['aToken'],
+        nodeKey: '$value',
+        valuePath: [],
+        message: 'aToken.$value must be a number. Got "string".',
+      },
+      {
+        type: 'Type',
+        isCritical: false,
+        nodeId: 'abc',
+        treePath: ['aToken'],
+        nodeKey: '$description',
+        valuePath: [],
+        message: 'aToken.$description must be a string. Got "boolean".',
+      },
+      {
+        type: 'Type',
+        isCritical: false,
+        nodeId: 'abc',
+        treePath: ['aToken'],
+        nodeKey: '$extensions',
+        valuePath: [],
+        message: 'aToken.$extensions must be an object. Got "string".',
+      },
+    ]);
   });
   it('should fail when type is invalid', () => {
     const rawJsonToken = {
@@ -216,11 +237,20 @@ describe.concurrent('parseRawToken', () => {
       },
     });
 
-    expect(result.isError()).toBe(true);
-    expect(result.isError() && result.getError()).toHaveLength(1);
-    expect(result.isError() && result.getError()[0].message).toContain(
-      'aToken.$type must be a valid type among:',
-    );
+    expect(
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
+    ).toStrictEqual([
+      {
+        type: 'Value',
+        isCritical: false,
+        nodeId: '',
+        treePath: ['aToken'],
+        nodeKey: '$type',
+        valuePath: [],
+        message:
+          'aToken.$type must be a valid type among: "color", "dimension", "fontFamily", "fontWeight", "duration", "cubicBezier", "number", "strokeStyle", "border", "transition", "shadow", "gradient", "typography". Got "unknown".',
+      },
+    ]);
   });
   it('should fail when the raw value is invalid', () => {
     const rawJsonToken = {
@@ -238,10 +268,18 @@ describe.concurrent('parseRawToken', () => {
       },
     });
 
-    expect(result.isError()).toBe(true);
-    expect(result.isError() && result.getError()).toHaveLength(1);
-    expect(result.isError() && result.getError()[0].message).toBe(
-      'aToken.$value must be a number. Got "string".',
-    );
+    expect(
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
+    ).toStrictEqual([
+      {
+        type: 'Type',
+        isCritical: false,
+        nodeId: 'abc',
+        treePath: ['aToken'],
+        nodeKey: '$value',
+        valuePath: [],
+        message: 'aToken.$value must be a number. Got "string".',
+      },
+    ]);
   });
 });

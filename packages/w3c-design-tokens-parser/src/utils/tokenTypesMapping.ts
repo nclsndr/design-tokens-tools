@@ -1,4 +1,4 @@
-import { Result } from '@swan-io/boxed';
+import { Either } from 'effect';
 import { type JSON } from 'design-tokens-format-module';
 
 type TokenTypeMapping = {
@@ -94,7 +94,7 @@ function formatMappingToString(mapping: TokenTypesMapping): string {
   return JSON.stringify(mapping);
 }
 
-export type MatchTokenTypeAgainstMappingResult = Result<
+export type MatchTokenTypeAgainstMappingResult = Either.Either<
   true,
   { expectedType: string }
 >;
@@ -112,24 +112,24 @@ export function matchTypeAgainstMapping(
 
   if (matchIsTokenTypeMapping(mapping)) {
     return mapping._tokenType === input
-      ? Result.Ok(true)
-      : Result.Error({
+      ? Either.right(true)
+      : Either.left({
           expectedType:
             valuePath.length === 0 ? formatMappingToString(mapping) : '',
         });
   }
   if (matchIsPrimitiveMapping(mapping)) {
     return mapping._primitive === typeof input
-      ? Result.Ok(true)
-      : Result.Error({
+      ? Either.right(true)
+      : Either.left({
           expectedType:
             valuePath.length === 0 ? formatMappingToString(mapping) : '',
         });
   }
   if (matchIsConstantMapping(mapping)) {
     return mapping._constant === input
-      ? Result.Ok(true)
-      : Result.Error({
+      ? Either.right(true)
+      : Either.left({
           expectedType:
             valuePath.length === 0 ? formatMappingToString(mapping) : '',
         });
@@ -146,30 +146,33 @@ export function matchTypeAgainstMapping(
       ),
     );
 
-    const hasOk = res.some((r) => r.isOk());
+    const hasOk = res.some((r) => Either.isRight(r));
     return hasOk
-      ? Result.Ok(true)
-      : res.reduce((acc, r) => {
-          return r.match({
-            Ok: (_) => {
-              throw new Error('DESIGN ERROR :: Unexpected Ok in UnionMapping');
-            },
-            Error: (err) => {
-              return acc.isError()
-                ? acc.mapError((e) => ({
-                    expectedType: [e.expectedType, err.expectedType]
-                      .filter((m) => m.length > 0)
-                      .join(' | '),
-                  }))
-                : Result.Error(err);
-            },
-          });
-        }, Result.Ok(true));
+      ? Either.right(true)
+      : res.reduce(
+          (acc, r) =>
+            Either.match(r, {
+              onRight: (_) => {
+                throw new Error(
+                  'DESIGN ERROR :: Unexpected Ok in UnionMapping',
+                );
+              },
+              onLeft: (err) =>
+                Either.isLeft(acc)
+                  ? Either.mapLeft(acc, (e) => ({
+                      expectedType: [e.expectedType, err.expectedType]
+                        .filter((m) => m.length > 0)
+                        .join(' | '),
+                    }))
+                  : Either.left(err),
+            }),
+          Either.right(true),
+        );
   }
   if (matchIsMapOfMapping(mapping)) {
     const nextMapping = mapping._mapOf[selector];
     if (!nextMapping) {
-      return Result.Error({
+      return Either.left({
         expectedType: `key: ${Object.keys(mapping._mapOf)
           .map((x) => JSON.stringify(x))
           .join(', ')} - got: ${JSON.stringify(selector)}`,
@@ -199,7 +202,7 @@ export function matchTypeAgainstMapping(
       typeof selector === 'number' ? mapping._tuple[selector] : false;
 
     if (!nextMapping) {
-      return Result.Error({
+      return Either.left({
         expectedType: `index: ${mapping._tuple
           .map((_, i) => i)
           .join(', ')} - got: ${JSON.stringify(selector)}`,

@@ -1,4 +1,4 @@
-import { Result } from '@swan-io/boxed';
+import { Either } from 'effect';
 import {
   TokenTypeName,
   type JSON,
@@ -14,7 +14,7 @@ export function recursivelyResolveTokenTypeFromParents(
   tokenTree: JSON.Object,
   path: JSON.ValuePath,
   originalPath: JSON.ValuePath = path,
-): Result<
+): Either.Either<
   {
     resolvedType: TokenTypeName;
     paths: Array<JSON.ValuePath>;
@@ -23,7 +23,7 @@ export function recursivelyResolveTokenTypeFromParents(
 > {
   const result = getJSONValue(tokenTree, path);
   if (typeof result !== 'object') {
-    return Result.Error([
+    return Either.left([
       new ValidationError({
         type: 'Value',
         nodeId: '',
@@ -34,7 +34,7 @@ export function recursivelyResolveTokenTypeFromParents(
     ]);
   } else if (result && typeof result === 'object' && '$type' in result) {
     if (matchIsTokenTypeName(result.$type)) {
-      return Result.Ok({
+      return Either.right({
         resolvedType: result.$type,
         paths: [path],
       });
@@ -46,7 +46,7 @@ export function recursivelyResolveTokenTypeFromParents(
             ? `Invalid $type "${result.$type}" for path: "${originalPath.join(ALIAS_PATH_SEPARATOR)}" while being resolved from "${path.join(ALIAS_PATH_SEPARATOR)}".`
             : `Invalid $type "${result.$type}" for path: "${originalPath.join(ALIAS_PATH_SEPARATOR)}" while being resolved from root.`;
 
-      return Result.Error([
+      return Either.left([
         new ValidationError({
           type: 'Value',
           nodeId: '',
@@ -60,7 +60,7 @@ export function recursivelyResolveTokenTypeFromParents(
 
   const nextParentPath = path.slice(0, -1);
   if (path.length === 0 && nextParentPath.length === 0) {
-    return Result.Error([
+    return Either.left([
       new ValidationError({
         type: 'Value',
         nodeId: '',
@@ -74,8 +74,10 @@ export function recursivelyResolveTokenTypeFromParents(
     tokenTree,
     nextParentPath,
     originalPath,
-  ).map(({ resolvedType, paths }) => ({
-    resolvedType,
-    paths: paths.concat([path]),
-  }));
+  ).pipe(
+    Either.map(({ resolvedType, paths }) => ({
+      resolvedType,
+      paths: paths.concat([path]),
+    })),
+  );
 }

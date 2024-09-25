@@ -1,3 +1,4 @@
+import { Either, Option } from 'effect';
 import { parseJSONTokenTree } from '../parser/parseJSONTokenTree.js';
 import { findAnalyzedTokenByPath } from '../parser/token/findAnalyzedTokenByPath.js';
 import { TokenState } from './TokenState.js';
@@ -8,12 +9,8 @@ import { captureAnalyzedTokensReferenceErrors } from '../parser/token/captureAna
 
 export function buildTreeState(value: unknown) {
   const treeState = new TreeState();
-
-  parseJSONTokenTree(value).match({
-    Ok: ({ tokens, groups }) => {
-      const [analyzedTokens, tokenErrors] = tokens;
-      const [analyzedGroups, groupErrors] = groups;
-
+  return Either.match(parseJSONTokenTree(value), {
+    onRight: ({ analyzedTokens, analyzedGroups, tokenErrors, groupErrors }) => {
       if (tokenErrors.length > 0 || groupErrors.length > 0) {
         treeState.validationErrors.add(...tokenErrors);
       }
@@ -41,9 +38,9 @@ export function buildTreeState(value: unknown) {
 
         // Built up the reference states to add in treeState
         for (const analyzedRef of analyzedToken.value.toReferences) {
-          findAnalyzedTokenByPath(analyzedTokens, analyzedRef.toTreePath).match(
-            {
-              Some: (foundAnalyzedToken) => {
+          findAnalyzedTokenByPath(analyzedTokens, analyzedRef.toTreePath).pipe(
+            Option.match({
+              onSome: (foundAnalyzedToken) => {
                 treeState.references.add(
                   new Reference(
                     analyzedToken.id,
@@ -55,7 +52,7 @@ export function buildTreeState(value: unknown) {
                   ),
                 );
               },
-              None: () => {
+              onNone: () => {
                 treeState.references.add(
                   new Reference(
                     analyzedToken.id,
@@ -67,7 +64,7 @@ export function buildTreeState(value: unknown) {
                   ),
                 );
               },
-            },
+            }),
           );
         }
       }
@@ -84,11 +81,12 @@ export function buildTreeState(value: unknown) {
           ),
         );
       }
+
+      return treeState;
     },
-    Error: (errors) => {
+    onLeft: (errors) => {
       treeState.validationErrors.add(...errors);
+      return treeState;
     },
   });
-
-  return treeState;
 }

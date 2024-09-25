@@ -1,4 +1,4 @@
-import { Result } from '@swan-io/boxed';
+import { Either } from 'effect';
 import { type JSON } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
@@ -14,21 +14,18 @@ export function parseRawToken(
   ctx: {
     jsonTokenTree: JSON.Object;
   } & AnalyzerContext,
-): Result<AnalyzedToken, Array<ValidationError>> {
+): Either.Either<AnalyzedToken, Array<ValidationError>> {
   const {
-    $type, // only  for destructuring, ctx.resolvedType is used instead
+    $type, // only  for destructuring, resolvedType is used instead
     $value,
     $description,
     $extensions,
     ...rest
   } = rawJsonToken;
 
-  // Accumulates validation errors
-  const validationErrors: Array<ValidationError> = [];
-
   // No extra properties allowed
   if (Object.keys(rest).length > 0) {
-    validationErrors.push(
+    return Either.left([
       new ValidationError({
         type: 'Value',
         nodeId: ctx.nodeId,
@@ -39,48 +36,61 @@ export function parseRawToken(
           .map(([k, v]) => `"${k}": ${JSON.stringify(v)}`)
           .join(', ')}.`,
       }),
-    );
+    ]);
   }
 
-  return Result.all([
-    recursivelyResolveTokenType(ctx.jsonTokenTree, ctx.path)
-      .tapError((e) => validationErrors.push(...e))
-      .flatMap(({ resolvedType: type, resolution: resolutionType }) =>
-        getTokenValueParser(type)($value, {
-          varName: `${ctx.varName}.$value`,
-          nodeId: ctx.nodeId,
-          path: ctx.path,
-          valuePath: [],
-          nodeKey: '$value',
-        })
-          .map((value) => ({ resolutionType, type, value }))
-          .tapError((e) => validationErrors.push(...e)),
-      ),
-    parseTreeNodeDescription($description, {
-      varName: `${ctx.varName}.$description`,
-      nodeId: ctx.nodeId,
-      path: ctx.path,
-      nodeKey: '$description',
-    }).tapError((e) => validationErrors.push(...e)),
-    parseTreeNodeExtensions($extensions, {
-      varName: `${ctx.varName}.$extensions`,
-      nodeId: ctx.nodeId,
-      path: ctx.path,
-      nodeKey: '$extensions',
-    }).tapError((e) => validationErrors.push(...e)),
-  ])
-    .flatMap(([{ type, resolutionType, value }, description, extensions]) => {
-      return Result.Ok(
-        new AnalyzedToken(
-          ctx.nodeId,
-          ctx.path,
-          type,
-          value,
-          resolutionType,
-          description,
-          extensions,
-        ),
-      );
-    })
-    .flatMapError(() => Result.Error(validationErrors));
+  const maybeResolvedTypeAndValue = recursivelyResolveTokenType(
+    ctx.jsonTokenTree,
+    ctx.path,
+  ).pipe(
+    Either.flatMap(({ resolvedType, resolution }) =>
+      getTokenValueParser(resolvedType)($value, {
+        varName: `${ctx.varName}.$value`,
+        nodeId: ctx.nodeId,
+        path: ctx.path,
+        valuePath: [],
+        nodeKey: '$value',
+      }).pipe(Either.map((value) => ({ resolvedType, resolution, value }))),
+    ),
+  );
+  const maybeDescription = parseTreeNodeDescription($description, {
+    varName: `${ctx.varName}.$description`,
+    nodeId: ctx.nodeId,
+    path: ctx.path,
+    nodeKey: '$description',
+  });
+  const maybeExtensions = parseTreeNodeExtensions($extensions, {
+    varName: `${ctx.varName}.$extensions`,
+    nodeId: ctx.nodeId,
+    path: ctx.path,
+    nodeKey: '$extensions',
+  });
+
+  if (
+    Either.isLeft(maybeResolvedTypeAndValue) ||
+    Either.isLeft(maybeDescription) ||
+    Either.isLeft(maybeExtensions)
+  ) {
+    return Either.left([
+      ...(Either.isLeft(maybeResolvedTypeAndValue)
+        ? maybeResolvedTypeAndValue.left
+        : []),
+      ...(Either.isLeft(maybeDescription) ? maybeDescription.left : []),
+      ...(Either.isLeft(maybeExtensions) ? maybeExtensions.left : []),
+    ]);
+  }
+
+  const { resolvedType, value, resolution } = maybeResolvedTypeAndValue.right;
+
+  return Either.right(
+    new AnalyzedToken(
+      ctx.nodeId,
+      ctx.path,
+      resolvedType,
+      value,
+      resolution,
+      maybeDescription.right,
+      maybeExtensions.right,
+    ),
+  );
 }

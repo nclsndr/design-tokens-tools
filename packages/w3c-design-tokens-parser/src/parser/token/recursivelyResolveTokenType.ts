@@ -1,4 +1,4 @@
-import { Option, Result } from '@swan-io/boxed';
+import { Either, Option } from 'effect';
 import {
   type JSON,
   ALIAS_PATH_SEPARATOR,
@@ -17,7 +17,7 @@ export type ResolutionType = 'explicit' | 'alias' | 'parent';
 export function recursivelyResolveTokenType(
   jsonTokenTree: JSON.Object,
   path: JSON.ValuePath,
-): Result<
+): Either.Either<
   {
     resolution: ResolutionType;
     resolvedType: TokenTypeName;
@@ -30,73 +30,102 @@ export function recursivelyResolveTokenType(
   if (matchIsToken(maybeToken)) {
     // $type is explicitly defined
     if ('$type' in maybeToken) {
-      return parseTokenTypeName(maybeToken.$type, {
-        allowUndefined: false,
-        varName: `${path.join(ALIAS_PATH_SEPARATOR)}.$type`,
-        nodeId: '',
-        path: path,
-        valuePath: [],
-        nodeKey: '$type',
-      }).map((resolvedType) => ({
-        resolution: 'explicit',
-        resolvedType,
-        paths: [path],
-      }));
+      return Either.map(
+        parseTokenTypeName(maybeToken.$type, {
+          allowUndefined: false,
+          varName: `${path.join(ALIAS_PATH_SEPARATOR)}.$type`,
+          nodeId: '',
+          path: path,
+          valuePath: [],
+          nodeKey: '$type',
+        }),
+        (resolvedType) => ({
+          resolution: 'explicit' as const,
+          resolvedType,
+          paths: [path],
+        }),
+      );
     }
 
-    return (
-      // check if $value is an alias
-      captureAliasPath(maybeToken.$value)
-        // check whether the alias is a valid token
-        .match({
-          Some: (p): Option<JSON.ValuePath> => {
-            if (matchIsToken(getJSONValue(jsonTokenTree, p))) {
-              return Option.Some(p);
-            }
-            return Option.None();
-          },
-          None: () => Option.None(),
-        })
-        // recursively execute the token type resolution
-        .match({
-          Some: (value) => {
-            try {
-              return recursivelyResolveTokenType(jsonTokenTree, value).map(
-                ({ resolvedType, paths }) => ({
+    // check if $value is an alias
+    return captureAliasPath(maybeToken.$value).pipe(
+      Option.match({
+        onNone: () => {
+          // Not an alias, try to resolve the parent
+          return Either.map(
+            recursivelyResolveTokenTypeFromParents(jsonTokenTree, path),
+            ({ resolvedType, paths }) => ({
+              resolution: 'parent' as ResolutionType,
+              resolvedType,
+              paths,
+            }),
+          );
+        },
+        onSome: (p) => {
+          try {
+            return Either.match(recursivelyResolveTokenType(jsonTokenTree, p), {
+              onRight: ({ resolvedType, paths }) => {
+                const matched = paths
+                  .map((p) => p.join(ALIAS_PATH_SEPARATOR))
+                  .includes(path.join(ALIAS_PATH_SEPARATOR));
+
+                if (matched) {
+                  return Either.left([
+                    new ValidationError({
+                      type: 'Computation',
+                      nodeId: '',
+                      treePath: path,
+                      referenceToTreePath: p,
+                      message: `Circular references detected while resolving token type for token "${path.join(ALIAS_PATH_SEPARATOR)}".`,
+                    }),
+                  ]);
+                }
+
+                return Either.right({
                   resolution: 'alias' as ResolutionType,
                   resolvedType,
                   paths: paths.concat([path]),
-                }),
-              );
-            } catch (error) {
-              if (error instanceof RangeError) {
-                return Result.Error([
-                  new ValidationError({
-                    type: 'Computation',
-                    nodeId: '',
-                    treePath: path,
-                    referenceToTreePath: value,
-                    message: `Circular references detected while resolving token type for token "${path.join(ALIAS_PATH_SEPARATOR)}".`,
+                });
+              },
+              onLeft: (errs) => {
+                const hasCircularReference = errs.some(
+                  (e) => e.type === 'Computation',
+                );
+                if (hasCircularReference) {
+                  return Either.left(errs);
+                }
+
+                // The alias is unlinked, try to resolve the parent
+                return Either.map(
+                  recursivelyResolveTokenTypeFromParents(jsonTokenTree, path),
+                  ({ resolvedType, paths }) => ({
+                    resolution: 'parent' as ResolutionType,
+                    resolvedType,
+                    paths,
                   }),
-                ]);
-              }
-              throw error;
+                );
+              },
+            });
+          } catch (error) {
+            if (error instanceof RangeError) {
+              return Either.left([
+                new ValidationError({
+                  type: 'Computation',
+                  nodeId: '',
+                  treePath: path,
+                  referenceToTreePath: p,
+                  message: `Circular references detected while resolving token type for token "${path.join(ALIAS_PATH_SEPARATOR)}".`,
+                }),
+              ]);
             }
-          },
-          // Find $type in parents otherwise
-          None: () =>
-            recursivelyResolveTokenTypeFromParents(jsonTokenTree, path).map(
-              ({ resolvedType, paths }) => ({
-                resolution: 'parent' as ResolutionType,
-                resolvedType,
-                paths,
-              }),
-            ),
-        })
+            throw error;
+          }
+        },
+      }),
     );
   }
 
-  return Result.Error([
+  return Either.left([
     new ValidationError({
       type: 'Value',
       nodeId: '',

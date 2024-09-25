@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import { Either, Option } from 'effect';
+
 import { parseRawGroup } from '../../../src/parser/group/parseRawGroup';
 
 describe('parseRawGroup', () => {
@@ -21,8 +23,7 @@ describe('parseRawGroup', () => {
       valuePath: [],
     });
 
-    expect(result.isOk()).toBe(true);
-    expect(result.isOk() && result.get()).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       id: expect.any(String),
       path: expect.any(Object),
       tokenType: undefined,
@@ -43,8 +44,7 @@ describe('parseRawGroup', () => {
       valuePath: [],
     });
 
-    expect(result.isOk()).toBe(true);
-    expect(result.isOk() && result.get()).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       id: expect.any(String),
       path: expect.any(Object),
       tokenType: 'dimension',
@@ -65,11 +65,20 @@ describe('parseRawGroup', () => {
       valuePath: [],
     });
 
-    expect(result.isError()).toBe(true);
-    expect(result.isError() && result.getError()).toHaveLength(1);
-    expect(result.isError() && result.getError()[0].message).toContain(
-      'aGroup.$type must be a valid type among:',
-    );
+    expect(
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
+    ).toStrictEqual([
+      {
+        type: 'Value',
+        isCritical: false,
+        nodeId: 'abc',
+        treePath: ['aGroup'],
+        nodeKey: '$type',
+        valuePath: [],
+        message:
+          'aGroup.$type must be a valid type among: "color", "dimension", "fontFamily", "fontWeight", "duration", "cubicBezier", "number", "strokeStyle", "border", "transition", "shadow", "gradient", "typography". Got "42".',
+      },
+    ]);
   });
   it('should fail when description is not a string', () => {
     const tree = {
@@ -87,10 +96,18 @@ describe('parseRawGroup', () => {
       valuePath: [],
     });
 
-    expect(result.isError()).toBe(true);
-    expect(result.isError() && result.getError()).toHaveLength(1);
-    expect(result.isError() && result.getError()[0].message).toBe(
-      'aGroup.$description must be a string. Got "number".',
-    );
+    expect(
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
+    ).toStrictEqual([
+      {
+        type: 'Type',
+        isCritical: false,
+        nodeId: 'abc',
+        treePath: ['aGroup'],
+        nodeKey: '$description',
+        valuePath: [],
+        message: 'aGroup.$description must be a string. Got "number".',
+      },
+    ]);
   });
 });

@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { Either, Option } from 'effect';
 
 import {
   parseAliasableStrokeStyleValue,
@@ -9,14 +10,14 @@ describe.concurrent('parseRawStrokeStyleValue', () => {
   it('should parse string value', () => {
     for (const value of strokeStyleStringValues) {
       expect(
-        (
+        Either.getOrThrow(
           parseAliasableStrokeStyleValue(value, {
             valuePath: [],
             path: ['test'],
             nodeId: 'abc',
             varName: 'test',
-          }) as any
-        ).value,
+          }),
+        ),
       ).toStrictEqual({
         raw: value,
         toReferences: [],
@@ -27,14 +28,14 @@ describe.concurrent('parseRawStrokeStyleValue', () => {
     const value = '{my.var}';
 
     expect(
-      (
+      Either.getOrThrow(
         parseAliasableStrokeStyleValue(value, {
           valuePath: [],
           path: ['test'],
           nodeId: 'abc',
           varName: 'test',
-        }) as any
-      ).value,
+        }),
+      ),
     ).toStrictEqual({
       raw: value,
       toReferences: [
@@ -53,14 +54,14 @@ describe.concurrent('parseRawStrokeStyleValue', () => {
     };
 
     expect(
-      (
+      Either.getOrThrow(
         parseAliasableStrokeStyleValue(value, {
           valuePath: [],
           path: ['test'],
           nodeId: 'abc',
           varName: 'test',
-        }) as any
-      ).value,
+        }),
+      ),
     ).toStrictEqual({
       raw: value,
       toReferences: [
@@ -76,14 +77,16 @@ describe.concurrent('parseRawStrokeStyleValue', () => {
   it('should fail when the value is nor a string or an object', () => {
     expect(
       JSON.stringify(
-        (
-          parseAliasableStrokeStyleValue(42, {
-            valuePath: [],
-            path: ['test'],
-            nodeId: 'abc',
-            varName: 'test',
-          }) as any
-        ).error,
+        Option.getOrThrow(
+          Either.getLeft(
+            parseAliasableStrokeStyleValue(42, {
+              valuePath: [],
+              path: ['test'],
+              nodeId: 'abc',
+              varName: 'test',
+            }),
+          ),
+        ),
       ),
     ).toStrictEqual(
       '[{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["test"],"valuePath":[],"message":"test must be a string or an object. Got \\"number\\"."}]',
@@ -91,14 +94,16 @@ describe.concurrent('parseRawStrokeStyleValue', () => {
 
     expect(
       JSON.stringify(
-        (
-          parseAliasableStrokeStyleValue(true, {
-            valuePath: [],
-            path: ['test'],
-            nodeId: 'abc',
-            varName: 'test',
-          }) as any
-        ).error,
+        Option.getOrThrow(
+          Either.getLeft(
+            parseAliasableStrokeStyleValue(true, {
+              valuePath: [],
+              path: ['test'],
+              nodeId: 'abc',
+              varName: 'test',
+            }),
+          ),
+        ),
       ),
     ).toStrictEqual(
       '[{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["test"],"valuePath":[],"message":"test must be a string or an object. Got \\"boolean\\"."}]',
@@ -106,14 +111,16 @@ describe.concurrent('parseRawStrokeStyleValue', () => {
 
     expect(
       JSON.stringify(
-        (
-          parseAliasableStrokeStyleValue(null, {
-            valuePath: [],
-            path: ['test'],
-            nodeId: 'abc',
-            varName: 'test',
-          }) as any
-        ).error,
+        Option.getOrThrow(
+          Either.getLeft(
+            parseAliasableStrokeStyleValue(null, {
+              valuePath: [],
+              path: ['test'],
+              nodeId: 'abc',
+              varName: 'test',
+            }),
+          ),
+        ),
       ),
     ).toStrictEqual(
       '[{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["test"],"valuePath":[],"message":"test must be a string or an object. Got \\"object\\"."}]',

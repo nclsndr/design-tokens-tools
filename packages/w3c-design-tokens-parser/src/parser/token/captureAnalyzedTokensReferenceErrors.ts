@@ -1,11 +1,13 @@
+import { Either, Option } from 'effect';
 import {
   ALIAS_PATH_SEPARATOR,
   JSON,
   TokenTypeName,
 } from 'design-tokens-format-module';
-import { AnalyzedToken } from './AnalyzedToken.js';
+
 import { ValidationError } from '../../utils/validationError.js';
 import { matchTokenTypeAgainstAliasingMapping } from '../../definitions/matchTokenTypeAgainstAliasingMapping.js';
+import { AnalyzedToken } from './AnalyzedToken.js';
 import { findAnalyzedTokenByPath } from './findAnalyzedTokenByPath.js';
 
 type SyntheticRef = {
@@ -21,19 +23,17 @@ type SyntheticRef = {
 export function captureAnalyzedTokensReferenceErrors(
   analyzedTokens: Array<AnalyzedToken>,
 ) {
-  const syntheticRefs: Array<SyntheticRef> = analyzedTokens
-    .map((t) =>
-      t.value.toReferences.map((r) => ({
-        tokenId: t.id,
-        tokenType: t.type,
-        fromTreeStringPath: r.fromTreePath.join(ALIAS_PATH_SEPARATOR),
-        toTreeStringPath: r.toTreePath.join(ALIAS_PATH_SEPARATOR),
-        fromValuePath: r.fromValuePath,
-        fromTreePath: r.fromTreePath,
-        toTreePath: r.toTreePath,
-      })),
-    )
-    .flat();
+  const syntheticRefs: Array<SyntheticRef> = analyzedTokens.flatMap((t) =>
+    t.value.toReferences.map((r) => ({
+      tokenId: t.id,
+      tokenType: t.type,
+      fromTreeStringPath: r.fromTreePath.join(ALIAS_PATH_SEPARATOR),
+      toTreeStringPath: r.toTreePath.join(ALIAS_PATH_SEPARATOR),
+      fromValuePath: r.fromValuePath,
+      fromTreePath: r.fromTreePath,
+      toTreePath: r.toTreePath,
+    })),
+  );
 
   function recursivelyResolveRef(
     sRef: SyntheticRef,
@@ -80,14 +80,16 @@ export function captureAnalyzedTokensReferenceErrors(
       targetTokenType = findAnalyzedTokenByPath(
         analyzedTokens,
         sRef.toTreePath,
-      ).match({
-        Some: (foundAnalyzedToken) => {
-          return foundAnalyzedToken.type;
-        },
-        None: () => {
-          return undefined;
-        },
-      });
+      ).pipe(
+        Option.match({
+          onSome: (foundAnalyzedToken) => {
+            return foundAnalyzedToken.type;
+          },
+          onNone: () => {
+            return undefined;
+          },
+        }),
+      );
     }
 
     // Unlinked reference - skip the validation
@@ -96,12 +98,13 @@ export function captureAnalyzedTokensReferenceErrors(
     }
 
     // Check for token type compatibility over the alias chain
-    const typeMatchingResult = matchTokenTypeAgainstAliasingMapping(
-      sRef.tokenType,
-      targetTokenType,
-      sRef.fromTreePath,
-      sRef.fromValuePath,
-    ).mapError(
+    const typeMatchingResult = Either.mapLeft(
+      matchTokenTypeAgainstAliasingMapping(
+        sRef.tokenType,
+        targetTokenType,
+        sRef.fromTreePath,
+        sRef.fromValuePath,
+      ),
       (err) =>
         new ValidationError({
           type: 'Type',
@@ -114,8 +117,8 @@ export function captureAnalyzedTokensReferenceErrors(
         }),
     );
 
-    if (typeMatchingResult.isError()) {
-      return typeMatchingResult.error;
+    if (Either.isLeft(typeMatchingResult)) {
+      return typeMatchingResult.left;
     }
 
     // No more references to resolve

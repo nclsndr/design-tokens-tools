@@ -1,4 +1,4 @@
-import { Result } from '@swan-io/boxed';
+import { Either } from 'effect';
 import { Transition } from 'design-tokens-format-module';
 
 import { parseAliasableDurationValue } from './duration.js';
@@ -19,25 +19,23 @@ export const parseAliasableTransitionValue = withAlias(
   (
     value: unknown,
     ctx: AnalyzerContext,
-  ): Result<AnalyzedValue<Transition.RawValue>, Array<ValidationError>> => {
-    return parseTransitionRawValue(value, ctx).match({
-      Ok: (analyzed) => {
-        return Result.Ok({
-          raw: {
-            duration: analyzed.duration.raw,
-            delay: analyzed.delay.raw,
-            timingFunction: analyzed.timingFunction.raw,
-          },
-          toReferences: [
-            ...analyzed.duration.toReferences,
-            ...analyzed.delay.toReferences,
-            ...analyzed.timingFunction.toReferences,
-          ],
-        });
-      },
-      Error: (err) => {
-        return Result.Error(err);
-      },
-    });
+  ): Either.Either<
+    AnalyzedValue<Transition.RawValue>,
+    Array<ValidationError>
+  > => {
+    return parseTransitionRawValue(value, ctx).pipe(
+      Either.map((analyzed) => ({
+        raw: {
+          duration: analyzed.duration.raw,
+          delay: analyzed.delay.raw,
+          timingFunction: analyzed.timingFunction.raw,
+        },
+        toReferences: [
+          ...analyzed.duration.toReferences,
+          ...analyzed.delay.toReferences,
+          ...analyzed.timingFunction.toReferences,
+        ],
+      })),
+    );
   },
 );

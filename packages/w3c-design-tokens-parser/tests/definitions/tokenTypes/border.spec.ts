@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
 import { parseAliasableBorderValue } from '../../../src/definitions/tokenTypes/border';
+import { Either, Option } from 'effect';
 
 describe.concurrent('parseAliasableBorderValue', () => {
   it('should parse a raw border value', () => {
@@ -18,7 +19,7 @@ describe.concurrent('parseAliasableBorderValue', () => {
       },
     );
 
-    expect((result as any).value).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: {
         color: '#FF5564',
         width: '1px',
@@ -35,15 +36,16 @@ describe.concurrent('parseAliasableBorderValue', () => {
       valuePath: [],
     });
 
-    expect((result as any).value.raw).toStrictEqual('{borders.b-border}');
-
-    expect((result as any).value.toReferences).toStrictEqual([
-      {
-        fromTreePath: ['borders', 'a-border'],
-        fromValuePath: [],
-        toTreePath: ['borders', 'b-border'],
-      },
-    ]);
+    expect(Either.getOrThrow(result)).toStrictEqual({
+      raw: '{borders.b-border}',
+      toReferences: [
+        {
+          fromTreePath: ['borders', 'a-border'],
+          fromValuePath: [],
+          toTreePath: ['borders', 'b-border'],
+        },
+      ],
+    });
   });
   it('should parse a value with nested aliases', () => {
     const result = parseAliasableBorderValue(
@@ -60,41 +62,41 @@ describe.concurrent('parseAliasableBorderValue', () => {
       },
     );
 
-    expect((result as any).value.raw).toStrictEqual({
-      color: '{color.primary}',
-      width: '{space.regular}',
-      style: '{border.property.solid}',
+    expect(Either.getOrThrow(result)).toStrictEqual({
+      raw: {
+        color: '{color.primary}',
+        width: '{space.regular}',
+        style: '{border.property.solid}',
+      },
+      toReferences: [
+        {
+          fromTreePath: ['borders', 'a-border'],
+          fromValuePath: ['color'],
+          toTreePath: ['color', 'primary'],
+        },
+        {
+          fromTreePath: ['borders', 'a-border'],
+          fromValuePath: ['width'],
+          toTreePath: ['space', 'regular'],
+        },
+        {
+          fromTreePath: ['borders', 'a-border'],
+          fromValuePath: ['style'],
+          toTreePath: ['border', 'property', 'solid'],
+        },
+      ],
     });
-
-    expect((result as any).value.toReferences).toStrictEqual([
-      {
-        fromTreePath: ['borders', 'a-border'],
-        fromValuePath: ['color'],
-        toTreePath: ['color', 'primary'],
-      },
-      {
-        fromTreePath: ['borders', 'a-border'],
-        fromValuePath: ['width'],
-        toTreePath: ['space', 'regular'],
-      },
-      {
-        fromTreePath: ['borders', 'a-border'],
-        fromValuePath: ['style'],
-        toTreePath: ['border', 'property', 'solid'],
-      },
-    ]);
   });
   it('should fail when the value is not an object', () => {
-    expect(
-      (
-        parseAliasableBorderValue('not an object', {
-          nodeId: 'abc',
-          varName: 'borders.a-border',
-          path: ['borders', 'a-border'],
-          valuePath: [],
-        }) as any
-      ).error[0].message,
-    ).toBe('borders.a-border must be an object. Got "string".');
+    const result = parseAliasableBorderValue('not an object', {
+      nodeId: 'abc',
+      varName: 'borders.a-border',
+      path: ['borders', 'a-border'],
+      valuePath: [],
+    });
+    expect(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))).toBe(
+      '[{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["borders","a-border"],"valuePath":[],"message":"borders.a-border must be an object. Got \\"string\\"."}]',
+    );
   });
   it('should fail whenever the color property is missing', () => {
     const result = parseAliasableBorderValue(
@@ -110,9 +112,8 @@ describe.concurrent('parseAliasableBorderValue', () => {
       },
     );
 
-    expect((result as any).error).toHaveLength(1);
-    expect((result as any).error[0].message).toBe(
-      'borders.a-border must have a "color" property.',
+    expect(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))).toBe(
+      '[{"type":"Value","isCritical":false,"nodeId":"abc","treePath":["borders","a-border"],"valuePath":[],"message":"borders.a-border must have a \\"color\\" property."}]',
     );
   });
   it('should fail whenever the width property is missing', () => {
@@ -129,9 +130,8 @@ describe.concurrent('parseAliasableBorderValue', () => {
       },
     );
 
-    expect((result as any).error).toHaveLength(1);
-    expect((result as any).error[0].message).toBe(
-      'borders.a-border must have a "width" property.',
+    expect(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))).toBe(
+      '[{"type":"Value","isCritical":false,"nodeId":"abc","treePath":["borders","a-border"],"valuePath":[],"message":"borders.a-border must have a \\"width\\" property."}]',
     );
   });
   it('should fail whenever the style property is missing', () => {
@@ -148,9 +148,8 @@ describe.concurrent('parseAliasableBorderValue', () => {
       },
     );
 
-    expect((result as any).error).toHaveLength(1);
-    expect((result as any).error[0].message).toBe(
-      'borders.a-border must have a "style" property.',
+    expect(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))).toBe(
+      '[{"type":"Value","isCritical":false,"nodeId":"abc","treePath":["borders","a-border"],"valuePath":[],"message":"borders.a-border must have a \\"style\\" property."}]',
     );
   });
   it('should fail whenever the color property is not a valid Hex color', () => {
@@ -168,9 +167,8 @@ describe.concurrent('parseAliasableBorderValue', () => {
       },
     );
 
-    expect((result as any).error).toHaveLength(1);
-    expect((result as any).error[0].message).toBe(
-      'borders.a-border.color must start with "#" and have a length of 6 or 8. Got: "not-a-color".',
+    expect(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))).toBe(
+      '[{"type":"Value","isCritical":false,"nodeId":"abc","treePath":["borders","a-border"],"valuePath":["color"],"message":"borders.a-border.color must start with \\"#\\" and have a length of 6 or 8. Got: \\"not-a-color\\"."}]',
     );
   });
 });

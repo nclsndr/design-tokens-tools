@@ -4,6 +4,7 @@ import type {
   JSON,
   PickTokenByType,
 } from 'design-tokens-format-module';
+import { Option } from 'effect';
 
 import type { TreeState } from './TreeState.js';
 import { TreeNode } from './TreeNode.js';
@@ -146,8 +147,8 @@ export class TokenState<
           }
         }
       } else {
-        this.#treeState.tokenStates.getOneById(ref.toId).match({
-          Some: (tokenState) => {
+        Option.match(this.#treeState.tokenStates.getOneById(ref.toId), {
+          onSome: (tokenState) => {
             if (ref.isTopLevel) {
               acc = makeAliasStringPath(tokenState.path);
             } else {
@@ -158,7 +159,7 @@ export class TokenState<
               );
             }
           },
-          None: () => {
+          onNone: () => {
             if (ref.isTopLevel) {
               acc = makeAliasStringPath(ref.toTreePath.array);
             } else {

@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { Effect, Exit } from 'effect';
 
 import { parseJSONTokenTree } from '../../../src/parser/parseJSONTokenTree';
 
@@ -17,19 +18,25 @@ describe('recursivelyResolveAnalyzedToken', () => {
       },
     };
 
-    const analyzedResults = parseJSONTokenTree(tokenTree).match({
-      Ok: (x) => x,
-      Error: () => undefined,
-    });
+    const [analyzedTokens, tokenErrors] = Exit.match(
+      Effect.runSyncExit(parseJSONTokenTree(tokenTree)),
+      {
+        onSuccess: ({ analyzedTokens, tokenErrors }) => [
+          analyzedTokens,
+          tokenErrors,
+        ],
+        onFailure: (error) => {
+          throw error;
+        },
+      },
+    );
 
-    expect(analyzedResults?.tokens[0]).toHaveLength(2);
-    expect((analyzedResults?.tokens[0] ?? [])[1].path).toStrictEqual([
-      'bColor',
-    ]);
+    expect(analyzedTokens).toHaveLength(2);
+    expect(analyzedTokens[1].path).toStrictEqual(['bColor']);
 
     const steps = recursivelyResolveAnalyzedToken(
-      analyzedResults?.tokens[0] ?? [],
-      analyzedResults!.tokens[0][1],
+      analyzedTokens ?? [],
+      analyzedTokens[1],
     );
 
     expect(
@@ -59,20 +66,25 @@ describe('recursivelyResolveAnalyzedToken', () => {
       },
     };
 
-    const analyzedResults = parseJSONTokenTree(tokenTree).match({
-      Ok: (x) => x,
-      Error: () => undefined,
-    });
+    const [analyzedTokens, tokenErrors] = Exit.match(
+      Effect.runSyncExit(parseJSONTokenTree(tokenTree)),
+      {
+        onSuccess: ({ analyzedTokens, tokenErrors }) => [
+          analyzedTokens,
+          tokenErrors,
+        ],
+        onFailure: (error) => {
+          throw error;
+        },
+      },
+    );
 
-    expect(analyzedResults?.tokens[0]).toHaveLength(1);
-    expect(analyzedResults?.tokens[0][0].path).toStrictEqual([
-      'semantic',
-      'primary',
-    ]);
+    expect(analyzedTokens).toHaveLength(1);
+    expect(analyzedTokens[0].path).toStrictEqual(['semantic', 'primary']);
 
     const steps = recursivelyResolveAnalyzedToken(
-      analyzedResults?.tokens[0] ?? [],
-      analyzedResults!.tokens[0][0],
+      analyzedTokens ?? [],
+      analyzedTokens[0],
     );
 
     expect(
@@ -112,20 +124,28 @@ describe('recursivelyResolveAnalyzedToken', () => {
       },
     };
 
-    const analyzedResults = parseJSONTokenTree(tokenTree).match({
-      Ok: (x) => x,
-      Error: () => undefined,
-    });
+    const [analyzedTokens, tokenErrors] = Exit.match(
+      Effect.runSyncExit(parseJSONTokenTree(tokenTree)),
+      {
+        onSuccess: ({ analyzedTokens, tokenErrors }) => [
+          analyzedTokens,
+          tokenErrors,
+        ],
+        onFailure: (error) => {
+          throw error;
+        },
+      },
+    );
 
-    expect(analyzedResults?.tokens[0]).toHaveLength(4);
-    expect((analyzedResults?.tokens[0] ?? [])[3].path).toStrictEqual([
+    expect(analyzedTokens).toHaveLength(4);
+    expect((analyzedTokens ?? [])[3].path).toStrictEqual([
       'semantic',
       'accent',
     ]);
 
     const steps = recursivelyResolveAnalyzedToken(
-      analyzedResults?.tokens[0] ?? [],
-      (analyzedResults?.tokens[0] ?? [])[3],
+      analyzedTokens ?? [],
+      (analyzedTokens ?? [])[3],
     );
 
     expect(
@@ -173,20 +193,25 @@ describe('recursivelyResolveAnalyzedToken', () => {
       },
     };
 
-    const analyzedResults = parseJSONTokenTree(tokenTree).match({
-      Ok: (x) => x,
-      Error: () => undefined,
-    });
+    const [analyzedTokens, tokenErrors] = Exit.match(
+      Effect.runSyncExit(parseJSONTokenTree(tokenTree)),
+      {
+        onSuccess: ({ analyzedTokens, tokenErrors }) => [
+          analyzedTokens,
+          tokenErrors,
+        ],
+        onFailure: (error) => {
+          throw error;
+        },
+      },
+    );
 
-    expect(analyzedResults?.tokens[0]).toHaveLength(2);
-    expect(analyzedResults?.tokens[0][1].path).toStrictEqual([
-      'semantic',
-      'solid',
-    ]);
+    expect(analyzedTokens).toHaveLength(2);
+    expect(analyzedTokens[1].path).toStrictEqual(['semantic', 'solid']);
 
     const steps = recursivelyResolveAnalyzedToken(
-      analyzedResults?.tokens[0] ?? [],
-      analyzedResults!.tokens[0][1],
+      analyzedTokens ?? [],
+      analyzedTokens[1],
     );
 
     expect(
@@ -247,20 +272,28 @@ describe('recursivelyResolveAnalyzedToken', () => {
       },
     };
 
-    const analyzedResults = parseJSONTokenTree(tokenTree).match({
-      Ok: (x) => x,
-      Error: () => undefined,
-    });
+    const [analyzedTokens, tokenErrors] = Exit.match(
+      Effect.runSyncExit(parseJSONTokenTree(tokenTree)),
+      {
+        onSuccess: ({ analyzedTokens, tokenErrors }) => [
+          analyzedTokens,
+          tokenErrors,
+        ],
+        onFailure: (error) => {
+          throw error;
+        },
+      },
+    );
 
-    expect(analyzedResults?.tokens[0]).toHaveLength(6);
+    expect(analyzedTokens).toHaveLength(6);
 
-    const analyzedToken = analyzedResults?.tokens[0][5];
+    const analyzedToken = analyzedTokens[5];
     if (!analyzedToken) throw new Error('Token not found');
 
     expect(analyzedToken.path).toStrictEqual(['border', 'solid']);
 
     const steps = recursivelyResolveAnalyzedToken(
-      analyzedResults?.tokens[0] ?? [],
+      analyzedTokens ?? [],
       analyzedToken,
     );
 

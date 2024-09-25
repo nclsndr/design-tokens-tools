@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { Either, Option } from 'effect';
 import { JSONTokenTree } from 'design-tokens-format-module';
 
 import {
@@ -33,77 +34,14 @@ describe('parseJSONTokenTree', () => {
       },
     };
 
-    const analyzedResult = parseJSONTokenTree(JSON.stringify(tokens)).match({
-      Ok: (result) => result,
-      Error: (errors) => {
-        throw new Error(errors.map((e) => e.message).join('\n'));
-      },
-    });
+    const result = parseJSONTokenTree(JSON.stringify(tokens));
 
-    expect(JSON.parse(JSON.stringify(analyzedResult))).toStrictEqual({
-      tokenTree: {
-        base: {
-          primary: {
-            $type: 'color',
-            $value: '#a82222',
-          },
-        },
-        semantic: {
-          primary: {
-            $value: '{base.primary}',
-          },
-        },
-      },
-      tokens: [
-        [
-          {
-            id: expect.any(String),
-            path: ['base', 'primary'],
-            type: 'color',
-            value: {
-              raw: '#a82222',
-              toReferences: [],
-            },
-          },
-          {
-            id: expect.any(String),
-            path: ['semantic', 'primary'],
-            type: 'color',
-            value: {
-              raw: '{base.primary}',
-              toReferences: [
-                {
-                  fromTreePath: ['semantic', 'primary'],
-                  fromValuePath: [],
-                  toTreePath: ['base', 'primary'],
-                },
-              ],
-            },
-          },
-        ],
-        [],
-      ],
-      groups: [
-        [
-          {
-            id: expect.any(String),
-            path: [],
-            childrenCount: 2,
-          },
-          {
-            id: expect.any(String),
-            path: ['base'],
-            childrenCount: 1,
-          },
-          {
-            id: expect.any(String),
-            path: ['semantic'],
-            childrenCount: 1,
-          },
-        ],
-        [],
-      ],
-    });
+    const matched = Either.getOrThrow(result);
+
+    expect(matched?.analyzedTokens).toHaveLength(2);
+    expect(matched?.analyzedGroups).toHaveLength(3);
+    expect(matched?.tokenErrors).toStrictEqual([]);
+    expect(matched?.groupErrors).toStrictEqual([]);
   });
   it('should parse a token tree of raw values of all types', () => {
     const tree: JSONTokenTree = {
@@ -123,36 +61,21 @@ describe('parseJSONTokenTree', () => {
       typographyToken,
     };
 
-    const analyzedResult = parseJSONTokenTree(tree).match({
-      Ok: (result) => ({
-        ...result,
-        groups: [
-          result.groups[0].map((g) => ({ ...g, id: 'ID' })),
-          result.groups[1],
-        ],
+    const result = parseJSONTokenTree(tree);
+
+    const matched = Either.match(result, {
+      onRight: (r) => ({
+        ...r,
+        analyzedTokens: r.analyzedTokens.map((t) => ({
+          ...JSON.parse(JSON.stringify(t)),
+          id: 'ID',
+        })),
       }),
-      Error: (errors) => {
-        throw new Error(errors.map((e) => e.message).join('\n'));
-      },
+      onLeft: () => undefined,
     });
 
-    expect({
-      ...analyzedResult,
-      tokens: [
-        analyzedResult.tokens[0].map((token) => ({
-          ...token,
-          id: 'ID',
-        })),
-        analyzedResult.tokens[1],
-      ],
-      groups: [
-        analyzedResult.groups[0].map((group) => ({
-          ...group,
-          id: 'ID',
-        })),
-        analyzedResult.groups[1],
-      ],
-    }).toMatchSnapshot();
+    expect(matched?.analyzedTokens).toHaveLength(14);
+    expect(matched?.analyzedTokens).toMatchSnapshot();
   });
   it('should parse a token tree with $description and $extensions at the root level', () => {
     const tree: JSONTokenTree = {
@@ -165,14 +88,11 @@ describe('parseJSONTokenTree', () => {
       },
     };
 
-    const analyzedResult = parseJSONTokenTree(tree).match({
-      Ok: (result) => result,
-      Error: (errors) => {
-        throw new Error(errors.map((e) => e.message).join('\n'));
-      },
-    });
+    const result = parseJSONTokenTree(tree);
 
-    expect(JSON.parse(JSON.stringify(analyzedResult))).toStrictEqual({
+    const matched = JSON.parse(JSON.stringify(Either.getOrThrow(result)));
+
+    expect(matched).toStrictEqual({
       tokenTree: {
         $description: 'A description for the token tree.',
         $extensions: {
@@ -185,74 +105,65 @@ describe('parseJSONTokenTree', () => {
           },
         },
       },
-      tokens: [
-        [
-          {
-            id: expect.any(String),
-            path: ['base', 'primary'],
-            type: 'color',
-            value: {
-              raw: '#a82222',
-              toReferences: [],
-            },
+      analyzedTokens: [
+        {
+          id: expect.any(String),
+          path: ['base', 'primary'],
+          type: 'color',
+          value: {
+            raw: '#a82222',
+            toReferences: [],
           },
-        ],
-        [],
+        },
       ],
-      groups: [
-        [
-          {
-            id: expect.any(String),
-            path: [],
-            childrenCount: 1,
-            description: 'A description for the token tree.',
-            extensions: {
-              someExtension: 'Some value',
-            },
+      analyzedGroups: [
+        {
+          id: expect.any(String),
+          path: [],
+          childrenCount: 1,
+          description: 'A description for the token tree.',
+          extensions: {
+            someExtension: 'Some value',
           },
-          {
-            id: expect.any(String),
-            path: ['base'],
-            childrenCount: 1,
-          },
-        ],
-        [],
+        },
+        {
+          id: expect.any(String),
+          path: ['base'],
+          childrenCount: 1,
+        },
       ],
+      tokenErrors: [],
+      groupErrors: [],
     });
   });
   it('should parse a token tree with a token at the top level', () => {
     const tree: JSONTokenTree = colorToken;
 
-    const analyzedResult = parseJSONTokenTree(tree).match({
-      Ok: (result) => result,
-      Error: (errors) => {
-        throw new Error(errors.map((e) => e.message).join('\n'));
-      },
-    });
+    const result = parseJSONTokenTree(tree);
 
-    expect(JSON.parse(JSON.stringify(analyzedResult))).toStrictEqual({
+    const matched = JSON.parse(JSON.stringify(Either.getOrThrow(result)));
+
+    expect(matched).toStrictEqual({
       tokenTree: {
         $type: 'color',
         $value: '#a82222',
       },
-      tokens: [
-        [
-          {
-            id: expect.any(String),
-            path: [],
-            type: 'color',
-            value: {
-              raw: '#a82222',
-              toReferences: [],
-            },
+      analyzedTokens: [
+        {
+          id: expect.any(String),
+          path: [],
+          type: 'color',
+          value: {
+            raw: '#a82222',
+            toReferences: [],
           },
-        ],
-        [],
+        },
       ],
-      groups: [[], []],
+      analyzedGroups: [],
+      tokenErrors: [],
+      groupErrors: [],
     });
   });
-
   it('should parse a token tree with references to other tokens', () => {
     const tree: JSONTokenTree = {
       base: {
@@ -265,14 +176,11 @@ describe('parseJSONTokenTree', () => {
       },
     };
 
-    const analyzedResult = parseJSONTokenTree(tree).match({
-      Ok: (result) => result,
-      Error: (errors) => {
-        throw new Error(errors.map((e) => e.message).join('\n'));
-      },
-    });
+    const result = parseJSONTokenTree(tree);
 
-    expect(JSON.parse(JSON.stringify(analyzedResult))).toStrictEqual({
+    const matched = JSON.parse(JSON.stringify(Either.getOrThrow(result)));
+
+    expect(matched).toStrictEqual({
       tokenTree: {
         base: {
           primary: {
@@ -286,55 +194,51 @@ describe('parseJSONTokenTree', () => {
           },
         },
       },
-      tokens: [
-        [
-          {
-            id: expect.any(String),
-            path: ['base', 'primary'],
-            type: 'color',
-            value: {
-              raw: '#a82222',
-              toReferences: [],
-            },
+      analyzedTokens: [
+        {
+          id: expect.any(String),
+          path: ['base', 'primary'],
+          type: 'color',
+          value: {
+            raw: '#a82222',
+            toReferences: [],
           },
-          {
-            id: expect.any(String),
-            path: ['semantic', 'primary'],
-            type: 'color',
-            value: {
-              raw: '{base.primary}',
-              toReferences: [
-                {
-                  fromTreePath: ['semantic', 'primary'],
-                  fromValuePath: [],
-                  toTreePath: ['base', 'primary'],
-                },
-              ],
-            },
+        },
+        {
+          id: expect.any(String),
+          path: ['semantic', 'primary'],
+          type: 'color',
+          value: {
+            raw: '{base.primary}',
+            toReferences: [
+              {
+                fromTreePath: ['semantic', 'primary'],
+                fromValuePath: [],
+                toTreePath: ['base', 'primary'],
+              },
+            ],
           },
-        ],
-        [],
+        },
       ],
-      groups: [
-        [
-          {
-            id: expect.any(String),
-            path: [],
-            childrenCount: 2,
-          },
-          {
-            id: expect.any(String),
-            path: ['base'],
-            childrenCount: 1,
-          },
-          {
-            id: expect.any(String),
-            path: ['semantic'],
-            childrenCount: 1,
-          },
-        ],
-        [],
+      analyzedGroups: [
+        {
+          id: expect.any(String),
+          path: [],
+          childrenCount: 2,
+        },
+        {
+          id: expect.any(String),
+          path: ['base'],
+          childrenCount: 1,
+        },
+        {
+          id: expect.any(String),
+          path: ['semantic'],
+          childrenCount: 1,
+        },
       ],
+      tokenErrors: [],
+      groupErrors: [],
     });
   });
   it('should parse a token tree with invalid tokens', () => {
@@ -360,62 +264,54 @@ describe('parseJSONTokenTree', () => {
       },
     };
 
-    const analyzedResult = parseJSONTokenTree(tree).match({
-      Ok: (result) => result,
-      Error: (errors) => {
-        throw new Error(errors.map((e) => e.message).join('\n'));
-      },
-    });
+    const result = parseJSONTokenTree(tree);
 
-    expect(JSON.parse(JSON.stringify(analyzedResult))).toStrictEqual({
+    const matched = JSON.parse(JSON.stringify(Either.getOrThrow(result)));
+
+    expect(matched).toStrictEqual({
       tokenTree: {
         base: { primary: { $type: 'color', $value: 'rgba(0, 0, 0, 0.5)' } },
         semantic: { primary: { $type: 'unknown', $value: 'some value' } },
         invalidGroup: { $description: 42 },
       },
-      tokens: [
-        [],
-        [
-          {
-            type: 'Value',
-            isCritical: false,
-            nodeId: expect.any(String),
-            treePath: ['base', 'primary'],
-            nodeKey: '$value',
-            valuePath: [],
-            message:
-              'base.primary.$value must start with "#" and have a length of 6 or 8. Got: "rgba(0, 0, 0, 0.5)".',
-          },
-          {
-            type: 'Value',
-            isCritical: false,
-            nodeId: expect.any(String),
-            treePath: ['semantic', 'primary'],
-            nodeKey: '$type',
-            valuePath: [],
-            message:
-              'semantic.primary.$type must be a valid type among: "color", "dimension", "fontFamily", "fontWeight", "duration", "cubicBezier", "number", "strokeStyle", "border", "transition", "shadow", "gradient", "typography". Got "unknown".',
-          },
-        ],
+      analyzedTokens: [],
+      analyzedGroups: [
+        { id: expect.any(String), path: [], childrenCount: 3 },
+        { id: expect.any(String), path: ['base'], childrenCount: 1 },
+        { id: expect.any(String), path: ['semantic'], childrenCount: 1 },
       ],
-      groups: [
-        [
-          { id: expect.any(String), path: [], childrenCount: 3 },
-          { id: expect.any(String), path: ['base'], childrenCount: 1 },
-          { id: expect.any(String), path: ['semantic'], childrenCount: 1 },
-        ],
-        [
-          {
-            type: 'Type',
-            isCritical: false,
-            nodeId: expect.any(String),
-            treePath: ['invalidGroup'],
-            nodeKey: '$description',
-            valuePath: [],
-            message:
-              'invalidGroup.$description must be a string. Got "number".',
-          },
-        ],
+      tokenErrors: [
+        {
+          type: 'Value',
+          isCritical: false,
+          nodeId: expect.any(String),
+          treePath: ['base', 'primary'],
+          nodeKey: '$value',
+          valuePath: [],
+          message:
+            'base.primary.$value must start with "#" and have a length of 6 or 8. Got: "rgba(0, 0, 0, 0.5)".',
+        },
+        {
+          type: 'Value',
+          isCritical: false,
+          nodeId: expect.any(String),
+          treePath: ['semantic', 'primary'],
+          nodeKey: '$type',
+          valuePath: [],
+          message:
+            'semantic.primary.$type must be a valid type among: "color", "dimension", "fontFamily", "fontWeight", "duration", "cubicBezier", "number", "strokeStyle", "border", "transition", "shadow", "gradient", "typography". Got "unknown".',
+        },
+      ],
+      groupErrors: [
+        {
+          type: 'Type',
+          isCritical: false,
+          nodeId: expect.any(String),
+          treePath: ['invalidGroup'],
+          nodeKey: '$description',
+          valuePath: [],
+          message: 'invalidGroup.$description must be a string. Got "number".',
+        },
       ],
     });
   });
@@ -429,44 +325,37 @@ describe('parseJSONTokenTree', () => {
       },
     };
 
-    const analyzedResult = parseJSONTokenTree(tree).match({
-      Ok: (result) => result,
-      Error: (errors) => {
-        throw new Error(errors.map((e) => e.message).join('\n'));
-      },
-    });
+    const result = parseJSONTokenTree(tree);
 
-    expect(JSON.parse(JSON.stringify(analyzedResult))).toStrictEqual({
+    const matched = JSON.parse(JSON.stringify(Either.getOrThrow(result)));
+
+    expect(matched).toStrictEqual({
       tokenTree: {
         base: { $type: 'color', primary: { $value: '{base.primary}' } },
       },
-      tokens: [
-        [],
-        [
-          {
-            isCritical: false,
-            message:
-              'Circular references detected while resolving token type for token "base.primary".',
-            referenceToTreePath: ['base', 'primary'],
-            type: 'Computation',
-            nodeId: '',
-            treePath: ['base', 'primary'],
-            valuePath: [],
-          },
-        ],
+      analyzedTokens: [],
+      analyzedGroups: [
+        { id: expect.any(String), path: [], childrenCount: 1 },
+        {
+          id: expect.any(String),
+          path: ['base'],
+          tokenType: 'color',
+          childrenCount: 1,
+        },
       ],
-      groups: [
-        [
-          { id: expect.any(String), path: [], childrenCount: 1 },
-          {
-            id: expect.any(String),
-            path: ['base'],
-            tokenType: 'color',
-            childrenCount: 1,
-          },
-        ],
-        [],
+      tokenErrors: [
+        {
+          isCritical: false,
+          message:
+            'Circular references detected while resolving token type for token "base.primary".',
+          referenceToTreePath: ['base', 'primary'],
+          type: 'Computation',
+          nodeId: '',
+          treePath: ['base', 'primary'],
+          valuePath: [],
+        },
       ],
+      groupErrors: [],
     });
   });
 });

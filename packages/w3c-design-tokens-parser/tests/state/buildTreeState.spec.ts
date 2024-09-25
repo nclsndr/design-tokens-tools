@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { Border, Color, JSONTokenTree } from 'design-tokens-format-module';
 
 import { buildTreeState } from '../../src/state/buildTreeState';
+import { Effect, Exit } from 'effect';
 
 describe('buildTreeState', () => {
   const borderToken: Border.Token = {
@@ -17,7 +18,7 @@ describe('buildTreeState', () => {
     $value: '#a82222',
   };
 
-  it('should build a treeState of raw values', () => {
+  it('should build a program of raw values', () => {
     const tokenTree: JSONTokenTree = {
       borderToken,
       color: {
@@ -56,9 +57,7 @@ describe('buildTreeState', () => {
       },
     };
 
-    const treeState = buildTreeState(tokenTree);
-
-    const tokenResults = treeState.tokenStates.map((t) => ({
+    const results = buildTreeState(tokenTree).tokenStates.map((t) => ({
       stringPath: t.stringPath,
       type: t.type,
       rawValues: t.rawValueParts.nodes.map((v) => ({
@@ -68,7 +67,7 @@ describe('buildTreeState', () => {
       references: t.referencesArray.map((_) => ({})),
     }));
 
-    expect(tokenResults).toStrictEqual([
+    expect(results).toStrictEqual([
       {
         stringPath: 'borderToken',
         type: 'border',
@@ -174,7 +173,7 @@ describe('buildTreeState', () => {
       },
     ]);
   });
-  it('should build a treeState of raw values and resolvable aliases', () => {
+  it('should build a program of raw values and resolvable aliases', () => {
     const tokenTree: JSONTokenTree = {
       colorToken,
       primary: {
@@ -201,9 +200,7 @@ describe('buildTreeState', () => {
       },
     };
 
-    const treeState = buildTreeState(tokenTree);
-
-    const tokenResults = treeState.tokenStates.map((t) => ({
+    const results = buildTreeState(tokenTree).tokenStates.map((t) => ({
       stringPath: t.stringPath,
       type: t.type,
       rawValues: t.rawValueParts.nodes.map((v) => ({
@@ -219,7 +216,7 @@ describe('buildTreeState', () => {
       })),
     }));
 
-    expect(tokenResults).toStrictEqual([
+    expect(results).toStrictEqual([
       {
         stringPath: 'colorToken',
         type: 'color',
@@ -298,7 +295,7 @@ describe('buildTreeState', () => {
       },
     ]);
   });
-  it('should build a treeState of raw values and unresolvable aliases', () => {
+  it('should build a program of raw values and unresolvable aliases', () => {
     const tokenTree: JSONTokenTree = {
       primary: {
         $type: 'color',
@@ -324,9 +321,7 @@ describe('buildTreeState', () => {
       },
     };
 
-    const treeState = buildTreeState(tokenTree);
-
-    const tokenResults = treeState.tokenStates.map((t) => ({
+    const results = buildTreeState(tokenTree).tokenStates.map((t) => ({
       stringPath: t.stringPath,
       type: t.type,
       rawValues: t.rawValueParts.nodes.map((v) => ({
@@ -342,7 +337,7 @@ describe('buildTreeState', () => {
       })),
     }));
 
-    expect(tokenResults).toStrictEqual([
+    expect(results).toStrictEqual([
       {
         stringPath: 'primary',
         type: 'color',
@@ -419,19 +414,19 @@ describe('buildTreeState', () => {
       },
     };
 
-    const treeState = buildTreeState(tokenTree);
+    const results = buildTreeState(tokenTree).validationErrors.nodes.map(
+      (e) => ({
+        type: e.type,
+        isCritical: e.isCritical,
+        treePath: e.treePath,
+        nodeKey: e.nodeKey,
+        valuePath: e.valuePath,
+        referenceToTreePath: e.referenceToTreePath,
+        message: e.message,
+      }),
+    );
 
-    const errors = treeState.validationErrors.nodes.map((e) => ({
-      type: e.type,
-      isCritical: e.isCritical,
-      treePath: e.treePath,
-      nodeKey: e.nodeKey,
-      valuePath: e.valuePath,
-      referenceToTreePath: e.referenceToTreePath,
-      message: e.message,
-    }));
-
-    expect(errors).toStrictEqual([
+    expect(results).toStrictEqual([
       {
         type: 'Value',
         isCritical: false,
@@ -474,19 +469,19 @@ describe('buildTreeState', () => {
       },
     };
 
-    const treeState = buildTreeState(tokenTree);
+    const results = buildTreeState(tokenTree).validationErrors.nodes.map(
+      (e) => ({
+        type: e.type,
+        isCritical: e.isCritical,
+        treePath: e.treePath,
+        nodeKey: e.nodeKey,
+        valuePath: e.valuePath,
+        referenceToTreePath: e.referenceToTreePath,
+        message: e.message,
+      }),
+    );
 
-    const errors = treeState.validationErrors.nodes.map((e) => ({
-      type: e.type,
-      isCritical: e.isCritical,
-      treePath: e.treePath,
-      nodeKey: e.nodeKey,
-      valuePath: e.valuePath,
-      referenceToTreePath: e.referenceToTreePath,
-      message: e.message,
-    }));
-
-    expect(errors).toStrictEqual([
+    expect(results).toStrictEqual([
       {
         type: 'Type',
         isCritical: false,

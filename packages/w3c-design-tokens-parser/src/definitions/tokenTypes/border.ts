@@ -1,4 +1,4 @@
-import { Result } from '@swan-io/boxed';
+import { Either } from 'effect';
 import { Border } from 'design-tokens-format-module';
 
 import { parseAliasableColorValue } from './color.js';
@@ -20,25 +20,23 @@ export const parseAliasableBorderValue = withAlias(
   (
     value: unknown,
     ctx: AnalyzerContext,
-  ): Result<AnalyzedValue<Border.RawValue>, Array<ValidationError>> => {
-    return parseBorderRawValue(value, ctx).match({
-      Ok: (analyzed) => {
-        return Result.Ok({
-          raw: {
-            color: analyzed.color.raw,
-            width: analyzed.width.raw,
-            style: analyzed.style.raw,
-          },
-          toReferences: [
-            ...analyzed.color.toReferences,
-            ...analyzed.width.toReferences,
-            ...analyzed.style.toReferences,
-          ],
-        });
-      },
-      Error: (err) => {
-        return Result.Error(err);
-      },
-    });
+  ): Either.Either<AnalyzedValue<Border.RawValue>, Array<ValidationError>> => {
+    return parseBorderRawValue(value, ctx).pipe(
+      Either.map(
+        (analyzed) =>
+          ({
+            raw: {
+              color: analyzed.color.raw,
+              width: analyzed.width.raw,
+              style: analyzed.style.raw,
+            },
+            toReferences: [
+              ...analyzed.color.toReferences,
+              ...analyzed.width.toReferences,
+              ...analyzed.style.toReferences,
+            ],
+          }) as AnalyzedValue<Border.RawValue>,
+      ),
+    );
   },
 );

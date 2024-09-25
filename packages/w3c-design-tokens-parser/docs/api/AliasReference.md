@@ -51,10 +51,10 @@ get toType(): TokenTypeName | undefined;
 
 ### `getToken`
 
-Get the Option for the referenced token.
+Get the referenced token.
 
 ```typescript
-declare function getToken<T extends Type>(): Option<Token<T>>;
+declare function getToken<T extends Type>(): Token<T> | undefined;
 ```
 
 ### `map`

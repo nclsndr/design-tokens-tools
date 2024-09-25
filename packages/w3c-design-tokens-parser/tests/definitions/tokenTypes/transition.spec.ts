@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { Either, Option } from 'effect';
 
 import { parseAliasableTransitionValue } from '../../../src/definitions/tokenTypes/transition';
 
@@ -6,8 +7,8 @@ describe.concurrent('parseAliasableTransitionValue', () => {
   it('should parse a raw transition value', () => {
     const result = parseAliasableTransitionValue(
       {
-        duration: '1s',
-        delay: '0s',
+        duration: '100ms',
+        delay: '0ms',
         timingFunction: [0, 0, 1, 1],
       },
       {
@@ -18,10 +19,10 @@ describe.concurrent('parseAliasableTransitionValue', () => {
       },
     );
 
-    expect((result as any).value).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: {
-        duration: '1s',
-        delay: '0s',
+        duration: '100ms',
+        delay: '0ms',
         timingFunction: [0, 0, 1, 1],
       },
       toReferences: [],
@@ -35,16 +36,16 @@ describe.concurrent('parseAliasableTransitionValue', () => {
       valuePath: [],
     });
 
-    expect((result as any).value.raw).toStrictEqual(
-      '{transitions.b-transition}',
-    );
-    expect((result as any).value.toReferences).toStrictEqual([
-      {
-        fromTreePath: ['transitions', 'a-transition'],
-        fromValuePath: [],
-        toTreePath: ['transitions', 'b-transition'],
-      },
-    ]);
+    expect(Either.getOrThrow(result)).toStrictEqual({
+      raw: '{transitions.b-transition}',
+      toReferences: [
+        {
+          fromTreePath: ['transitions', 'a-transition'],
+          fromValuePath: [],
+          toTreePath: ['transitions', 'b-transition'],
+        },
+      ],
+    });
   });
   it('should parse a transition value with nested aliases', () => {
     const result = parseAliasableTransitionValue(
@@ -61,28 +62,30 @@ describe.concurrent('parseAliasableTransitionValue', () => {
       },
     );
 
-    expect((result as any).value.raw).toStrictEqual({
-      duration: '{duration.fast}',
-      delay: '{duration.none}',
-      timingFunction: '{cubicBezier.easeInOut}',
+    expect(Either.getOrThrow(result)).toStrictEqual({
+      raw: {
+        duration: '{duration.fast}',
+        delay: '{duration.none}',
+        timingFunction: '{cubicBezier.easeInOut}',
+      },
+      toReferences: [
+        {
+          fromTreePath: ['transitions', 'a-transition'],
+          fromValuePath: ['duration'],
+          toTreePath: ['duration', 'fast'],
+        },
+        {
+          fromTreePath: ['transitions', 'a-transition'],
+          fromValuePath: ['delay'],
+          toTreePath: ['duration', 'none'],
+        },
+        {
+          fromTreePath: ['transitions', 'a-transition'],
+          fromValuePath: ['timingFunction'],
+          toTreePath: ['cubicBezier', 'easeInOut'],
+        },
+      ],
     });
-    expect((result as any).value.toReferences).toStrictEqual([
-      {
-        fromTreePath: ['transitions', 'a-transition'],
-        fromValuePath: ['duration'],
-        toTreePath: ['duration', 'fast'],
-      },
-      {
-        fromTreePath: ['transitions', 'a-transition'],
-        fromValuePath: ['delay'],
-        toTreePath: ['duration', 'none'],
-      },
-      {
-        fromTreePath: ['transitions', 'a-transition'],
-        fromValuePath: ['timingFunction'],
-        toTreePath: ['cubicBezier', 'easeInOut'],
-      },
-    ]);
   });
   it('should fail when the value is not an object', () => {
     const result = parseAliasableTransitionValue('foo', {
@@ -92,15 +95,23 @@ describe.concurrent('parseAliasableTransitionValue', () => {
       valuePath: [],
     });
 
-    expect((result as any).error).toHaveLength(1);
-    expect((result as any).error[0].message).toBe(
-      'transitions.a-transition must be an object. Got "string".',
-    );
+    expect(
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
+    ).toStrictEqual([
+      {
+        type: 'Type',
+        isCritical: false,
+        nodeId: 'abc',
+        treePath: ['transitions', 'a-transition'],
+        valuePath: [],
+        message: 'transitions.a-transition must be an object. Got "string".',
+      },
+    ]);
   });
   it('should fail when the duration property is missing', () => {
     const result = parseAliasableTransitionValue(
       {
-        delay: '0s',
+        delay: '0ms',
         timingFunction: [0, 0, 1, 1],
       },
       {
@@ -111,15 +122,23 @@ describe.concurrent('parseAliasableTransitionValue', () => {
       },
     );
 
-    expect((result as any).error).toHaveLength(1);
-    expect((result as any).error[0].message).toBe(
-      'transitions.a-transition must have a "duration" property.',
-    );
+    expect(
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
+    ).toStrictEqual([
+      {
+        type: 'Value',
+        isCritical: false,
+        nodeId: 'abc',
+        treePath: ['transitions', 'a-transition'],
+        valuePath: [],
+        message: 'transitions.a-transition must have a "duration" property.',
+      },
+    ]);
   });
   it('should fail when the delay property is missing', () => {
     const result = parseAliasableTransitionValue(
       {
-        duration: '1s',
+        duration: '100ms',
         timingFunction: [0, 0, 1, 1],
       },
       {
@@ -130,16 +149,24 @@ describe.concurrent('parseAliasableTransitionValue', () => {
       },
     );
 
-    expect((result as any).error).toHaveLength(1);
-    expect((result as any).error[0].message).toBe(
-      'transitions.a-transition must have a "delay" property.',
-    );
+    expect(
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
+    ).toStrictEqual([
+      {
+        type: 'Value',
+        isCritical: false,
+        nodeId: 'abc',
+        treePath: ['transitions', 'a-transition'],
+        valuePath: [],
+        message: 'transitions.a-transition must have a "delay" property.',
+      },
+    ]);
   });
   it('should fail when the timingFunction property is missing', () => {
     const result = parseAliasableTransitionValue(
       {
-        duration: '1s',
-        delay: '0s',
+        duration: '100ms',
+        delay: '0ms',
       },
       {
         nodeId: 'abc',
@@ -149,9 +176,18 @@ describe.concurrent('parseAliasableTransitionValue', () => {
       },
     );
 
-    expect((result as any).error).toHaveLength(1);
-    expect((result as any).error[0].message).toBe(
-      'transitions.a-transition must have a "timingFunction" property.',
-    );
+    expect(
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
+    ).toStrictEqual([
+      {
+        type: 'Value',
+        isCritical: false,
+        nodeId: 'abc',
+        treePath: ['transitions', 'a-transition'],
+        valuePath: [],
+        message:
+          'transitions.a-transition must have a "timingFunction" property.',
+      },
+    ]);
   });
 });

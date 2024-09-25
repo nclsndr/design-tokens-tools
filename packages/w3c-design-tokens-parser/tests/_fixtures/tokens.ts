@@ -36,7 +36,7 @@ export const dimensionToken: Dimension.Token = {
 };
 export const durationToken: Duration.Token = {
   $type: 'duration',
-  $value: '1s',
+  $value: '1ms',
 };
 export const fontFamilyToken: FontFamily.Token = {
   $type: 'fontFamily',
@@ -84,8 +84,8 @@ export const strokeStyleToken: StrokeStyle.Token = {
 export const transitionToken: Transition.Token = {
   $type: 'transition',
   $value: {
-    duration: '1s',
-    delay: '0s',
+    duration: '100ms',
+    delay: '0ms',
     timingFunction: [0, 0.1, 0.7, 0.5],
   },
 };

@@ -229,10 +229,8 @@ describe('TokenTree', () => {
 
       const result = tokenTree.getToken(['color', 'blue', '100']);
 
-      if (!result.isSome()) throw new Error('Token not found');
-
-      expect(result.value.stringPath).toBe('color.blue.100');
-      expect(result.value.type).toBe('color');
+      expect(result?.stringPath).toBe('color.blue.100');
+      expect(result?.type).toBe('color');
     });
   });
   describe('getTokenOfType', () => {
@@ -249,16 +247,13 @@ describe('TokenTree', () => {
       };
       const tokenTree = parseDesignTokens(tokens);
 
-      const result = tokenTree
-        .getTokenOfType('color', ['color', 'blue', '100'])
-        .match({
-          Some: (token) => token,
-          None: () => {
-            throw new Error('Token not found');
-          },
-        });
+      const result = tokenTree.getTokenOfType('color', [
+        'color',
+        'blue',
+        '100',
+      ]);
 
-      expect(result.stringPath).toBe('color.blue.100');
+      expect(result?.stringPath).toBe('color.blue.100');
     });
     it('should not get a token not matching the type', () => {
       const tokens: JSONTokenTree = {
@@ -273,18 +268,13 @@ describe('TokenTree', () => {
       };
       const tokenTree = parseDesignTokens(tokens);
 
-      const result = tokenTree
-        .getTokenOfType('dimension', ['color', 'blue', '100'])
-        .match({
-          Some: () => {
-            throw new Error('Token found');
-          },
-          None: () => {
-            return null;
-          },
-        });
+      const result = tokenTree.getTokenOfType('dimension', [
+        'color',
+        'blue',
+        '100',
+      ]);
 
-      expect(result).toBe(null);
+      expect(result).toBe(undefined);
     });
   });
   describe('mapTokensByType', () => {
@@ -366,9 +356,7 @@ describe('TokenTree', () => {
 
       const result = tokenTree.getGroup(['color', 'blue']);
 
-      if (!result.isSome()) throw new Error('Group not found');
-
-      expect(result.value.stringPath).toBe('color.blue');
+      expect(result?.stringPath).toBe('color.blue');
     });
   });
 

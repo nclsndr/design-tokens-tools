@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Result } from '@swan-io/boxed';
+import { Cause, Effect, Either, Exit, Option } from 'effect';
 
 import { ValidationError } from '../../src/utils/validationError';
 import { AnalyzedValue } from '../../src/parser/token/AnalyzedToken';
@@ -11,9 +11,9 @@ describe.concurrent('withAlias', () => {
     function isBool(
       value: unknown,
       ctx: AnalyzerContext,
-    ): Result<AnalyzedValue<boolean>, ValidationError[]> {
+    ): Either.Either<AnalyzedValue<boolean>, ValidationError[]> {
       if (typeof value !== 'boolean') {
-        return Result.Error([
+        return Either.left([
           new ValidationError({
             type: 'Type',
             nodeId: ctx.nodeId,
@@ -23,7 +23,7 @@ describe.concurrent('withAlias', () => {
         ]);
       }
 
-      return Result.Ok({
+      return Either.right({
         raw: value,
         toReferences: [],
       });
@@ -38,15 +38,16 @@ describe.concurrent('withAlias', () => {
       path: ['alias'],
     });
 
-    expect(result1.isOk()).toBe(true);
-    expect(result1.isOk() && result1.get().raw).toEqual('{my.alias}');
-    expect(result1.isOk() && result1.get().toReferences).toHaveLength(1);
-    expect(
-      result1.isOk() && result1.get().toReferences[0].toTreePath,
-    ).toStrictEqual(['my', 'alias']);
-    expect(
-      result1.isOk() && result1.get().toReferences[0].fromTreePath,
-    ).toStrictEqual(['alias']);
+    expect(Either.getOrThrow(result1)).toStrictEqual({
+      raw: '{my.alias}',
+      toReferences: [
+        {
+          fromTreePath: ['alias'],
+          fromValuePath: [],
+          toTreePath: ['my', 'alias'],
+        },
+      ],
+    });
 
     const result2 = parseBool(true, {
       varName: 'bool',
@@ -55,19 +56,18 @@ describe.concurrent('withAlias', () => {
       path: ['bool'],
     });
 
-    expect(result2.isOk()).toBe(true);
-    expect(result2.isOk() && result2.get()).toStrictEqual({
+    expect(Either.getOrThrow(result2)).toStrictEqual({
       raw: true,
       toReferences: [],
     });
   });
-  it('should fail when the parsed data satisfy neither of the branches', () => {
+  it('should fail when the parsed data satisfy none of the branches', () => {
     function isBool(
       value: unknown,
       ctx: AnalyzerContext,
-    ): Result<any, ValidationError[]> {
+    ): Either.Either<AnalyzedValue<boolean>, ValidationError[]> {
       if (typeof value !== 'boolean') {
-        return Result.Error([
+        return Either.left([
           new ValidationError({
             type: 'Type',
             nodeId: ctx.nodeId,
@@ -77,7 +77,10 @@ describe.concurrent('withAlias', () => {
         ]);
       }
 
-      return Result.Ok(value);
+      return Either.right({
+        raw: value,
+        toReferences: [],
+      });
     }
 
     const parseBool = withAlias(isBool);
@@ -89,9 +92,10 @@ describe.concurrent('withAlias', () => {
       valuePath: [],
     });
 
-    expect(result1.isError()).toBe(true);
-    expect(result1.isError() && result1.getError()).toHaveLength(1);
-    expect(result1.isError() && result1.getError()[0].message).toBe(
+    const result1Errors = Option.getOrThrow(Either.getLeft(result1));
+
+    expect(result1Errors).toHaveLength(1);
+    expect(result1Errors![0].message).toBe(
       'aReferencingToken must be a boolean. Got "number".',
     );
 
@@ -101,8 +105,11 @@ describe.concurrent('withAlias', () => {
       nodeId: 'abc',
       path: ['bool'],
     });
+    const result2Errors = Option.getOrThrow(Either.getLeft(result2));
 
-    expect(result2.isError()).toBe(true);
-    expect(result2.isError() && result2.getError()).toHaveLength(1);
+    expect(result2Errors).toHaveLength(1);
+    expect(result2Errors![0].message).toBe(
+      'bool must be a boolean. Got "string".',
+    );
   });
 });

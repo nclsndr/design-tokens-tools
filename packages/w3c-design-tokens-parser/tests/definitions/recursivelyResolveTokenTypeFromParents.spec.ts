@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
 import { recursivelyResolveTokenTypeFromParents } from '../../src/parser/token/recursivelyResolveTokenTypeFromParents';
+import { Either, Option } from 'effect';
 
 describe.concurrent('recursivelyResolveTokenTypeFromParents', () => {
   it('should resolve a type at a given path', () => {
@@ -18,12 +19,7 @@ describe.concurrent('recursivelyResolveTokenTypeFromParents', () => {
       'blue',
     ]);
 
-    expect(
-      result.match({
-        Ok: (x) => x,
-        Error: () => null,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       resolvedType: 'color',
       paths: [['aGroup', 'blue']],
     });
@@ -46,12 +42,7 @@ describe.concurrent('recursivelyResolveTokenTypeFromParents', () => {
       'blue',
     ]);
 
-    expect(
-      result.match({
-        Ok: (x) => x,
-        Error: () => null,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       resolvedType: 'color',
       paths: [
         ['aGroup'],
@@ -75,12 +66,7 @@ describe.concurrent('recursivelyResolveTokenTypeFromParents', () => {
       'blue',
     ]);
 
-    expect(
-      result.match({
-        Ok: (x) => x,
-        Error: () => null,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       resolvedType: 'color',
       paths: [[], ['aGroup'], ['aGroup', 'blue']],
     });
@@ -99,11 +85,18 @@ describe.concurrent('recursivelyResolveTokenTypeFromParents', () => {
       'blue',
     ]);
 
-    expect(result.isError()).toBe(true);
-    expect(result.isError() && result.getError()).toHaveLength(1);
-    expect(result.isError() && result.getError()[0].message).toBe(
-      'Could not resolve $type from token up to root.',
-    );
+    expect(
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
+    ).toStrictEqual([
+      {
+        type: 'Value',
+        isCritical: false,
+        nodeId: '',
+        treePath: ['aGroup', 'blue'],
+        valuePath: [],
+        message: 'Could not resolve $type from token up to root.',
+      },
+    ]);
   });
   it('should fail when the type is invalid at the token level', () => {
     const tree = {
@@ -120,11 +113,20 @@ describe.concurrent('recursivelyResolveTokenTypeFromParents', () => {
       'blue',
     ]);
 
-    expect(result.isError()).toBe(true);
-    expect(result.isError() && result.getError()).toHaveLength(1);
-    expect(result.isError() && result.getError()[0].message).toContain(
-      'Invalid $type "invalid" at path: "aGroup.blue".',
-    );
+    expect(
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
+    ).toStrictEqual([
+      {
+        type: 'Value',
+        isCritical: false,
+        nodeId: '',
+        treePath: ['aGroup', 'blue'],
+        valuePath: [],
+        message: expect.stringContaining(
+          'Invalid $type "invalid" at path: "aGroup.blue".',
+        ),
+      },
+    ]);
   });
   it('should fail when the type is invalid at the root level', () => {
     const tree = {
@@ -141,11 +143,19 @@ describe.concurrent('recursivelyResolveTokenTypeFromParents', () => {
       'blue',
     ]);
 
-    expect(result.isError()).toBe(true);
-    expect(result.isError() && result.getError()).toHaveLength(1);
-    expect(result.isError() && result.getError()[0].message).toBe(
-      'Invalid $type "invalid" for path: "aGroup.blue" while being resolved from root.',
-    );
+    expect(
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
+    ).toStrictEqual([
+      {
+        type: 'Value',
+        isCritical: false,
+        nodeId: '',
+        treePath: ['aGroup', 'blue'],
+        valuePath: [],
+        message:
+          'Invalid $type "invalid" for path: "aGroup.blue" while being resolved from root.',
+      },
+    ]);
   });
   it('should fail when the type is invalid at any intermediate level', () => {
     const tree = {
@@ -165,10 +175,18 @@ describe.concurrent('recursivelyResolveTokenTypeFromParents', () => {
       'blue',
     ]);
 
-    expect(result.isError()).toBe(true);
-    expect(result.isError() && result.getError()).toHaveLength(1);
-    expect(result.isError() && result.getError()[0].message).toBe(
-      'Invalid $type "invalid" for path: "aLargerGroup.aGroup.blue" while being resolved from "aLargerGroup".',
-    );
+    expect(
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
+    ).toStrictEqual([
+      {
+        type: 'Value',
+        isCritical: false,
+        nodeId: '',
+        treePath: ['aLargerGroup', 'aGroup', 'blue'],
+        valuePath: [],
+        message:
+          'Invalid $type "invalid" for path: "aLargerGroup.aGroup.blue" while being resolved from "aLargerGroup".',
+      },
+    ]);
   });
 });

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { JSONTokenTree } from 'design-tokens-format-module';
 
 import { recursivelyResolveTokenType } from '../../../src/parser/token/recursivelyResolveTokenType';
+import { Either, Option } from 'effect';
 
 describe('recursivelyResolveTokenType', () => {
   it('should resolve an explicit type', () => {
@@ -14,12 +15,7 @@ describe('recursivelyResolveTokenType', () => {
 
     const result = recursivelyResolveTokenType(tokenTree, ['aColor']);
 
-    expect(
-      result.match({
-        Ok: (x) => x,
-        Error: () => null,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       resolution: 'explicit',
       resolvedType: 'color',
       paths: [['aColor']],
@@ -45,12 +41,7 @@ describe('recursivelyResolveTokenType', () => {
       'border',
     ]);
 
-    expect(
-      result.match({
-        Ok: (x) => x,
-        Error: () => null,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       resolution: 'alias',
       resolvedType: 'color',
       paths: [
@@ -82,12 +73,7 @@ describe('recursivelyResolveTokenType', () => {
       'border2',
     ]);
 
-    expect(
-      result.match({
-        Ok: (x) => x,
-        Error: () => null,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       resolution: 'alias',
       resolvedType: 'color',
       paths: [
@@ -115,12 +101,7 @@ describe('recursivelyResolveTokenType', () => {
       'blue',
     ]);
 
-    expect(
-      result.match({
-        Ok: (x) => x,
-        Error: () => null,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       resolution: 'parent',
       resolvedType: 'color',
       paths: [['base'], ['base', 'background'], ['base', 'background', 'blue']],
@@ -148,12 +129,7 @@ describe('recursivelyResolveTokenType', () => {
       'border',
     ]);
 
-    expect(
-      result.match({
-        Ok: (x) => x,
-        Error: () => null,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       resolution: 'alias',
       resolvedType: 'color',
       paths: [
@@ -179,12 +155,7 @@ describe('recursivelyResolveTokenType', () => {
       'primary',
     ]);
 
-    expect(
-      result.match({
-        Ok: (x) => x,
-        Error: () => undefined,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       resolution: 'parent',
       resolvedType: 'color',
       paths: [['colors'], ['colors', 'primary']],
@@ -206,14 +177,19 @@ describe('recursivelyResolveTokenType', () => {
       'semantic',
       'border',
     ]);
+
     expect(
-      result.match({
-        Ok: () => null,
-        Error: (x) => JSON.stringify(x),
-      }),
-    ).toBe(
-      '[{"type":"Value","isCritical":false,"nodeId":"","treePath":["semantic","border"],"valuePath":[],"message":"Could not resolve $type from token up to root."}]',
-    );
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
+    ).toStrictEqual([
+      {
+        type: 'Value',
+        isCritical: false,
+        nodeId: '',
+        treePath: ['semantic', 'border'],
+        valuePath: [],
+        message: 'Could not resolve $type from token up to root.',
+      },
+    ]);
   });
   it('should fail to resolve when alias is circular', () => {
     const tokenTree: JSONTokenTree = {
@@ -228,13 +204,19 @@ describe('recursivelyResolveTokenType', () => {
     const result = recursivelyResolveTokenType(tokenTree, ['base', 'blue']);
 
     expect(
-      result.match({
-        Ok: () => null,
-        Error: (x) => JSON.stringify(x),
-      }),
-    ).toBe(
-      '[{"type":"Computation","isCritical":false,"nodeId":"","treePath":["base","blue"],"valuePath":[],"referenceToTreePath":["base","blue"],"message":"Circular references detected while resolving token type for token \\"base.blue\\"."}]',
-    );
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
+    ).toStrictEqual([
+      {
+        type: 'Computation',
+        isCritical: false,
+        nodeId: '',
+        treePath: ['base', 'blue'],
+        valuePath: [],
+        referenceToTreePath: ['base', 'blue'],
+        message:
+          'Circular references detected while resolving token type for token "base.blue".',
+      },
+    ]);
   });
   it('should fail to resolve when alias is deeply circular', () => {
     const tokenTree: JSONTokenTree = {
@@ -257,10 +239,19 @@ describe('recursivelyResolveTokenType', () => {
     const result = recursivelyResolveTokenType(tokenTree, ['base', 'blue']);
 
     expect(
-      result.match({
-        Ok: () => null,
-        Error: (x) => x,
-      }),
-    ).toHaveLength(1);
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
+    ).toStrictEqual([
+      {
+        type: 'Computation',
+        isCritical: false,
+        nodeId: '',
+        treePath: expect.any(Array),
+        valuePath: [],
+        referenceToTreePath: expect.any(Array),
+        message: expect.stringContaining(
+          'Circular references detected while resolving token type',
+        ),
+      },
+    ]);
   });
 });

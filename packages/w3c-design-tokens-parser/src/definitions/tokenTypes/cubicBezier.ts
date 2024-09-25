@@ -1,4 +1,4 @@
-import { Result } from '@swan-io/boxed';
+import { Either } from 'effect';
 import { CubicBezier } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
@@ -11,9 +11,9 @@ export type CubicBezierRawValue = [number, number, number, number];
 export function parseCubicBezierRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<AnalyzedValue<CubicBezier.Value>, ValidationError[]> {
+): Either.Either<AnalyzedValue<CubicBezier.Value>, ValidationError[]> {
   if (!Array.isArray(value) || value.length !== 4) {
-    return Result.Error([
+    return Either.left([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -56,9 +56,9 @@ export function parseCubicBezierRawValue(
   }
 
   if (errors.length > 0) {
-    return Result.Error(errors);
+    return Either.left(errors);
   }
-  return Result.Ok({
+  return Either.right({
     raw: value as CubicBezierRawValue,
     toReferences: [],
   });

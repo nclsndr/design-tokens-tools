@@ -16,7 +16,8 @@
     "test": "vitest",
     "build": "rm -rf dist && tsc --build",
     "tsc": "tsc",
-    "benchmark": "0x --output-dir benchmark/output benchmark/parse.js"
+    "benchmark:flamegraph": "0x --output-dir benchmark/output benchmark/parse.js",
+    "benchmark:perf": "node benchmark/perf.js"
   },
   "exports": {
     ".": "./dist/index.js"
@@ -26,8 +27,8 @@
     "docs"
   ],
   "dependencies": {
-    "@swan-io/boxed": "^2.3.0",
-    "design-tokens-format-module": "^0.9.9",
+    "design-tokens-format-module": "^0.9.10",
+    "effect": "^3.8.3",
     "hyperid": "^3.3.0"
   },
   "devDependencies": {

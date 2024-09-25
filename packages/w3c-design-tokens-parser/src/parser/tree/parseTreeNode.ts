@@ -1,4 +1,4 @@
-import { Result } from '@swan-io/boxed';
+import { Either } from 'effect';
 import { type JSON } from 'design-tokens-format-module';
 
 import { AnalyzerContext } from '../utils/AnalyzerContext.js';
@@ -7,9 +7,9 @@ import { ValidationError } from '../../utils/validationError.js';
 export function parseTreeNode(
   value: unknown,
   ctx: AnalyzerContext,
-): Result<JSON.Object, ValidationError[]> {
+): Either.Either<JSON.Object, ValidationError[]> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-    return Result.Error([
+    return Either.left([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -19,5 +19,5 @@ export function parseTreeNode(
       }),
     ]);
   }
-  return Result.Ok(value as JSON.Object);
+  return Either.right(value as JSON.Object);
 }
