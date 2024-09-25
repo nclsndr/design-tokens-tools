@@ -57,19 +57,15 @@ describe('buildTreeState', () => {
       },
     };
 
-    const results = Exit.match(Effect.runSyncExit(buildTreeState(tokenTree)), {
-      onSuccess: (r) =>
-        r.tokenStates.map((t) => ({
-          stringPath: t.stringPath,
-          type: t.type,
-          rawValues: t.rawValueParts.nodes.map((v) => ({
-            stringPath: v.path.string,
-            value: v.value,
-          })),
-          references: t.referencesArray.map((_) => ({})),
-        })),
-      onFailure: () => undefined,
-    });
+    const results = buildTreeState(tokenTree).tokenStates.map((t) => ({
+      stringPath: t.stringPath,
+      type: t.type,
+      rawValues: t.rawValueParts.nodes.map((v) => ({
+        stringPath: v.path.string,
+        value: v.value,
+      })),
+      references: t.referencesArray.map((_) => ({})),
+    }));
 
     expect(results).toStrictEqual([
       {
@@ -204,25 +200,21 @@ describe('buildTreeState', () => {
       },
     };
 
-    const results = Exit.match(Effect.runSyncExit(buildTreeState(tokenTree)), {
-      onSuccess: (r) =>
-        r.tokenStates.map((t) => ({
-          stringPath: t.stringPath,
-          type: t.type,
-          rawValues: t.rawValueParts.nodes.map((v) => ({
-            stringPath: v.path.string,
-            value: v.value,
-          })),
-          references: t.referencesArray.map((r) => ({
-            fromValuePath: r.fromValuePath.string,
-            fromId: expect.any(String),
-            toId: r.toId,
-            isShallowlyResolved: r.isShallowlyLinked,
-            isFullyResolved: r.isFullyLinked,
-          })),
-        })),
-      onFailure: () => undefined,
-    });
+    const results = buildTreeState(tokenTree).tokenStates.map((t) => ({
+      stringPath: t.stringPath,
+      type: t.type,
+      rawValues: t.rawValueParts.nodes.map((v) => ({
+        stringPath: v.path.string,
+        value: v.value,
+      })),
+      references: t.referencesArray.map((r) => ({
+        fromValuePath: r.fromValuePath.string,
+        fromId: expect.any(String),
+        toId: r.toId,
+        isShallowlyResolved: r.isShallowlyLinked,
+        isFullyResolved: r.isFullyLinked,
+      })),
+    }));
 
     expect(results).toStrictEqual([
       {
@@ -329,25 +321,21 @@ describe('buildTreeState', () => {
       },
     };
 
-    const results = Exit.match(Effect.runSyncExit(buildTreeState(tokenTree)), {
-      onSuccess: (r) =>
-        r.tokenStates.map((t) => ({
-          stringPath: t.stringPath,
-          type: t.type,
-          rawValues: t.rawValueParts.nodes.map((v) => ({
-            stringPath: v.path.string,
-            value: v.value,
-          })),
-          references: t.referencesArray.map((r) => ({
-            fromValuePath: r.fromValuePath.string,
-            fromId: r.fromId,
-            toId: r.toId,
-            isShallowlyResolved: r.isShallowlyLinked,
-            isFullyResolved: r.isFullyLinked,
-          })),
-        })),
-      onFailure: () => undefined,
-    });
+    const results = buildTreeState(tokenTree).tokenStates.map((t) => ({
+      stringPath: t.stringPath,
+      type: t.type,
+      rawValues: t.rawValueParts.nodes.map((v) => ({
+        stringPath: v.path.string,
+        value: v.value,
+      })),
+      references: t.referencesArray.map((r) => ({
+        fromValuePath: r.fromValuePath.string,
+        fromId: r.fromId,
+        toId: r.toId,
+        isShallowlyResolved: r.isShallowlyLinked,
+        isFullyResolved: r.isFullyLinked,
+      })),
+    }));
 
     expect(results).toStrictEqual([
       {
@@ -426,19 +414,17 @@ describe('buildTreeState', () => {
       },
     };
 
-    const results = Exit.match(Effect.runSyncExit(buildTreeState(tokenTree)), {
-      onSuccess: (r) =>
-        r.validationErrors.nodes.map((e) => ({
-          type: e.type,
-          isCritical: e.isCritical,
-          treePath: e.treePath,
-          nodeKey: e.nodeKey,
-          valuePath: e.valuePath,
-          referenceToTreePath: e.referenceToTreePath,
-          message: e.message,
-        })),
-      onFailure: () => undefined,
-    });
+    const results = buildTreeState(tokenTree).validationErrors.nodes.map(
+      (e) => ({
+        type: e.type,
+        isCritical: e.isCritical,
+        treePath: e.treePath,
+        nodeKey: e.nodeKey,
+        valuePath: e.valuePath,
+        referenceToTreePath: e.referenceToTreePath,
+        message: e.message,
+      }),
+    );
 
     expect(results).toStrictEqual([
       {
@@ -483,19 +469,17 @@ describe('buildTreeState', () => {
       },
     };
 
-    const results = Exit.match(Effect.runSyncExit(buildTreeState(tokenTree)), {
-      onSuccess: (r) =>
-        r.validationErrors.nodes.map((e) => ({
-          type: e.type,
-          isCritical: e.isCritical,
-          treePath: e.treePath,
-          nodeKey: e.nodeKey,
-          valuePath: e.valuePath,
-          referenceToTreePath: e.referenceToTreePath,
-          message: e.message,
-        })),
-      onFailure: () => undefined,
-    });
+    const results = buildTreeState(tokenTree).validationErrors.nodes.map(
+      (e) => ({
+        type: e.type,
+        isCritical: e.isCritical,
+        treePath: e.treePath,
+        nodeKey: e.nodeKey,
+        valuePath: e.valuePath,
+        referenceToTreePath: e.referenceToTreePath,
+        message: e.message,
+      }),
+    );
 
     expect(results).toStrictEqual([
       {

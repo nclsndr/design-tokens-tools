@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Cause, Effect, Exit } from 'effect';
+import { Either, Option } from 'effect';
 
 import { parseRawGroup } from '../../../src/parser/group/parseRawGroup';
 
@@ -16,19 +16,14 @@ describe('parseRawGroup', () => {
       },
     };
 
-    const program = parseRawGroup(tree, {
+    const result = parseRawGroup(tree, {
       varName: 'aGroup',
       nodeId: 'abc',
       path: ['aGroup'],
       valuePath: [],
     });
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       id: expect.any(String),
       path: expect.any(Object),
       tokenType: undefined,
@@ -42,19 +37,14 @@ describe('parseRawGroup', () => {
       $type: 'dimension',
     };
 
-    const program = parseRawGroup(tree, {
+    const result = parseRawGroup(tree, {
       varName: 'aGroup',
       nodeId: 'abc',
       path: ['aGroup'],
       valuePath: [],
     });
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       id: expect.any(String),
       path: expect.any(Object),
       tokenType: 'dimension',
@@ -68,7 +58,7 @@ describe('parseRawGroup', () => {
       $type: 42,
     };
 
-    const program = parseRawGroup(tree, {
+    const result = parseRawGroup(tree, {
       varName: 'aGroup',
       nodeId: 'abc',
       path: ['aGroup'],
@@ -76,18 +66,7 @@ describe('parseRawGroup', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Value',
@@ -110,7 +89,7 @@ describe('parseRawGroup', () => {
       },
     };
 
-    const program = parseRawGroup(tree, {
+    const result = parseRawGroup(tree, {
       varName: 'aGroup',
       nodeId: 'abc',
       path: ['aGroup'],
@@ -118,18 +97,7 @@ describe('parseRawGroup', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Type',

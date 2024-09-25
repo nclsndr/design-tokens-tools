@@ -40,12 +40,7 @@ describe('TokenState', () => {
         typographyToken,
       };
 
-      const treeState = Exit.match(Effect.runSyncExit(buildTreeState(tokens)), {
-        onSuccess: (treeState) => treeState,
-        onFailure: (error) => {
-          throw error;
-        },
-      });
+      const treeState = buildTreeState(tokens);
 
       const values = treeState.tokenStates.map((t) => t.getJSONToken());
 
@@ -153,12 +148,7 @@ describe('TokenState', () => {
         },
       };
 
-      const treeState = Exit.match(Effect.runSyncExit(buildTreeState(tokens)), {
-        onSuccess: (treeState) => treeState,
-        onFailure: (error) => {
-          throw error;
-        },
-      });
+      const treeState = buildTreeState(tokens);
 
       const values = treeState.tokenStates.map((t) => t.getJSONToken());
 

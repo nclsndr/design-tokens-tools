@@ -1,4 +1,4 @@
-import { Effect, Either } from 'effect';
+import { Either } from 'effect';
 import { type JSON } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
@@ -14,7 +14,7 @@ export function parseRawToken(
   ctx: {
     jsonTokenTree: JSON.Object;
   } & AnalyzerContext,
-): Effect.Effect<AnalyzedToken, Array<ValidationError>> {
+): Either.Either<AnalyzedToken, Array<ValidationError>> {
   const {
     $type, // only  for destructuring, resolvedType is used instead
     $value,
@@ -25,7 +25,7 @@ export function parseRawToken(
 
   // No extra properties allowed
   if (Object.keys(rest).length > 0) {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Value',
         nodeId: ctx.nodeId,
@@ -39,67 +39,58 @@ export function parseRawToken(
     ]);
   }
 
-  return Effect.all(
-    [
-      recursivelyResolveTokenType(ctx.jsonTokenTree, ctx.path).pipe(
-        Effect.flatMap(({ resolvedType, resolution }) =>
-          getTokenValueParser(resolvedType)($value, {
-            varName: `${ctx.varName}.$value`,
-            nodeId: ctx.nodeId,
-            path: ctx.path,
-            valuePath: [],
-            nodeKey: '$value',
-          }).pipe(Effect.map((value) => ({ resolvedType, resolution, value }))),
-        ),
-      ),
-      parseTreeNodeDescription($description, {
-        varName: `${ctx.varName}.$description`,
-        nodeId: ctx.nodeId,
-        path: ctx.path,
-        nodeKey: '$description',
-      }),
-      parseTreeNodeExtensions($extensions, {
-        varName: `${ctx.varName}.$extensions`,
-        nodeId: ctx.nodeId,
-        path: ctx.path,
-        nodeKey: '$extensions',
-      }),
-    ],
-    {
-      mode: 'either',
-    },
+  const maybeResolvedTypeAndValue = recursivelyResolveTokenType(
+    ctx.jsonTokenTree,
+    ctx.path,
   ).pipe(
-    Effect.flatMap(
-      ([maybeResolvedTypeAndValue, maybeDescription, maybeExtensions]) => {
-        if (
-          Either.isLeft(maybeResolvedTypeAndValue) ||
-          Either.isLeft(maybeDescription) ||
-          Either.isLeft(maybeExtensions)
-        ) {
-          return Effect.fail([
-            ...(Either.isLeft(maybeResolvedTypeAndValue)
-              ? maybeResolvedTypeAndValue.left
-              : []),
-            ...(Either.isLeft(maybeDescription) ? maybeDescription.left : []),
-            ...(Either.isLeft(maybeExtensions) ? maybeExtensions.left : []),
-          ]);
-        }
+    Either.flatMap(({ resolvedType, resolution }) =>
+      getTokenValueParser(resolvedType)($value, {
+        varName: `${ctx.varName}.$value`,
+        nodeId: ctx.nodeId,
+        path: ctx.path,
+        valuePath: [],
+        nodeKey: '$value',
+      }).pipe(Either.map((value) => ({ resolvedType, resolution, value }))),
+    ),
+  );
+  const maybeDescription = parseTreeNodeDescription($description, {
+    varName: `${ctx.varName}.$description`,
+    nodeId: ctx.nodeId,
+    path: ctx.path,
+    nodeKey: '$description',
+  });
+  const maybeExtensions = parseTreeNodeExtensions($extensions, {
+    varName: `${ctx.varName}.$extensions`,
+    nodeId: ctx.nodeId,
+    path: ctx.path,
+    nodeKey: '$extensions',
+  });
 
-        const { resolvedType, value, resolution } =
-          maybeResolvedTypeAndValue.right;
+  if (
+    Either.isLeft(maybeResolvedTypeAndValue) ||
+    Either.isLeft(maybeDescription) ||
+    Either.isLeft(maybeExtensions)
+  ) {
+    return Either.left([
+      ...(Either.isLeft(maybeResolvedTypeAndValue)
+        ? maybeResolvedTypeAndValue.left
+        : []),
+      ...(Either.isLeft(maybeDescription) ? maybeDescription.left : []),
+      ...(Either.isLeft(maybeExtensions) ? maybeExtensions.left : []),
+    ]);
+  }
 
-        return Effect.succeed(
-          new AnalyzedToken(
-            ctx.nodeId,
-            ctx.path,
-            resolvedType,
-            value,
-            resolution,
-            maybeDescription.right,
-            maybeExtensions.right,
-          ),
-        );
-      },
+  const { resolvedType, value, resolution } = maybeResolvedTypeAndValue.right;
+
+  return Either.right(
+    new AnalyzedToken(
+      ctx.nodeId,
+      ctx.path,
+      resolvedType,
+      value,
+      resolution,
+      maybeDescription.right,
+      maybeExtensions.right,
     ),
   );
 }

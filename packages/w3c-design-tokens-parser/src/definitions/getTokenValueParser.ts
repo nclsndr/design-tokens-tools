@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Effect, Either } from 'effect';
 import {
   TokenTypeName,
   tokenTypeNamesMapping,
@@ -30,7 +30,7 @@ export function getTokenValueParser(
 ): (
   value: unknown,
   ctx: AnalyzerContext,
-) => Effect.Effect<AnalyzedValue, Array<ValidationError>> {
+) => Either.Either<AnalyzedValue, Array<ValidationError>> {
   switch (type) {
     case tokenTypeNamesMapping.number:
       return parseAliasableNumberValue;
@@ -60,7 +60,7 @@ export function getTokenValueParser(
       return parseAliasableTypographyValue;
     default: {
       return (_, ctx) =>
-        Effect.fail([
+        Either.left([
           new ValidationError({
             type: 'Value',
             nodeId: ctx.nodeId,

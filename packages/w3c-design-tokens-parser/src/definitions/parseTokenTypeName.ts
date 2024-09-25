@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Either } from 'effect';
 import {
   TokenTypeName,
   tokenTypeNames,
@@ -11,21 +11,21 @@ import { ValidationError } from '../utils/validationError.js';
 export function parseTokenTypeName<AllowUndefined extends boolean = false>(
   value: unknown,
   ctx: { allowUndefined: AllowUndefined } & AnalyzerContext,
-): Effect.Effect<
+): Either.Either<
   AllowUndefined extends false ? TokenTypeName : TokenTypeName | undefined,
   ValidationError[]
 > {
   if (ctx.allowUndefined && value === undefined) {
-    return Effect.succeed(
+    return Either.right(
       undefined as AllowUndefined extends false
         ? TokenTypeName
         : TokenTypeName | undefined,
     );
   }
   if (matchIsTokenTypeName(value)) {
-    return Effect.succeed(value);
+    return Either.right(value);
   }
-  return Effect.fail([
+  return Either.left([
     new ValidationError({
       type: 'Value',
       nodeId: ctx.nodeId,

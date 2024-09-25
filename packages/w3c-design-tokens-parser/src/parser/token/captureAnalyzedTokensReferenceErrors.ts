@@ -23,19 +23,17 @@ type SyntheticRef = {
 export function captureAnalyzedTokensReferenceErrors(
   analyzedTokens: Array<AnalyzedToken>,
 ) {
-  const syntheticRefs: Array<SyntheticRef> = analyzedTokens
-    .map((t) =>
-      t.value.toReferences.map((r) => ({
-        tokenId: t.id,
-        tokenType: t.type,
-        fromTreeStringPath: r.fromTreePath.join(ALIAS_PATH_SEPARATOR),
-        toTreeStringPath: r.toTreePath.join(ALIAS_PATH_SEPARATOR),
-        fromValuePath: r.fromValuePath,
-        fromTreePath: r.fromTreePath,
-        toTreePath: r.toTreePath,
-      })),
-    )
-    .flat();
+  const syntheticRefs: Array<SyntheticRef> = analyzedTokens.flatMap((t) =>
+    t.value.toReferences.map((r) => ({
+      tokenId: t.id,
+      tokenType: t.type,
+      fromTreeStringPath: r.fromTreePath.join(ALIAS_PATH_SEPARATOR),
+      toTreeStringPath: r.toTreePath.join(ALIAS_PATH_SEPARATOR),
+      fromValuePath: r.fromValuePath,
+      fromTreePath: r.fromTreePath,
+      toTreePath: r.toTreePath,
+    })),
+  );
 
   function recursivelyResolveRef(
     sRef: SyntheticRef,

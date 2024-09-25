@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { JSONTokenTree } from 'design-tokens-format-module';
 
 import { recursivelyResolveTokenType } from '../../../src/parser/token/recursivelyResolveTokenType';
-import { Cause, Effect, Exit } from 'effect';
+import { Either, Option } from 'effect';
 
 describe('recursivelyResolveTokenType', () => {
   it('should resolve an explicit type', () => {
@@ -13,14 +13,9 @@ describe('recursivelyResolveTokenType', () => {
       },
     };
 
-    const program = recursivelyResolveTokenType(tokenTree, ['aColor']);
+    const result = recursivelyResolveTokenType(tokenTree, ['aColor']);
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (x) => x,
-        onFailure: () => null,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       resolution: 'explicit',
       resolvedType: 'color',
       paths: [['aColor']],
@@ -41,17 +36,12 @@ describe('recursivelyResolveTokenType', () => {
       },
     };
 
-    const program = recursivelyResolveTokenType(tokenTree, [
+    const result = recursivelyResolveTokenType(tokenTree, [
       'semantic',
       'border',
     ]);
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (r) => r,
-        onFailure: () => undefined,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       resolution: 'alias',
       resolvedType: 'color',
       paths: [
@@ -78,17 +68,12 @@ describe('recursivelyResolveTokenType', () => {
       },
     };
 
-    const program = recursivelyResolveTokenType(tokenTree, [
+    const result = recursivelyResolveTokenType(tokenTree, [
       'semantic',
       'border2',
     ]);
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (r) => r,
-        onFailure: () => undefined,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       resolution: 'alias',
       resolvedType: 'color',
       paths: [
@@ -110,18 +95,13 @@ describe('recursivelyResolveTokenType', () => {
       },
     };
 
-    const program = recursivelyResolveTokenType(tokenTree, [
+    const result = recursivelyResolveTokenType(tokenTree, [
       'base',
       'background',
       'blue',
     ]);
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (r) => r,
-        onFailure: () => undefined,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       resolution: 'parent',
       resolvedType: 'color',
       paths: [['base'], ['base', 'background'], ['base', 'background', 'blue']],
@@ -144,17 +124,12 @@ describe('recursivelyResolveTokenType', () => {
       },
     };
 
-    const program = recursivelyResolveTokenType(tokenTree, [
+    const result = recursivelyResolveTokenType(tokenTree, [
       'semantic',
       'border',
     ]);
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (r) => r,
-        onFailure: () => undefined,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       resolution: 'alias',
       resolvedType: 'color',
       paths: [
@@ -175,17 +150,12 @@ describe('recursivelyResolveTokenType', () => {
       },
     };
 
-    const program = recursivelyResolveTokenType(tokenTree, [
+    const result = recursivelyResolveTokenType(tokenTree, [
       'colors',
       'primary',
     ]);
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (r) => r,
-        onFailure: () => undefined,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       resolution: 'parent',
       resolvedType: 'color',
       paths: [['colors'], ['colors', 'primary']],
@@ -203,24 +173,13 @@ describe('recursivelyResolveTokenType', () => {
       },
     };
 
-    const program = recursivelyResolveTokenType(tokenTree, [
+    const result = recursivelyResolveTokenType(tokenTree, [
       'semantic',
       'border',
     ]);
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: () => null,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Value',
@@ -242,21 +201,10 @@ describe('recursivelyResolveTokenType', () => {
       },
     };
 
-    const program = recursivelyResolveTokenType(tokenTree, ['base', 'blue']);
+    const result = recursivelyResolveTokenType(tokenTree, ['base', 'blue']);
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: () => null,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Computation',
@@ -288,21 +236,10 @@ describe('recursivelyResolveTokenType', () => {
       },
     };
 
-    const program = recursivelyResolveTokenType(tokenTree, ['base', 'blue']);
+    const result = recursivelyResolveTokenType(tokenTree, ['base', 'blue']);
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: () => null,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Computation',

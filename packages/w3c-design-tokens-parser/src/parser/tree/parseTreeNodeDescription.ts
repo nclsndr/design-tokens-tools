@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Either } from 'effect';
 
 import { AnalyzerContext } from '../utils/AnalyzerContext.js';
 import { ValidationError } from '../../utils/validationError.js';
@@ -6,10 +6,10 @@ import { ValidationError } from '../../utils/validationError.js';
 export function parseTreeNodeDescription(
   value: unknown,
   ctx: AnalyzerContext,
-): Effect.Effect<string | undefined, ValidationError[]> {
-  if (value === undefined) return Effect.succeed(undefined);
+): Either.Either<string | undefined, ValidationError[]> {
+  if (value === undefined) return Either.right(undefined);
   if (typeof value !== 'string') {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -19,5 +19,5 @@ export function parseTreeNodeDescription(
       }),
     ]);
   }
-  return Effect.succeed(value);
+  return Either.right(value);
 }

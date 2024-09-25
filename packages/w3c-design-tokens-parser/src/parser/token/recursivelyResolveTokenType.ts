@@ -1,4 +1,4 @@
-import { Effect, Option } from 'effect';
+import { Either, Option } from 'effect';
 import {
   type JSON,
   ALIAS_PATH_SEPARATOR,
@@ -17,7 +17,7 @@ export type ResolutionType = 'explicit' | 'alias' | 'parent';
 export function recursivelyResolveTokenType(
   jsonTokenTree: JSON.Object,
   path: JSON.ValuePath,
-): Effect.Effect<
+): Either.Either<
   {
     resolution: ResolutionType;
     resolvedType: TokenTypeName;
@@ -30,19 +30,20 @@ export function recursivelyResolveTokenType(
   if (matchIsToken(maybeToken)) {
     // $type is explicitly defined
     if ('$type' in maybeToken) {
-      return parseTokenTypeName(maybeToken.$type, {
-        allowUndefined: false,
-        varName: `${path.join(ALIAS_PATH_SEPARATOR)}.$type`,
-        nodeId: '',
-        path: path,
-        valuePath: [],
-        nodeKey: '$type',
-      }).pipe(
-        Effect.map((resolvedType) => ({
+      return Either.map(
+        parseTokenTypeName(maybeToken.$type, {
+          allowUndefined: false,
+          varName: `${path.join(ALIAS_PATH_SEPARATOR)}.$type`,
+          nodeId: '',
+          path: path,
+          valuePath: [],
+          nodeKey: '$type',
+        }),
+        (resolvedType) => ({
           resolution: 'explicit' as const,
           resolvedType,
           paths: [path],
-        })),
+        }),
       );
     }
 
@@ -51,7 +52,7 @@ export function recursivelyResolveTokenType(
       Option.match({
         onNone: () => {
           // Not an alias, try to resolve the parent
-          return Effect.map(
+          return Either.map(
             recursivelyResolveTokenTypeFromParents(jsonTokenTree, path),
             ({ resolvedType, paths }) => ({
               resolution: 'parent' as ResolutionType,
@@ -62,14 +63,14 @@ export function recursivelyResolveTokenType(
         },
         onSome: (p) => {
           try {
-            return recursivelyResolveTokenType(jsonTokenTree, p).pipe(
-              Effect.flatMap(({ resolvedType, paths }) => {
+            return Either.match(recursivelyResolveTokenType(jsonTokenTree, p), {
+              onRight: ({ resolvedType, paths }) => {
                 const matched = paths
                   .map((p) => p.join(ALIAS_PATH_SEPARATOR))
                   .includes(path.join(ALIAS_PATH_SEPARATOR));
 
                 if (matched) {
-                  return Effect.fail([
+                  return Either.left([
                     new ValidationError({
                       type: 'Computation',
                       nodeId: '',
@@ -80,23 +81,22 @@ export function recursivelyResolveTokenType(
                   ]);
                 }
 
-                return Effect.succeed({
+                return Either.right({
                   resolution: 'alias' as ResolutionType,
                   resolvedType,
                   paths: paths.concat([path]),
                 });
-              }),
-
-              Effect.catchAll((errs) => {
+              },
+              onLeft: (errs) => {
                 const hasCircularReference = errs.some(
                   (e) => e.type === 'Computation',
                 );
                 if (hasCircularReference) {
-                  return Effect.fail(errs);
+                  return Either.left(errs);
                 }
 
                 // The alias is unlinked, try to resolve the parent
-                return Effect.map(
+                return Either.map(
                   recursivelyResolveTokenTypeFromParents(jsonTokenTree, path),
                   ({ resolvedType, paths }) => ({
                     resolution: 'parent' as ResolutionType,
@@ -104,11 +104,11 @@ export function recursivelyResolveTokenType(
                     paths,
                   }),
                 );
-              }),
-            );
+              },
+            });
           } catch (error) {
             if (error instanceof RangeError) {
-              return Effect.fail([
+              return Either.left([
                 new ValidationError({
                   type: 'Computation',
                   nodeId: '',
@@ -125,7 +125,7 @@ export function recursivelyResolveTokenType(
     );
   }
 
-  return Effect.fail([
+  return Either.left([
     new ValidationError({
       type: 'Value',
       nodeId: '',

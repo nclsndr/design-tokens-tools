@@ -1,4 +1,4 @@
-import { Cause, Effect, Either, Exit } from 'effect';
+import { Either } from 'effect';
 import {
   matchIsToken,
   matchIsGroup,
@@ -24,26 +24,25 @@ function endsWith(arr: Array<string | number>, end: string | number): boolean {
 function parseRawInput(
   input: unknown,
   ctx: AnalyzerContext,
-): Effect.Effect<JSONTypes.Object, Array<ValidationError>, never> {
+): Either.Either<JSONTypes.Object, Array<ValidationError>> {
   if (typeof input === 'string') {
-    return Effect.try({
-      try: () => JSON.parse(input) as JSONTypes.Object,
-      catch: () => {
-        return [
-          new ValidationError({
-            nodeId: '',
-            type: 'Computation',
-            message: 'Failed to parse JSON string',
-            treePath: [],
-          }),
-        ];
-      },
-    });
+    try {
+      return Either.right(JSON.parse(input) as JSONTypes.Object);
+    } catch (error) {
+      return Either.left([
+        new ValidationError({
+          nodeId: '',
+          type: 'Computation',
+          message: 'Failed to parse JSON string',
+          treePath: [],
+        }),
+      ]);
+    }
   }
   return parseTreeNode(input, ctx);
 }
 
-export const parseJSONTokenTree: (input: unknown) => Effect.Effect<
+export const parseJSONTokenTree: (input: unknown) => Either.Either<
   {
     tokenTree: JSONTypes.Object;
     analyzedTokens: Array<AnalyzedToken>;
@@ -51,20 +50,20 @@ export const parseJSONTokenTree: (input: unknown) => Effect.Effect<
     tokenErrors: Array<ValidationError>;
     groupErrors: Array<ValidationError>;
   },
-  ValidationError[],
-  never
+  ValidationError[]
 > = (input) =>
-  parseRawInput(input, {
-    varName: '[root]',
-    nodeId: '',
-    path: [],
-  }).pipe(
-    Effect.flatMap((jsonTokenTree) => {
-      const analyzedTokenEffects: Array<
-        Effect.Effect<AnalyzedToken, Array<ValidationError>>
+  Either.flatMap(
+    parseRawInput(input, {
+      varName: '[root]',
+      nodeId: '',
+      path: [],
+    }),
+    (jsonTokenTree) => {
+      const analyzedTokenAcc: Array<
+        Either.Either<AnalyzedToken, Array<ValidationError>>
       > = [];
-      const analyzedGroupEffects: Array<
-        Effect.Effect<AnalyzedGroup, Array<ValidationError>>
+      const analyzedGroupAcc: Array<
+        Either.Either<AnalyzedGroup, Array<ValidationError>>
       > = [];
 
       traverseJSONValue(jsonTokenTree, (value, rawPath) => {
@@ -78,7 +77,7 @@ export const parseJSONTokenTree: (input: unknown) => Effect.Effect<
         const nodeId = makeUniqueId();
 
         if (matchIsToken(value)) {
-          analyzedTokenEffects.push(
+          analyzedTokenAcc.push(
             parseRawToken(value, {
               jsonTokenTree,
               nodeId: nodeId,
@@ -89,7 +88,7 @@ export const parseJSONTokenTree: (input: unknown) => Effect.Effect<
 
           return false;
         } else if (matchIsGroup(value)) {
-          analyzedGroupEffects.push(
+          analyzedGroupAcc.push(
             parseRawGroup(value, {
               nodeId: nodeId,
               path: rawPath,
@@ -102,75 +101,47 @@ export const parseJSONTokenTree: (input: unknown) => Effect.Effect<
         return false;
       });
 
-      return Effect.all(
-        [
-          Effect.all(analyzedTokenEffects, {
-            mode: 'either',
-          }).pipe(
-            Effect.map((values) => {
-              return values.reduce<{
-                analyzedTokens: Array<AnalyzedToken>;
-                tokenErrors: Array<ValidationError>;
-              }>(
-                (acc, c) => {
-                  Either.match(c, {
-                    onRight: (v) => {
-                      acc.analyzedTokens.push(v);
-                    },
-                    onLeft: (errors) => {
-                      acc.tokenErrors.push(...errors);
-                    },
-                  });
-                  return acc;
-                },
-                {
-                  analyzedTokens: [],
-                  tokenErrors: [],
-                },
-              );
-            }),
-          ),
-          Effect.all(analyzedGroupEffects, {
-            mode: 'either',
-          }).pipe(
-            Effect.map((values) => {
-              return values.reduce<{
-                analyzedGroups: Array<AnalyzedGroup>;
-                groupErrors: Array<ValidationError>;
-              }>(
-                (acc, c) => {
-                  Either.match(c, {
-                    onRight: (v) => {
-                      acc.analyzedGroups.push(v);
-                    },
-                    onLeft: (errors) => {
-                      acc.groupErrors.push(...errors);
-                    },
-                  });
-                  return acc;
-                },
-                {
-                  analyzedGroups: [],
-                  groupErrors: [],
-                },
-              );
-            }),
-          ),
-        ],
-        {},
-      ).pipe(
-        Effect.map(
-          ([
-            { analyzedTokens, tokenErrors },
-            { analyzedGroups, groupErrors },
-          ]) => ({
-            tokenTree: jsonTokenTree,
-            analyzedTokens,
-            analyzedGroups,
-            tokenErrors,
-            groupErrors,
-          }),
-        ),
+      const groupResults = analyzedGroupAcc.reduce<{
+        analyzedGroups: Array<AnalyzedGroup>;
+        groupErrors: Array<ValidationError>;
+      }>(
+        (acc, c) => {
+          if (Either.isRight(c)) {
+            acc.analyzedGroups.push(c.right);
+          } else if (Either.isLeft(c)) {
+            acc.groupErrors.push(...c.left);
+          }
+          return acc;
+        },
+        {
+          analyzedGroups: [],
+          groupErrors: [],
+        },
       );
-    }),
+      const tokenResults = analyzedTokenAcc.reduce<{
+        analyzedTokens: Array<AnalyzedToken>;
+        tokenErrors: Array<ValidationError>;
+      }>(
+        (acc, c) => {
+          if (Either.isRight(c)) {
+            acc.analyzedTokens.push(c.right);
+          } else if (Either.isLeft(c)) {
+            acc.tokenErrors.push(...c.left);
+          }
+          return acc;
+        },
+        {
+          analyzedTokens: [],
+          tokenErrors: [],
+        },
+      );
+
+      return Either.right({
+        tokenTree: jsonTokenTree,
+        analyzedTokens: tokenResults.analyzedTokens,
+        analyzedGroups: groupResults.analyzedGroups,
+        tokenErrors: tokenResults.tokenErrors,
+        groupErrors: groupResults.groupErrors,
+      });
+    },
   );

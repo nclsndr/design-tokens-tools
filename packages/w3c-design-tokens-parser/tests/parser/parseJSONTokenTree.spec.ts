@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Effect, Exit } from 'effect';
+import { Either, Option } from 'effect';
 import { JSONTokenTree } from 'design-tokens-format-module';
 
 import {
@@ -34,17 +34,14 @@ describe('parseJSONTokenTree', () => {
       },
     };
 
-    const program = parseJSONTokenTree(JSON.stringify(tokens));
+    const result = parseJSONTokenTree(JSON.stringify(tokens));
 
-    const result = Exit.match(Effect.runSyncExit(program), {
-      onSuccess: (r) => r,
-      onFailure: () => undefined,
-    });
+    const matched = Either.getOrThrow(result);
 
-    expect(result?.analyzedTokens).toHaveLength(2);
-    expect(result?.analyzedGroups).toHaveLength(3);
-    expect(result?.tokenErrors).toStrictEqual([]);
-    expect(result?.groupErrors).toStrictEqual([]);
+    expect(matched?.analyzedTokens).toHaveLength(2);
+    expect(matched?.analyzedGroups).toHaveLength(3);
+    expect(matched?.tokenErrors).toStrictEqual([]);
+    expect(matched?.groupErrors).toStrictEqual([]);
   });
   it('should parse a token tree of raw values of all types', () => {
     const tree: JSONTokenTree = {
@@ -64,21 +61,21 @@ describe('parseJSONTokenTree', () => {
       typographyToken,
     };
 
-    const program = parseJSONTokenTree(tree);
+    const result = parseJSONTokenTree(tree);
 
-    const result = Exit.match(Effect.runSyncExit(program), {
-      onSuccess: (r) => ({
+    const matched = Either.match(result, {
+      onRight: (r) => ({
         ...r,
         analyzedTokens: r.analyzedTokens.map((t) => ({
           ...JSON.parse(JSON.stringify(t)),
           id: 'ID',
         })),
       }),
-      onFailure: () => undefined,
+      onLeft: () => undefined,
     });
 
-    expect(result?.analyzedTokens).toHaveLength(14);
-    expect(result?.analyzedTokens).toMatchSnapshot();
+    expect(matched?.analyzedTokens).toHaveLength(14);
+    expect(matched?.analyzedTokens).toMatchSnapshot();
   });
   it('should parse a token tree with $description and $extensions at the root level', () => {
     const tree: JSONTokenTree = {
@@ -91,14 +88,11 @@ describe('parseJSONTokenTree', () => {
       },
     };
 
-    const program = parseJSONTokenTree(tree);
+    const result = parseJSONTokenTree(tree);
 
-    const result = Exit.match(Effect.runSyncExit(program), {
-      onSuccess: (r) => JSON.parse(JSON.stringify(r)),
-      onFailure: () => undefined,
-    });
+    const matched = JSON.parse(JSON.stringify(Either.getOrThrow(result)));
 
-    expect(result).toStrictEqual({
+    expect(matched).toStrictEqual({
       tokenTree: {
         $description: 'A description for the token tree.',
         $extensions: {
@@ -145,14 +139,11 @@ describe('parseJSONTokenTree', () => {
   it('should parse a token tree with a token at the top level', () => {
     const tree: JSONTokenTree = colorToken;
 
-    const program = parseJSONTokenTree(tree);
+    const result = parseJSONTokenTree(tree);
 
-    const result = Exit.match(Effect.runSyncExit(program), {
-      onSuccess: (r) => JSON.parse(JSON.stringify(r)),
-      onFailure: () => undefined,
-    });
+    const matched = JSON.parse(JSON.stringify(Either.getOrThrow(result)));
 
-    expect(result).toStrictEqual({
+    expect(matched).toStrictEqual({
       tokenTree: {
         $type: 'color',
         $value: '#a82222',
@@ -185,14 +176,11 @@ describe('parseJSONTokenTree', () => {
       },
     };
 
-    const program = parseJSONTokenTree(tree);
+    const result = parseJSONTokenTree(tree);
 
-    const result = Exit.match(Effect.runSyncExit(program), {
-      onSuccess: (r) => JSON.parse(JSON.stringify(r)),
-      onFailure: () => undefined,
-    });
+    const matched = JSON.parse(JSON.stringify(Either.getOrThrow(result)));
 
-    expect(result).toStrictEqual({
+    expect(matched).toStrictEqual({
       tokenTree: {
         base: {
           primary: {
@@ -276,14 +264,11 @@ describe('parseJSONTokenTree', () => {
       },
     };
 
-    const program = parseJSONTokenTree(tree);
+    const result = parseJSONTokenTree(tree);
 
-    const result = Exit.match(Effect.runSyncExit(program), {
-      onSuccess: (r) => JSON.parse(JSON.stringify(r)),
-      onFailure: () => undefined,
-    });
+    const matched = JSON.parse(JSON.stringify(Either.getOrThrow(result)));
 
-    expect(result).toStrictEqual({
+    expect(matched).toStrictEqual({
       tokenTree: {
         base: { primary: { $type: 'color', $value: 'rgba(0, 0, 0, 0.5)' } },
         semantic: { primary: { $type: 'unknown', $value: 'some value' } },
@@ -340,14 +325,11 @@ describe('parseJSONTokenTree', () => {
       },
     };
 
-    const program = parseJSONTokenTree(tree);
+    const result = parseJSONTokenTree(tree);
 
-    const result = Exit.match(Effect.runSyncExit(program), {
-      onSuccess: (r) => JSON.parse(JSON.stringify(r)),
-      onFailure: (err) => err,
-    });
+    const matched = JSON.parse(JSON.stringify(Either.getOrThrow(result)));
 
-    expect(result).toStrictEqual({
+    expect(matched).toStrictEqual({
       tokenTree: {
         base: { $type: 'color', primary: { $value: '{base.primary}' } },
       },

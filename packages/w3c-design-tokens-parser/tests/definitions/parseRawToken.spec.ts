@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
 import { parseRawToken } from '../../src/parser/token/parseRawToken';
-import { Cause, Effect, Exit } from 'effect';
+import { Either, Option } from 'effect';
 
 describe.concurrent('parseRawToken', () => {
   it('should parse a number token', () => {
@@ -10,7 +10,7 @@ describe.concurrent('parseRawToken', () => {
       $value: 42,
     };
 
-    const program = parseRawToken(rawJsonToken, {
+    const result = parseRawToken(rawJsonToken, {
       nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
@@ -20,17 +20,14 @@ describe.concurrent('parseRawToken', () => {
       },
     });
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (r) => JSON.parse(JSON.stringify(r)),
-        onFailure: (err) => err,
-      }),
-    ).toStrictEqual({
-      id: 'abc',
-      path: ['aToken'],
-      type: 'number',
-      value: { raw: 42, toReferences: [] },
-    });
+    expect(JSON.parse(JSON.stringify(Either.getOrThrow(result)))).toStrictEqual(
+      {
+        id: 'abc',
+        path: ['aToken'],
+        type: 'number',
+        value: { raw: 42, toReferences: [] },
+      },
+    );
   });
   it('should parse an opaque color token', () => {
     const rawJsonToken = {
@@ -38,7 +35,7 @@ describe.concurrent('parseRawToken', () => {
       $value: '#ff0000',
     };
 
-    const program = parseRawToken(rawJsonToken, {
+    const result = parseRawToken(rawJsonToken, {
       nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
@@ -48,24 +45,21 @@ describe.concurrent('parseRawToken', () => {
       },
     });
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (r) => JSON.parse(JSON.stringify(r)),
-        onFailure: (err) => err,
-      }),
-    ).toStrictEqual({
-      id: 'abc',
-      path: ['aToken'],
-      type: 'color',
-      value: { raw: '#ff0000', toReferences: [] },
-    });
+    expect(JSON.parse(JSON.stringify(Either.getOrThrow(result)))).toStrictEqual(
+      {
+        id: 'abc',
+        path: ['aToken'],
+        type: 'color',
+        value: { raw: '#ff0000', toReferences: [] },
+      },
+    );
   });
   it('should parse a transparent color token', () => {
     const rawJsonToken = {
       $type: 'color',
       $value: '#ff0000BB',
     };
-    const program = parseRawToken(rawJsonToken, {
+    const result = parseRawToken(rawJsonToken, {
       nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
@@ -75,24 +69,21 @@ describe.concurrent('parseRawToken', () => {
       },
     });
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (r) => JSON.parse(JSON.stringify(r)),
-        onFailure: (err) => err,
-      }),
-    ).toStrictEqual({
-      id: 'abc',
-      path: ['aToken'],
-      type: 'color',
-      value: { raw: '#ff0000BB', toReferences: [] },
-    });
+    expect(JSON.parse(JSON.stringify(Either.getOrThrow(result)))).toStrictEqual(
+      {
+        id: 'abc',
+        path: ['aToken'],
+        type: 'color',
+        value: { raw: '#ff0000BB', toReferences: [] },
+      },
+    );
   });
   it('should parse a dimension token', () => {
     const rawJsonToken = {
       $type: 'dimension',
       $value: '16px',
     };
-    const program = parseRawToken(rawJsonToken, {
+    const result = parseRawToken(rawJsonToken, {
       nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
@@ -102,17 +93,14 @@ describe.concurrent('parseRawToken', () => {
       },
     });
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (r) => JSON.parse(JSON.stringify(r)),
-        onFailure: (err) => err,
-      }),
-    ).toStrictEqual({
-      id: 'abc',
-      path: ['aToken'],
-      type: 'dimension',
-      value: { raw: '16px', toReferences: [] },
-    });
+    expect(JSON.parse(JSON.stringify(Either.getOrThrow(result)))).toStrictEqual(
+      {
+        id: 'abc',
+        path: ['aToken'],
+        type: 'dimension',
+        value: { raw: '16px', toReferences: [] },
+      },
+    );
   });
   it('should parse the description and extensions of a token', () => {
     const rawJsonToken = {
@@ -122,7 +110,7 @@ describe.concurrent('parseRawToken', () => {
       $extensions: { 'com.nclsndr.usage': 'const' },
     };
 
-    const program = parseRawToken(rawJsonToken, {
+    const result = parseRawToken(rawJsonToken, {
       nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
@@ -132,19 +120,16 @@ describe.concurrent('parseRawToken', () => {
       },
     });
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (r) => JSON.parse(JSON.stringify(r)),
-        onFailure: (err) => err,
-      }),
-    ).toStrictEqual({
-      id: 'abc',
-      path: ['aToken'],
-      type: 'number',
-      value: { raw: 42, toReferences: [] },
-      description: 'A number token',
-      extensions: { 'com.nclsndr.usage': 'const' },
-    });
+    expect(JSON.parse(JSON.stringify(Either.getOrThrow(result)))).toStrictEqual(
+      {
+        id: 'abc',
+        path: ['aToken'],
+        type: 'number',
+        value: { raw: 42, toReferences: [] },
+        description: 'A number token',
+        extensions: { 'com.nclsndr.usage': 'const' },
+      },
+    );
   });
   it('should fail to parse both invalid description and extensions of a token', () => {
     const rawJsonToken = {
@@ -154,7 +139,7 @@ describe.concurrent('parseRawToken', () => {
       $extensions: false,
     };
 
-    const program = parseRawToken(rawJsonToken, {
+    const result = parseRawToken(rawJsonToken, {
       nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
@@ -165,18 +150,7 @@ describe.concurrent('parseRawToken', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (r) => r,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         isCritical: false,
@@ -206,7 +180,7 @@ describe.concurrent('parseRawToken', () => {
       $description: true,
       $extensions: 'invalid extensions',
     };
-    const program = parseRawToken(rawJsonToken, {
+    const result = parseRawToken(rawJsonToken, {
       nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
@@ -217,18 +191,7 @@ describe.concurrent('parseRawToken', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (r) => r,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Type',
@@ -264,7 +227,7 @@ describe.concurrent('parseRawToken', () => {
       $type: 'unknown',
       $value: 42,
     };
-    const program = parseRawToken(rawJsonToken, {
+    const result = parseRawToken(rawJsonToken, {
       nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
@@ -275,18 +238,7 @@ describe.concurrent('parseRawToken', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (r) => r,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Value',
@@ -306,7 +258,7 @@ describe.concurrent('parseRawToken', () => {
       $value: 'not a number',
     };
 
-    const program = parseRawToken(rawJsonToken, {
+    const result = parseRawToken(rawJsonToken, {
       nodeId: 'abc',
       varName: 'aToken',
       path: ['aToken'],
@@ -317,18 +269,7 @@ describe.concurrent('parseRawToken', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (r) => r,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Type',

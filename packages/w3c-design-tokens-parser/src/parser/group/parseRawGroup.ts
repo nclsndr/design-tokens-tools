@@ -1,4 +1,4 @@
-import { Effect, Either } from 'effect';
+import { Either } from 'effect';
 
 import { parseTreeNodeExtensions } from '../tree/parseTreeNodeExtensions.js';
 import { ValidationError } from '../../utils/validationError.js';
@@ -11,64 +11,49 @@ import { parseTokenTypeName } from '../../definitions/parseTokenTypeName.js';
 export function parseRawGroup(
   value: object,
   ctx: AnalyzerContext,
-): Effect.Effect<AnalyzedGroup, Array<ValidationError>> {
-  return parseTreeNode(value, ctx).pipe(
-    Effect.flatMap((node) => {
-      const { $type, $description, $extensions, ...rest } = node;
+): Either.Either<AnalyzedGroup, Array<ValidationError>> {
+  return Either.flatMap(parseTreeNode(value, ctx), (node) => {
+    const { $type, $description, $extensions, ...rest } = node;
 
-      return Effect.all(
-        [
-          parseTokenTypeName($type, {
-            allowUndefined: true,
-            varName: `${ctx.varName}.$type`,
-            nodeId: ctx.nodeId,
-            path: ctx.path,
-            nodeKey: '$type',
-          }),
-          parseTreeNodeDescription($description, {
-            varName: `${ctx.varName}.$description`,
-            nodeId: ctx.nodeId,
-            path: ctx.path,
-            nodeKey: '$description',
-          }),
-          parseTreeNodeExtensions($extensions, {
-            varName: `${ctx.varName}.$extensions`,
-            nodeId: ctx.nodeId,
-            path: ctx.path,
-            nodeKey: '$extensions',
-          }),
-        ],
-        {
-          mode: 'either',
-        },
-      ).pipe(
-        Effect.flatMap(
-          ([maybeTokenType, maybeDescription, maybeExtensions]) => {
-            if (
-              Either.isLeft(maybeTokenType) ||
-              Either.isLeft(maybeDescription) ||
-              Either.isLeft(maybeExtensions)
-            ) {
-              return Effect.fail([
-                ...(Either.isLeft(maybeTokenType) ? maybeTokenType.left : []),
-                ...(Either.isLeft(maybeDescription)
-                  ? maybeDescription.left
-                  : []),
-                ...(Either.isLeft(maybeExtensions) ? maybeExtensions.left : []),
-              ]);
-            }
+    const maybeTokenType = parseTokenTypeName($type, {
+      allowUndefined: true,
+      varName: `${ctx.varName}.$type`,
+      nodeId: ctx.nodeId,
+      path: ctx.path,
+      nodeKey: '$type',
+    });
+    const maybeDescription = parseTreeNodeDescription($description, {
+      varName: `${ctx.varName}.$description`,
+      nodeId: ctx.nodeId,
+      path: ctx.path,
+      nodeKey: '$description',
+    });
+    const maybeExtensions = parseTreeNodeExtensions($extensions, {
+      varName: `${ctx.varName}.$extensions`,
+      nodeId: ctx.nodeId,
+      path: ctx.path,
+      nodeKey: '$extensions',
+    });
 
-            return Effect.succeed({
-              id: ctx.nodeId,
-              path: ctx.path,
-              tokenType: maybeTokenType.right,
-              childrenCount: Object.keys(rest).length,
-              description: maybeDescription.right,
-              extensions: maybeExtensions.right,
-            } satisfies AnalyzedGroup);
-          },
-        ),
-      );
-    }),
-  );
+    if (
+      Either.isLeft(maybeTokenType) ||
+      Either.isLeft(maybeDescription) ||
+      Either.isLeft(maybeExtensions)
+    ) {
+      return Either.left([
+        ...(Either.isLeft(maybeTokenType) ? maybeTokenType.left : []),
+        ...(Either.isLeft(maybeDescription) ? maybeDescription.left : []),
+        ...(Either.isLeft(maybeExtensions) ? maybeExtensions.left : []),
+      ]);
+    }
+
+    return Either.right({
+      id: ctx.nodeId,
+      path: ctx.path,
+      tokenType: maybeTokenType.right,
+      childrenCount: Object.keys(rest).length,
+      description: maybeDescription.right,
+      extensions: maybeExtensions.right,
+    } satisfies AnalyzedGroup);
+  });
 }
