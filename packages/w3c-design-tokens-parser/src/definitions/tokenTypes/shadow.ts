@@ -1,5 +1,5 @@
-import { Effect, Either } from 'effect';
-import { Color, Dimension, Shadow } from 'design-tokens-format-module';
+import { Either } from 'effect';
+import { Shadow } from 'design-tokens-format-module';
 
 import { parseAliasableColorValue } from './color.js';
 import { parseAliasableDimensionValue } from './dimension.js';
@@ -8,6 +8,7 @@ import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
 import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
 import { makeParseObject } from '../../parser/utils/parseObject.js';
 import { withAlias } from '../withAlias.js';
+import { mergeEitherItems } from '../../parser/utils/mergeEithers.js';
 
 const parseShadowSingleRawValue = makeParseObject({
   color: { parser: parseAliasableColorValue },
@@ -15,15 +16,38 @@ const parseShadowSingleRawValue = makeParseObject({
   offsetY: { parser: parseAliasableDimensionValue },
   blur: { parser: parseAliasableDimensionValue },
   spread: { parser: parseAliasableDimensionValue },
+  inset: {
+    isOptional: true,
+    parser: (value: unknown, ctx: AnalyzerContext) => {
+      if (value !== undefined && typeof value !== 'boolean') {
+        return Either.left([
+          new ValidationError({
+            type: 'Type',
+            nodeId: ctx.nodeId,
+            treePath: ctx.path,
+            nodeKey: ctx.nodeKey,
+            valuePath: ctx.valuePath,
+            message: `${ctx.varName} must be a boolean (optional). Got "${typeof value}".`,
+          }),
+        ]);
+      }
+      return Either.right({
+        raw: value,
+        toReferences: [],
+      });
+    },
+  },
 });
+
+type ShadowArrayValue = Extract<Shadow.RawValue, Array<any>>;
 
 export const parseAliasableShadowValue = withAlias(
   (
     value: unknown,
     ctx: AnalyzerContext,
-  ): Effect.Effect<AnalyzedValue<Shadow.RawValue>, Array<ValidationError>> => {
+  ): Either.Either<AnalyzedValue<Shadow.RawValue>, Array<ValidationError>> => {
     if (Array.isArray(value)) {
-      return Effect.all(
+      return mergeEitherItems(
         value.map((v, i) =>
           parseShadowSingleRawValue(v, {
             ...ctx,
@@ -32,63 +56,40 @@ export const parseAliasableShadowValue = withAlias(
           }),
         ),
         {
-          mode: 'either',
-        },
-      ).pipe(
-        Effect.flatMap((all) => {
-          const [raws, errors] = all.reduce<
-            [
-              Array<{
-                color: AnalyzedValue<Color.Value>;
-                offsetX: AnalyzedValue<Dimension.Value>;
-                offsetY: AnalyzedValue<Dimension.Value>;
-                blur: AnalyzedValue<Dimension.Value>;
-                spread: AnalyzedValue<Dimension.Value>;
-              }>,
-              Array<ValidationError>,
-            ]
-          >(
-            (acc, c) => {
-              if (Either.isLeft(c)) {
-                acc[1].push(...c.left);
-              } else if (Either.isRight(c)) {
-                acc[0].push(c.right);
-              }
-              return acc;
-            },
-            [[], []],
+          raw: [],
+          toReferences: [],
+        } as AnalyzedValue<ShadowArrayValue>,
+        (a, c) => {
+          a.raw.push({
+            color: c.color.raw,
+            offsetX: c.offsetX.raw,
+            offsetY: c.offsetY.raw,
+            blur: c.blur.raw,
+            spread: c.spread.raw,
+            ...(c.inset.raw !== undefined ? { inset: c.inset.raw } : {}),
+          });
+          a.toReferences.push(
+            ...c.color.toReferences,
+            ...c.offsetX.toReferences,
+            ...c.offsetY.toReferences,
+            ...c.blur.toReferences,
+            ...c.spread.toReferences,
           );
-
-          return errors.length > 0
-            ? Effect.fail(errors)
-            : Effect.succeed({
-                raw: raws.map((v) => ({
-                  color: v.color.raw,
-                  offsetX: v.offsetX.raw,
-                  offsetY: v.offsetY.raw,
-                  blur: v.blur.raw,
-                  spread: v.spread.raw,
-                })),
-                toReferences: raws.flatMap((v) => [
-                  ...v.color.toReferences,
-                  ...v.offsetX.toReferences,
-                  ...v.offsetY.toReferences,
-                  ...v.blur.toReferences,
-                  ...v.spread.toReferences,
-                ]),
-              });
-        }),
+        },
       );
     }
     return parseShadowSingleRawValue(value, ctx).pipe(
-      Effect.flatMap((analyzed) => {
-        return Effect.succeed({
+      Either.flatMap((analyzed) => {
+        return Either.right({
           raw: {
             color: analyzed.color.raw,
             offsetX: analyzed.offsetX.raw,
             offsetY: analyzed.offsetY.raw,
             blur: analyzed.blur.raw,
             spread: analyzed.spread.raw,
+            ...(analyzed.inset.raw !== undefined
+              ? { inset: analyzed.inset.raw }
+              : {}),
           },
           toReferences: [
             ...analyzed.color.toReferences,

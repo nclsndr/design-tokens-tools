@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Either } from 'effect';
 import { Dimension } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
@@ -11,9 +11,9 @@ export const dimensionValuePattern = '^(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:px|rem)$';
 export function parseDimensionStringRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Effect.Effect<AnalyzedValue<Dimension.Value>, ValidationError[]> {
+): Either.Either<AnalyzedValue<Dimension.Value>, ValidationError[]> {
   if (typeof value !== 'string') {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -25,7 +25,7 @@ export function parseDimensionStringRawValue(
     ]);
   }
   if (!value.match(dimensionValuePattern)) {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Value',
         nodeId: ctx.nodeId,
@@ -36,7 +36,7 @@ export function parseDimensionStringRawValue(
       }),
     ]);
   }
-  return Effect.succeed({
+  return Either.right({
     raw: value as Dimension.RawValue,
     toReferences: [],
   });

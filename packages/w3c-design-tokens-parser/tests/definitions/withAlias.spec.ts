@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Cause, Effect, Exit } from 'effect';
+import { Cause, Effect, Either, Exit, Option } from 'effect';
 
 import { ValidationError } from '../../src/utils/validationError';
 import { AnalyzedValue } from '../../src/parser/token/AnalyzedToken';
@@ -11,9 +11,9 @@ describe.concurrent('withAlias', () => {
     function isBool(
       value: unknown,
       ctx: AnalyzerContext,
-    ): Effect.Effect<AnalyzedValue<boolean>, ValidationError[]> {
+    ): Either.Either<AnalyzedValue<boolean>, ValidationError[]> {
       if (typeof value !== 'boolean') {
-        return Effect.fail([
+        return Either.left([
           new ValidationError({
             type: 'Type',
             nodeId: ctx.nodeId,
@@ -23,7 +23,7 @@ describe.concurrent('withAlias', () => {
         ]);
       }
 
-      return Effect.succeed({
+      return Either.right({
         raw: value,
         toReferences: [],
       });
@@ -38,12 +38,7 @@ describe.concurrent('withAlias', () => {
       path: ['alias'],
     });
 
-    expect(
-      Exit.match(Effect.runSyncExit(result1), {
-        onSuccess: (result) => result,
-        onFailure: () => undefined,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result1)).toStrictEqual({
       raw: '{my.alias}',
       toReferences: [
         {
@@ -61,12 +56,7 @@ describe.concurrent('withAlias', () => {
       path: ['bool'],
     });
 
-    expect(
-      Exit.match(Effect.runSyncExit(result2), {
-        onSuccess: (result) => result,
-        onFailure: () => undefined,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result2)).toStrictEqual({
       raw: true,
       toReferences: [],
     });
@@ -75,9 +65,9 @@ describe.concurrent('withAlias', () => {
     function isBool(
       value: unknown,
       ctx: AnalyzerContext,
-    ): Effect.Effect<any, ValidationError[]> {
+    ): Either.Either<AnalyzedValue<boolean>, ValidationError[]> {
       if (typeof value !== 'boolean') {
-        return Effect.fail([
+        return Either.left([
           new ValidationError({
             type: 'Type',
             nodeId: ctx.nodeId,
@@ -87,7 +77,10 @@ describe.concurrent('withAlias', () => {
         ]);
       }
 
-      return Effect.succeed(value);
+      return Either.right({
+        raw: value,
+        toReferences: [],
+      });
     }
 
     const parseBool = withAlias(isBool);
@@ -99,18 +92,7 @@ describe.concurrent('withAlias', () => {
       valuePath: [],
     });
 
-    const result1Errors = Exit.match(Effect.runSyncExit(result1), {
-      onSuccess: () => undefined,
-      onFailure: (cause) =>
-        Cause.match(cause, {
-          onEmpty: undefined,
-          onFail: (errors) => errors,
-          onDie: () => undefined,
-          onInterrupt: () => undefined,
-          onSequential: () => undefined,
-          onParallel: () => undefined,
-        }),
-    });
+    const result1Errors = Option.getOrThrow(Either.getLeft(result1));
 
     expect(result1Errors).toHaveLength(1);
     expect(result1Errors![0].message).toBe(
@@ -123,18 +105,7 @@ describe.concurrent('withAlias', () => {
       nodeId: 'abc',
       path: ['bool'],
     });
-    const result2Errors = Exit.match(Effect.runSyncExit(result2), {
-      onSuccess: () => undefined,
-      onFailure: (cause) =>
-        Cause.match(cause, {
-          onEmpty: undefined,
-          onFail: (errors) => errors,
-          onDie: () => undefined,
-          onInterrupt: () => undefined,
-          onSequential: () => undefined,
-          onParallel: () => undefined,
-        }),
-    });
+    const result2Errors = Option.getOrThrow(Either.getLeft(result2));
 
     expect(result2Errors).toHaveLength(1);
     expect(result2Errors![0].message).toBe(

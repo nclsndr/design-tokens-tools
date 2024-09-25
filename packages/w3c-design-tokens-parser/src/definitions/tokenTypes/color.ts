@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Either } from 'effect';
 import { Color } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
@@ -12,9 +12,9 @@ export const hexadecimalColorValuePattern =
 export function parseColorStringRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Effect.Effect<AnalyzedValue<Color.RawValue>, ValidationError[]> {
+): Either.Either<AnalyzedValue<Color.RawValue>, ValidationError[]> {
   if (typeof value !== 'string') {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -26,7 +26,7 @@ export function parseColorStringRawValue(
     ]);
   }
   if (!value.match(hexadecimalColorValuePattern)) {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Value',
         nodeId: ctx.nodeId,
@@ -37,7 +37,7 @@ export function parseColorStringRawValue(
       }),
     ]);
   }
-  return Effect.succeed({
+  return Either.right({
     raw: value as Color.RawValue,
     toReferences: [],
   });

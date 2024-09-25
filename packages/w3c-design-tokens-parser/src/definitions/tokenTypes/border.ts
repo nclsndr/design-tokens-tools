@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Either } from 'effect';
 import { Border } from 'design-tokens-format-module';
 
 import { parseAliasableColorValue } from './color.js';
@@ -20,9 +20,9 @@ export const parseAliasableBorderValue = withAlias(
   (
     value: unknown,
     ctx: AnalyzerContext,
-  ): Effect.Effect<AnalyzedValue<Border.RawValue>, Array<ValidationError>> => {
+  ): Either.Either<AnalyzedValue<Border.RawValue>, Array<ValidationError>> => {
     return parseBorderRawValue(value, ctx).pipe(
-      Effect.map(
+      Either.map(
         (analyzed) =>
           ({
             raw: {

@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
 
 import { parseAliasableGradientValue } from '../../../src/definitions/tokenTypes/gradient';
-import { Cause, Effect, Exit } from 'effect';
+import { Either, Option } from 'effect';
 
 describe.concurrent('parseAliasableGradientValue', () => {
   it('should parse a valid gradient', () => {
-    const program = parseAliasableGradientValue(
+    const result = parseAliasableGradientValue(
       [
         { position: 0, color: '#000000' },
         { position: 1, color: '#ffffff' },
@@ -18,12 +18,7 @@ describe.concurrent('parseAliasableGradientValue', () => {
       },
     );
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: [
         { position: 0, color: '#000000' },
         { position: 1, color: '#ffffff' },
@@ -31,20 +26,16 @@ describe.concurrent('parseAliasableGradientValue', () => {
       toReferences: [],
     });
   });
+
   it('should parse a gradient with a top level alias', () => {
-    const program = parseAliasableGradientValue('{gradients.foo}', {
+    const result = parseAliasableGradientValue('{gradients.foo}', {
       nodeId: 'abc',
       varName: 'foo',
       path: ['foo'],
       valuePath: [],
     });
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: '{gradients.foo}',
       toReferences: [
         {
@@ -56,7 +47,7 @@ describe.concurrent('parseAliasableGradientValue', () => {
     });
   });
   it('should parse a gradient with nested aliases', () => {
-    const program = parseAliasableGradientValue(
+    const result = parseAliasableGradientValue(
       [
         { color: '{colors.red}', position: '{gradients.stop.1}' },
         { position: '{gradients.stop.2}', color: '{colors.blue}' },
@@ -69,12 +60,7 @@ describe.concurrent('parseAliasableGradientValue', () => {
       },
     );
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: [
         { position: '{gradients.stop.1}', color: '{colors.red}' },
         { position: '{gradients.stop.2}', color: '{colors.blue}' },
@@ -104,29 +90,15 @@ describe.concurrent('parseAliasableGradientValue', () => {
     });
   });
   it('should fail when the value is not an array', () => {
+    const result = parseAliasableGradientValue('not an array', {
+      nodeId: 'abc',
+      varName: 'foo',
+      path: ['foo'],
+      valuePath: [],
+    });
+
     expect(
-      Exit.match(
-        Effect.runSyncExit(
-          parseAliasableGradientValue('not an array', {
-            nodeId: 'abc',
-            varName: 'foo',
-            path: ['foo'],
-            valuePath: [],
-          }),
-        ),
-        {
-          onSuccess: () => undefined,
-          onFailure: (cause) =>
-            Cause.match(cause, {
-              onEmpty: undefined,
-              onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-              onDie: () => undefined,
-              onInterrupt: () => undefined,
-              onSequential: () => undefined,
-              onParallel: () => undefined,
-            }),
-        },
-      ),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         isCritical: false,

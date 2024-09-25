@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Either } from 'effect';
 import { Duration } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
@@ -11,9 +11,9 @@ export const durationValuePattern = '^(?:\\d+(?:\\.\\d*)?|\\.\\d+)ms$';
 export function parseDurationStringRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Effect.Effect<AnalyzedValue<Duration.Value>, ValidationError[]> {
+): Either.Either<AnalyzedValue<Duration.Value>, ValidationError[]> {
   if (typeof value !== 'string') {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -25,7 +25,7 @@ export function parseDurationStringRawValue(
     ]);
   }
   if (!value.match(durationValuePattern)) {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Value',
         nodeId: ctx.nodeId,
@@ -36,7 +36,7 @@ export function parseDurationStringRawValue(
       }),
     ]);
   }
-  return Effect.succeed({
+  return Either.right({
     raw: value as Duration.RawValue,
     toReferences: [],
   });

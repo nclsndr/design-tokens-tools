@@ -1,11 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { Cause, Effect, Exit } from 'effect';
+import { Either, Option } from 'effect';
+import { Shadow } from 'design-tokens-format-module';
 
 import { parseAliasableShadowValue } from '../../../src/definitions/tokenTypes/shadow';
 
 describe.concurrent('parseAliasableShadowValue', () => {
   it('should parse a raw shadow object value', () => {
-    const program = parseAliasableShadowValue(
+    const result = parseAliasableShadowValue(
       {
         color: '#FF5564',
         offsetX: '1px',
@@ -21,12 +22,7 @@ describe.concurrent('parseAliasableShadowValue', () => {
       },
     );
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: {
         color: '#FF5564',
         offsetX: '1px',
@@ -37,8 +33,38 @@ describe.concurrent('parseAliasableShadowValue', () => {
       toReferences: [],
     });
   });
+  it('should parse a raw shadow object value with inset', () => {
+    const result = parseAliasableShadowValue(
+      {
+        color: '#FF5564',
+        offsetX: '1px',
+        offsetY: '1px',
+        blur: '1px',
+        spread: '1px',
+        inset: true,
+      } satisfies Shadow.RawValue,
+      {
+        nodeId: 'abc',
+        varName: 'shadows.a-shadow',
+        path: ['shadows', 'a-shadow'],
+        valuePath: [],
+      },
+    );
+
+    expect(Either.getOrThrow(result)).toStrictEqual({
+      raw: {
+        color: '#FF5564',
+        offsetX: '1px',
+        offsetY: '1px',
+        blur: '1px',
+        spread: '1px',
+        inset: true,
+      },
+      toReferences: [],
+    });
+  });
   it('should parse a raw shadow array value', () => {
-    const program = parseAliasableShadowValue(
+    const result = parseAliasableShadowValue(
       [
         {
           color: '#FF5564',
@@ -63,12 +89,7 @@ describe.concurrent('parseAliasableShadowValue', () => {
       },
     );
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: [
         {
           color: '#FF5564',
@@ -88,20 +109,65 @@ describe.concurrent('parseAliasableShadowValue', () => {
       toReferences: [],
     });
   });
+  it('should parse a raw shadow array value with inset', () => {
+    const result = parseAliasableShadowValue(
+      [
+        {
+          color: '#FF5564',
+          offsetX: '1px',
+          offsetY: '1px',
+          blur: '1px',
+          spread: '1px',
+          inset: true,
+        },
+        {
+          color: '#558bff',
+          offsetX: '2px',
+          offsetY: '2px',
+          blur: '2px',
+          spread: '2px',
+          inset: false,
+        },
+      ],
+      {
+        nodeId: 'abc',
+        varName: 'shadows.a-shadow',
+        path: ['shadows', 'a-shadow'],
+        valuePath: [],
+      },
+    );
+
+    expect(Either.getOrThrow(result)).toStrictEqual({
+      raw: [
+        {
+          color: '#FF5564',
+          offsetX: '1px',
+          offsetY: '1px',
+          blur: '1px',
+          spread: '1px',
+          inset: true,
+        },
+        {
+          color: '#558bff',
+          offsetX: '2px',
+          offsetY: '2px',
+          blur: '2px',
+          spread: '2px',
+          inset: false,
+        },
+      ],
+      toReferences: [],
+    });
+  });
   it('should parse an aliased value', () => {
-    const program = parseAliasableShadowValue('{shadows.b-shadow}', {
+    const result = parseAliasableShadowValue('{shadows.b-shadow}', {
       nodeId: 'abc',
       varName: 'shadows.a-shadow',
       path: ['shadows', 'a-shadow'],
       valuePath: [],
     });
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: '{shadows.b-shadow}',
       toReferences: [
         {
@@ -113,7 +179,7 @@ describe.concurrent('parseAliasableShadowValue', () => {
     });
   });
   it('should parse an object value with nested aliases', () => {
-    const program = parseAliasableShadowValue(
+    const result = parseAliasableShadowValue(
       {
         color: '{color.primary}',
         offsetX: '{space.regular}',
@@ -129,12 +195,7 @@ describe.concurrent('parseAliasableShadowValue', () => {
       },
     );
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: {
         color: '{color.primary}',
         offsetX: '{space.regular}',
@@ -172,7 +233,7 @@ describe.concurrent('parseAliasableShadowValue', () => {
     });
   });
   it('should parse an array value with nested aliases', () => {
-    const program = parseAliasableShadowValue(
+    const result = parseAliasableShadowValue(
       [
         {
           color: '{color.primary}',
@@ -197,12 +258,7 @@ describe.concurrent('parseAliasableShadowValue', () => {
       },
     );
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: [
         {
           color: '{color.primary}',
@@ -274,7 +330,7 @@ describe.concurrent('parseAliasableShadowValue', () => {
     });
   });
   it('should fail whenever the color property is missing on object', () => {
-    const program = parseAliasableShadowValue(
+    const result = parseAliasableShadowValue(
       {
         offsetX: '1px',
         offsetY: '1px',
@@ -290,18 +346,7 @@ describe.concurrent('parseAliasableShadowValue', () => {
     );
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: () => undefined,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         isCritical: false,
@@ -314,7 +359,7 @@ describe.concurrent('parseAliasableShadowValue', () => {
     ]);
   });
   it('should fail whenever the color property is missing on array', () => {
-    const program = parseAliasableShadowValue(
+    const result = parseAliasableShadowValue(
       [
         {
           offsetX: '1px',
@@ -332,18 +377,7 @@ describe.concurrent('parseAliasableShadowValue', () => {
     );
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: () => undefined,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         isCritical: false,

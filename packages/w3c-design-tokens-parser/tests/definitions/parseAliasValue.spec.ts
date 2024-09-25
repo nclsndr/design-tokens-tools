@@ -1,28 +1,21 @@
 import { describe, it, expect } from 'vitest';
-import { Cause, Effect, Exit } from 'effect';
+import { Cause, Effect, Either, Exit, Option } from 'effect';
 
 import { parseAliasValue } from '../../src/parser/alias/parseAliasValue';
 
 describe.concurrent('parseAliasValue', () => {
   it('should parse a valid alias string value', () => {
-    const program = parseAliasValue('{my.alias}', {
+    const result = parseAliasValue('{my.alias}', {
       nodeId: 'abc',
       varName: 'alias',
       valuePath: [],
       path: ['token'],
     });
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (value) => value,
-        onFailure: (error) => {
-          throw error;
-        },
-      }),
-    ).toBe('{my.alias}');
+    expect(Either.getOrThrow(result)).toBe('{my.alias}');
   });
   it('should fail to parse without heading brace', () => {
-    const program = parseAliasValue('my.alias}', {
+    const result = parseAliasValue('my.alias}', {
       nodeId: 'abc',
       varName: 'Value',
       valuePath: [],
@@ -30,18 +23,7 @@ describe.concurrent('parseAliasValue', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (value) => value,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Value',
@@ -55,7 +37,7 @@ describe.concurrent('parseAliasValue', () => {
     ]);
   });
   it('should fail to parse without trailing brace', () => {
-    const program = parseAliasValue('{my.alias', {
+    const result = parseAliasValue('{my.alias', {
       nodeId: 'abc',
       varName: 'Value',
       valuePath: [],
@@ -63,18 +45,7 @@ describe.concurrent('parseAliasValue', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (value) => value,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Value',

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Cause, Effect, Exit } from 'effect';
+import { Cause, Effect, Either, Exit, Option } from 'effect';
 
 import { makeParseObject } from '../../src/parser/utils/parseObject';
 
@@ -10,7 +10,7 @@ describe.concurrent('makeParseObject', () => {
     first: {
       parser: (v, ctx) => {
         if (typeof v !== 'boolean') {
-          return Effect.fail([
+          return Either.left([
             new ValidationError({
               type: 'Type',
               nodeId: ctx.nodeId,
@@ -20,13 +20,13 @@ describe.concurrent('makeParseObject', () => {
             }),
           ]);
         }
-        return Effect.succeed(v);
+        return Either.right(v);
       },
     },
     second: {
       parser: (v, ctx) => {
         if (typeof v !== 'string') {
-          return Effect.fail([
+          return Either.left([
             new ValidationError({
               type: 'Type',
               nodeId: ctx.nodeId,
@@ -36,13 +36,13 @@ describe.concurrent('makeParseObject', () => {
             }),
           ]);
         }
-        return Effect.succeed(v);
+        return Either.right(v);
       },
     },
   });
 
   it('should parse and type an object', () => {
-    const program = validateObjectMock(
+    const eitherResult = validateObjectMock(
       {
         first: true,
         second: 'foo',
@@ -55,18 +55,13 @@ describe.concurrent('makeParseObject', () => {
       },
     );
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (r) => r,
-        onFailure: () => undefined,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(eitherResult)).toStrictEqual({
       first: true,
       second: 'foo',
     });
   });
   it('should fail when the candidate is not an object', () => {
-    const program = validateObjectMock('foo', {
+    const eitherResult = validateObjectMock('foo', {
       varName: 'foo',
       path: ['foo'],
       nodeId: 'abc',
@@ -74,24 +69,22 @@ describe.concurrent('makeParseObject', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: () => undefined,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: 'onEmpty',
-            onFail: (e) => JSON.stringify(e),
-            onDie: () => 'onDie',
-            onInterrupt: () => 'onInterrupt',
-            onSequential: () => 'onSequential',
-            onParallel: () => 'onParallel',
-          }),
-      }),
-    ).toStrictEqual(
-      '[{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["foo"],"valuePath":[],"message":"foo must be an object. Got \\"string\\"."}]',
-    );
+      JSON.parse(
+        JSON.stringify(Option.getOrThrow(Either.getLeft(eitherResult))),
+      ),
+    ).toStrictEqual([
+      {
+        type: 'Type',
+        isCritical: false,
+        nodeId: 'abc',
+        treePath: ['foo'],
+        valuePath: [],
+        message: 'foo must be an object. Got "string".',
+      },
+    ]);
   });
   it('should fail when the candidate misses a mandatory property', () => {
-    const program = validateObjectMock(
+    const eitherResult = validateObjectMock(
       {
         first: 'true',
       },
@@ -104,24 +97,30 @@ describe.concurrent('makeParseObject', () => {
     );
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: () => undefined,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: 'onEmpty',
-            onFail: (e) => JSON.stringify(e),
-            onDie: () => 'onDie',
-            onInterrupt: () => 'onInterrupt',
-            onSequential: () => 'onSequential',
-            onParallel: () => 'onParallel',
-          }),
-      }),
-    ).toStrictEqual(
-      '[{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["foo"],"valuePath":["first"],"message":"foo.first must be a boolean. Got \\"string\\"."},{"type":"Value","isCritical":false,"nodeId":"abc","treePath":["foo"],"valuePath":[],"message":"foo must have a \\"second\\" property."}]',
-    );
+      JSON.parse(
+        JSON.stringify(Option.getOrThrow(Either.getLeft(eitherResult))),
+      ),
+    ).toStrictEqual([
+      {
+        type: 'Type',
+        isCritical: false,
+        nodeId: 'abc',
+        treePath: ['foo'],
+        valuePath: ['first'],
+        message: 'foo.first must be a boolean. Got "string".',
+      },
+      {
+        type: 'Value',
+        isCritical: false,
+        nodeId: 'abc',
+        treePath: ['foo'],
+        valuePath: [],
+        message: 'foo must have a "second" property.',
+      },
+    ]);
   });
   it('should fail when the candidate provides invalid values', () => {
-    const program = validateObjectMock(
+    const eitherResult = validateObjectMock(
       {
         first: 'foo',
         second: 42,
@@ -135,20 +134,26 @@ describe.concurrent('makeParseObject', () => {
     );
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: () => undefined,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: 'onEmpty',
-            onFail: (e) => JSON.stringify(e),
-            onDie: () => 'onDie',
-            onInterrupt: () => 'onInterrupt',
-            onSequential: () => 'onSequential',
-            onParallel: () => 'onParallel',
-          }),
-      }),
-    ).toStrictEqual(
-      '[{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["foo"],"valuePath":["first"],"message":"foo.first must be a boolean. Got \\"string\\"."},{"type":"Type","isCritical":false,"nodeId":"abc","treePath":["foo"],"valuePath":["second"],"message":"foo.second must be a string. Got \\"number\\"."}]',
-    );
+      JSON.parse(
+        JSON.stringify(Option.getOrThrow(Either.getLeft(eitherResult))),
+      ),
+    ).toStrictEqual([
+      {
+        type: 'Type',
+        isCritical: false,
+        nodeId: 'abc',
+        treePath: ['foo'],
+        valuePath: ['first'],
+        message: 'foo.first must be a boolean. Got "string".',
+      },
+      {
+        type: 'Type',
+        isCritical: false,
+        nodeId: 'abc',
+        treePath: ['foo'],
+        valuePath: ['second'],
+        message: 'foo.second must be a string. Got "number".',
+      },
+    ]);
   });
 });

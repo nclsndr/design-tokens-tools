@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Either } from 'effect';
 import { FontFamily } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
@@ -9,7 +9,7 @@ import { withAlias } from '../withAlias.js';
 export function parseRawFontFamilyValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Effect.Effect<AnalyzedValue<FontFamily.RawValue>, ValidationError[]> {
+): Either.Either<AnalyzedValue<FontFamily.RawValue>, ValidationError[]> {
   if (Array.isArray(value)) {
     const types = value.reduce<Set<string>>((acc, v) => {
       if (typeof v !== 'string') {
@@ -18,7 +18,7 @@ export function parseRawFontFamilyValue(
       return acc;
     }, new Set());
     if (types.size > 0) {
-      return Effect.fail([
+      return Either.left([
         new ValidationError({
           type: 'Type',
           nodeId: ctx.nodeId,
@@ -34,7 +34,7 @@ export function parseRawFontFamilyValue(
       ]);
     }
   } else if (typeof value !== 'string') {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -45,7 +45,7 @@ export function parseRawFontFamilyValue(
       }),
     ]);
   }
-  return Effect.succeed({
+  return Either.right({
     raw: value,
     toReferences: [],
   });

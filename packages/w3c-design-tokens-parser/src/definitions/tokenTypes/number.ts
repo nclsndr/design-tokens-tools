@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Either } from 'effect';
 import { Number } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
@@ -9,9 +9,9 @@ import { withAlias } from '../withAlias.js';
 export function parseNumberRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Effect.Effect<AnalyzedValue<Number.RawValue>, ValidationError[]> {
+): Either.Either<AnalyzedValue<Number.RawValue>, ValidationError[]> {
   if (typeof value !== 'number') {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -22,7 +22,7 @@ export function parseNumberRawValue(
       }),
     ]);
   }
-  return Effect.succeed({
+  return Either.right({
     raw: value,
     toReferences: [],
   });

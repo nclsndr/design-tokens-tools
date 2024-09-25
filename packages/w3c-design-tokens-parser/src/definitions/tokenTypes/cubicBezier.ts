@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Either } from 'effect';
 import { CubicBezier } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
@@ -11,9 +11,9 @@ export type CubicBezierRawValue = [number, number, number, number];
 export function parseCubicBezierRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Effect.Effect<AnalyzedValue<CubicBezier.Value>, ValidationError[]> {
+): Either.Either<AnalyzedValue<CubicBezier.Value>, ValidationError[]> {
   if (!Array.isArray(value) || value.length !== 4) {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -56,9 +56,9 @@ export function parseCubicBezierRawValue(
   }
 
   if (errors.length > 0) {
-    return Effect.fail(errors);
+    return Either.left(errors);
   }
-  return Effect.succeed({
+  return Either.right({
     raw: value as CubicBezierRawValue,
     toReferences: [],
   });

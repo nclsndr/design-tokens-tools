@@ -1,4 +1,4 @@
-import { Effect, Either } from 'effect';
+import { Either } from 'effect';
 import {
   Dimension,
   StrokeStyle,
@@ -11,6 +11,7 @@ import { ValidationError } from '../../utils/validationError.js';
 import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
 import { withAlias } from '../withAlias.js';
 import { makeParseObject } from '../../parser/utils/parseObject.js';
+import { mergeEitherItems } from '../../parser/utils/mergeEithers.js';
 
 export const strokeStyleStringValues = [
   'solid',
@@ -31,9 +32,9 @@ export type StrokeStyleLineCapValues =
 export function parseStrokeStyleLineCapValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Effect.Effect<StrokeStyleLineCapValues, ValidationError[]> {
+): Either.Either<StrokeStyleLineCapValues, ValidationError[]> {
   if (typeof value !== 'string') {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -45,7 +46,7 @@ export function parseStrokeStyleLineCapValue(
     ]);
   }
   if (!strokeStyleLineCapValues.includes(value as any)) {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Value',
         nodeId: ctx.nodeId,
@@ -58,18 +59,18 @@ export function parseStrokeStyleLineCapValue(
       }),
     ]);
   }
-  return Effect.succeed(value as StrokeStyleLineCapValues);
+  return Either.right(value as StrokeStyleLineCapValues);
 }
 
 export function parseStrokeStyleDashArrayValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Effect.Effect<
+): Either.Either<
   Array<AnalyzedValue<Dimension.Value> | AnalyzedValue<AliasValue>>,
   Array<ValidationError>
 > {
   if (!Array.isArray(value)) {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -81,41 +82,18 @@ export function parseStrokeStyleDashArrayValue(
     ]);
   }
 
-  const analyzedValueEffects = value.map((v, i) =>
-    parseAliasableDimensionValue(v, {
-      ...ctx,
-      valuePath: (ctx.valuePath ?? []).concat([i]),
-      varName: `${ctx.varName}[${i}]`,
-    }),
-  );
-
-  return Effect.all(analyzedValueEffects, {
-    mode: 'either',
-  }).pipe(
-    Effect.flatMap((analyzedValueEitherItems) => {
-      const errors = analyzedValueEitherItems.reduce<Array<ValidationError>>(
-        (acc, c) => {
-          if (Either.isLeft(c)) {
-            acc.push(...c.left);
-          }
-          return acc;
-        },
-        [],
-      );
-
-      return errors.length > 0
-        ? Effect.fail(errors)
-        : Effect.succeed(
-            analyzedValueEitherItems.reduce<
-              Array<AnalyzedValue<Dimension.Value> | AnalyzedValue<AliasValue>>
-            >((acc, c) => {
-              if (Either.isRight(c)) {
-                acc.push(c.right);
-              }
-              return acc;
-            }, []),
-          );
-    }),
+  return mergeEitherItems(
+    value.map((v, i) =>
+      parseAliasableDimensionValue(v, {
+        ...ctx,
+        valuePath: (ctx.valuePath ?? []).concat([i]),
+        varName: `${ctx.varName}[${i}]`,
+      }),
+    ),
+    [] as Array<AnalyzedValue<Dimension.Value> | AnalyzedValue<AliasValue>>,
+    (a, c) => {
+      a.push(c);
+    },
   );
 }
 
@@ -127,15 +105,15 @@ const parseStrokeObjectValue = makeParseObject({
 export function parseStrokeStyleRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Effect.Effect<AnalyzedValue<StrokeStyle.RawValue>, Array<ValidationError>> {
+): Either.Either<AnalyzedValue<StrokeStyle.RawValue>, Array<ValidationError>> {
   if (typeof value === 'string') {
     if (strokeStyleStringValues.includes(value as any)) {
-      return Effect.succeed({
+      return Either.right({
         raw: value as StrokeStyle.RawValue,
         toReferences: [],
       });
     }
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Value',
         nodeId: ctx.nodeId,
@@ -147,7 +125,7 @@ export function parseStrokeStyleRawValue(
     ]);
   } else if (typeof value === 'object' && value !== null) {
     return parseStrokeObjectValue(value, ctx).pipe(
-      Effect.map((analyzed) => ({
+      Either.map((analyzed) => ({
         raw: {
           dashArray: analyzed.dashArray.map((x) => x.raw),
           lineCap: analyzed.lineCap,
@@ -156,7 +134,7 @@ export function parseStrokeStyleRawValue(
       })),
     );
   }
-  return Effect.fail([
+  return Either.left([
     new ValidationError({
       type: 'Type',
       nodeId: ctx.nodeId,

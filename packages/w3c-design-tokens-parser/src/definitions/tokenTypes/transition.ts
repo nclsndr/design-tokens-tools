@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Either } from 'effect';
 import { Transition } from 'design-tokens-format-module';
 
 import { parseAliasableDurationValue } from './duration.js';
@@ -19,12 +19,12 @@ export const parseAliasableTransitionValue = withAlias(
   (
     value: unknown,
     ctx: AnalyzerContext,
-  ): Effect.Effect<
+  ): Either.Either<
     AnalyzedValue<Transition.RawValue>,
     Array<ValidationError>
   > => {
     return parseTransitionRawValue(value, ctx).pipe(
-      Effect.map((analyzed) => ({
+      Either.map((analyzed) => ({
         raw: {
           duration: analyzed.duration.raw,
           delay: analyzed.delay.raw,

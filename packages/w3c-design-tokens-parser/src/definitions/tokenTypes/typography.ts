@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Either } from 'effect';
 import { Typography } from 'design-tokens-format-module';
 
 import { parseAliasableFontFamilyValue } from './fontFamily.js';
@@ -22,12 +22,12 @@ export const parseAliasableTypographyValue = withAlias(
   (
     value: unknown,
     ctx,
-  ): Effect.Effect<
+  ): Either.Either<
     AnalyzedValue<Typography.RawValue>,
     Array<ValidationError>
   > => {
     return parseTypographyRawValue(value, ctx).pipe(
-      Effect.map((analyzed) => ({
+      Either.map((analyzed) => ({
         raw: {
           fontFamily: analyzed.fontFamily.raw,
           fontSize: analyzed.fontSize.raw,

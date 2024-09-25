@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { Cause, Effect, Exit } from 'effect';
+import { Either, Option } from 'effect';
 
 import { parseAliasableTypographyValue } from '../../../src/definitions/tokenTypes/typography';
 
 describe.concurrent('parseAliasableTypographyValue', () => {
   it('should parse a valid typography value', () => {
-    const program = parseAliasableTypographyValue(
+    const result = parseAliasableTypographyValue(
       {
         fontFamily: 'Arial',
         fontSize: '16px',
@@ -21,12 +21,7 @@ describe.concurrent('parseAliasableTypographyValue', () => {
       },
     );
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: {
         fontFamily: 'Arial',
         fontSize: '16px',
@@ -38,19 +33,14 @@ describe.concurrent('parseAliasableTypographyValue', () => {
     });
   });
   it('should parse a typography value with a top level alias', () => {
-    const program = parseAliasableTypographyValue('{typography.foo}', {
+    const result = parseAliasableTypographyValue('{typography.foo}', {
       nodeId: 'abc',
       varName: 'foo',
       path: ['foo'],
       valuePath: [],
     });
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: '{typography.foo}',
       toReferences: [
         {
@@ -62,7 +52,7 @@ describe.concurrent('parseAliasableTypographyValue', () => {
     });
   });
   it('should parse a typography value with nested aliases', () => {
-    const program = parseAliasableTypographyValue(
+    const result = parseAliasableTypographyValue(
       {
         fontFamily: '{fonts.foo}',
         fontSize: '{fontSize.foo}',
@@ -78,12 +68,7 @@ describe.concurrent('parseAliasableTypographyValue', () => {
       },
     );
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: {
         fontFamily: '{fonts.foo}',
         fontSize: '{fontSize.foo}',
@@ -121,7 +106,7 @@ describe.concurrent('parseAliasableTypographyValue', () => {
     });
   });
   it('should fail when the value is not an object', () => {
-    const program = parseAliasableTypographyValue('foo', {
+    const result = parseAliasableTypographyValue('foo', {
       nodeId: 'abc',
       varName: 'foo',
       path: ['foo'],
@@ -129,18 +114,7 @@ describe.concurrent('parseAliasableTypographyValue', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Type',
@@ -153,7 +127,7 @@ describe.concurrent('parseAliasableTypographyValue', () => {
     ]);
   });
   it('should fail when the object properties are invalid', () => {
-    const program = parseAliasableTypographyValue(
+    const result = parseAliasableTypographyValue(
       {
         fontFamily: true,
         fontSize: false,
@@ -170,18 +144,7 @@ describe.concurrent('parseAliasableTypographyValue', () => {
     );
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Type',

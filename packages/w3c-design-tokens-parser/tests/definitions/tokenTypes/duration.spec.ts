@@ -1,29 +1,24 @@
 import { describe, it, expect } from 'vitest';
-import { Cause, Effect, Exit } from 'effect';
+import { Either, Option } from 'effect';
 
 import { parseAliasableDurationValue } from '../../../src/definitions/tokenTypes/duration';
 
 describe.concurrent('parseAliasableDurationValue', () => {
   it('should parse a valid duration', () => {
-    const program = parseAliasableDurationValue('1ms', {
+    const result = parseAliasableDurationValue('1ms', {
       nodeId: 'abc',
       varName: 'foo',
       path: ['foo'],
       valuePath: [],
     });
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: '1ms',
       toReferences: [],
     });
   });
   it('should fail to parse a duration without unit', () => {
-    const program = parseAliasableDurationValue('1', {
+    const result = parseAliasableDurationValue('1', {
       nodeId: 'abc',
       varName: 'foo',
       path: ['foo'],
@@ -31,18 +26,7 @@ describe.concurrent('parseAliasableDurationValue', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Value',
@@ -55,7 +39,7 @@ describe.concurrent('parseAliasableDurationValue', () => {
     ]);
   });
   it('should fail to parse a duration with "s" unit', () => {
-    const program = parseAliasableDurationValue('1s', {
+    const result = parseAliasableDurationValue('1s', {
       nodeId: 'abc',
       varName: 'foo',
       path: ['foo'],
@@ -63,18 +47,7 @@ describe.concurrent('parseAliasableDurationValue', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Value',
@@ -87,7 +60,7 @@ describe.concurrent('parseAliasableDurationValue', () => {
     ]);
   });
   it('should fail to parse a duration without value', () => {
-    const program = parseAliasableDurationValue('ms', {
+    const result = parseAliasableDurationValue('ms', {
       nodeId: 'abc',
       varName: 'foo',
       path: ['foo'],
@@ -95,18 +68,7 @@ describe.concurrent('parseAliasableDurationValue', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Value',

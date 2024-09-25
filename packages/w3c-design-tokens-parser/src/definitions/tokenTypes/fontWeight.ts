@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Either } from 'effect';
 import { FontWeight } from 'design-tokens-format-module';
 
 import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
@@ -40,9 +40,9 @@ export const fontWeightValues = [
 export function parseFontWeightRawValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Effect.Effect<AnalyzedValue<FontWeight.Value>, ValidationError[]> {
+): Either.Either<AnalyzedValue<FontWeight.Value>, ValidationError[]> {
   if (typeof value !== 'string' && typeof value !== 'number') {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -55,7 +55,7 @@ export function parseFontWeightRawValue(
   }
 
   if (!fontWeightValues.includes(value as any)) {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Value',
         nodeId: ctx.nodeId,
@@ -69,7 +69,7 @@ export function parseFontWeightRawValue(
     ]);
   }
 
-  return Effect.succeed({
+  return Either.right({
     raw: value as FontWeight.RawValue,
     toReferences: [],
   });

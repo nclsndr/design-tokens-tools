@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Either } from 'effect';
 import { AliasValue } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
@@ -7,9 +7,9 @@ import { AnalyzerContext } from '../utils/AnalyzerContext.js';
 export function parseAliasValue(
   value: unknown,
   ctx: AnalyzerContext,
-): Effect.Effect<AliasValue, ValidationError[]> {
+): Either.Either<AliasValue, ValidationError[]> {
   if (typeof value !== 'string') {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Type',
         nodeId: ctx.nodeId,
@@ -20,7 +20,7 @@ export function parseAliasValue(
     ]);
   }
   if (!value.startsWith('{') || !value.endsWith('}')) {
-    return Effect.fail([
+    return Either.left([
       new ValidationError({
         type: 'Value',
         nodeId: ctx.nodeId,
@@ -30,5 +30,5 @@ export function parseAliasValue(
       }),
     ]);
   }
-  return Effect.succeed(value as AliasValue);
+  return Either.right(value as AliasValue);
 }

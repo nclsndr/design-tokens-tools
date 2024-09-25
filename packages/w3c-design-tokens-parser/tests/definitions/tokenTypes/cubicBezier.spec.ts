@@ -1,29 +1,24 @@
 import { describe, it, expect } from 'vitest';
-import { Cause, Effect, Exit } from 'effect';
+import { Either, Option } from 'effect';
 
 import { parseCubicBezierRawValue } from '../../../src/definitions/tokenTypes/cubicBezier';
 
 describe('parseCubicBezierRawValue', () => {
   it('should parse a valid cubic bezier', () => {
-    const program = parseCubicBezierRawValue([0.1, 0.2, 0.3, 0.4], {
+    const result = parseCubicBezierRawValue([0.1, 0.2, 0.3, 0.4], {
       nodeId: 'abc',
       varName: 'foo',
       path: ['foo'],
       valuePath: [],
     });
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: [0.1, 0.2, 0.3, 0.4],
       toReferences: [],
     });
   });
   it('should fail parsing a non-array value', () => {
-    const program = parseCubicBezierRawValue('foo', {
+    const result = parseCubicBezierRawValue('foo', {
       nodeId: 'abc',
       varName: 'foo',
       path: ['foo'],
@@ -31,18 +26,7 @@ describe('parseCubicBezierRawValue', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Type',
@@ -55,7 +39,7 @@ describe('parseCubicBezierRawValue', () => {
     ]);
   });
   it('should fail parsing an array with the wrong length', () => {
-    const program = parseCubicBezierRawValue([1, 2, 3], {
+    const result = parseCubicBezierRawValue([1, 2, 3], {
       nodeId: 'abc',
       varName: 'foo',
       path: ['foo'],
@@ -63,18 +47,7 @@ describe('parseCubicBezierRawValue', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Type',
@@ -87,7 +60,7 @@ describe('parseCubicBezierRawValue', () => {
     ]);
   });
   it('should fail parsing an array with non-number values', () => {
-    const program = parseCubicBezierRawValue(['foo', 2, 0.2, 'qux'], {
+    const result = parseCubicBezierRawValue(['foo', 2, 0.2, 'qux'], {
       nodeId: 'abc',
       varName: 'foo',
       path: ['foo'],
@@ -95,18 +68,7 @@ describe('parseCubicBezierRawValue', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Type',
@@ -127,7 +89,7 @@ describe('parseCubicBezierRawValue', () => {
     ]);
   });
   it('should fail parsing an array with out-of-range X values', () => {
-    const program = parseCubicBezierRawValue([-42, 2, 42, 1.2], {
+    const result = parseCubicBezierRawValue([-42, 2, 42, 1.2], {
       nodeId: 'abc',
       varName: 'foo',
       path: ['foo'],
@@ -135,18 +97,7 @@ describe('parseCubicBezierRawValue', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Value',

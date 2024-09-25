@@ -1,4 +1,4 @@
-import { Effect, Option } from 'effect';
+import { Either, Option } from 'effect';
 import { AliasValue } from 'design-tokens-format-module';
 
 import { AnalyzedValue } from '../parser/token/AnalyzedToken.js';
@@ -12,35 +12,35 @@ export function withAlias<
   R extends AnalyzedValue<I>,
   E extends ValidationError[],
 >(
-  parse: (value: unknown, ctx: AnalyzerContext) => Effect.Effect<R, E>,
+  parse: (value: unknown, ctx: AnalyzerContext) => Either.Either<R, E>,
 ): (
   value: unknown,
   ctx: AnalyzerContext,
-) => Effect.Effect<R | AnalyzedValue<AliasValue>, E | ValidationError[]> {
+) => Either.Either<R | AnalyzedValue<AliasValue>, E | ValidationError[]> {
   return (value: unknown, ctx: AnalyzerContext) => {
     return parseAliasValue(value, ctx).pipe(
-      Effect.map((value) => ({
-        raw: value,
-        toReferences: captureAliasPath(value).pipe(
-          Option.match({
-            onSome: (path) => [
-              {
-                fromTreePath: ctx.path,
-                fromValuePath: ctx.valuePath ?? [],
-                toTreePath: path,
-              },
-            ],
-            onNone: () => [],
+      Either.match({
+        onRight: (value) =>
+          Either.right({
+            raw: value,
+            toReferences: captureAliasPath(value).pipe(
+              Option.match({
+                onSome: (path) => [
+                  {
+                    fromTreePath: ctx.path,
+                    fromValuePath: ctx.valuePath ?? [],
+                    toTreePath: path,
+                  },
+                ],
+                onNone: () => [],
+              }),
+            ),
           }),
-        ),
-      })),
-      Effect.catchAll((aliasErrors) =>
-        parse(value, ctx).pipe(
-          Effect.mapError((parserErrors) =>
+        onLeft: (aliasErrors) =>
+          Either.mapLeft(parse(value, ctx), (parserErrors) =>
             parserErrors.length > 0 ? parserErrors : aliasErrors,
           ),
-        ),
-      ),
+      }),
     );
   };
 }

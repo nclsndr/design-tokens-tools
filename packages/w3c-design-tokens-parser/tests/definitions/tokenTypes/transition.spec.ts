@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { Cause, Effect, Exit } from 'effect';
+import { Either, Option } from 'effect';
 
 import { parseAliasableTransitionValue } from '../../../src/definitions/tokenTypes/transition';
 
 describe.concurrent('parseAliasableTransitionValue', () => {
   it('should parse a raw transition value', () => {
-    const program = parseAliasableTransitionValue(
+    const result = parseAliasableTransitionValue(
       {
         duration: '100ms',
         delay: '0ms',
@@ -19,12 +19,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
       },
     );
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: {
         duration: '100ms',
         delay: '0ms',
@@ -34,22 +29,14 @@ describe.concurrent('parseAliasableTransitionValue', () => {
     });
   });
   it('should parse a transition value with a top level alias', () => {
-    const program = parseAliasableTransitionValue(
-      '{transitions.b-transition}',
-      {
-        nodeId: 'abc',
-        varName: 'transitions.a-transition',
-        path: ['transitions', 'a-transition'],
-        valuePath: [],
-      },
-    );
+    const result = parseAliasableTransitionValue('{transitions.b-transition}', {
+      nodeId: 'abc',
+      varName: 'transitions.a-transition',
+      path: ['transitions', 'a-transition'],
+      valuePath: [],
+    });
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: '{transitions.b-transition}',
       toReferences: [
         {
@@ -61,7 +48,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
     });
   });
   it('should parse a transition value with nested aliases', () => {
-    const program = parseAliasableTransitionValue(
+    const result = parseAliasableTransitionValue(
       {
         duration: '{duration.fast}',
         delay: '{duration.none}',
@@ -75,12 +62,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
       },
     );
 
-    expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (error) => error,
-      }),
-    ).toStrictEqual({
+    expect(Either.getOrThrow(result)).toStrictEqual({
       raw: {
         duration: '{duration.fast}',
         delay: '{duration.none}',
@@ -106,7 +88,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
     });
   });
   it('should fail when the value is not an object', () => {
-    const program = parseAliasableTransitionValue('foo', {
+    const result = parseAliasableTransitionValue('foo', {
       nodeId: 'abc',
       varName: 'transitions.a-transition',
       path: ['transitions', 'a-transition'],
@@ -114,18 +96,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
     });
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Type',
@@ -138,7 +109,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
     ]);
   });
   it('should fail when the duration property is missing', () => {
-    const program = parseAliasableTransitionValue(
+    const result = parseAliasableTransitionValue(
       {
         delay: '0ms',
         timingFunction: [0, 0, 1, 1],
@@ -152,18 +123,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
     );
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Value',
@@ -176,7 +136,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
     ]);
   });
   it('should fail when the delay property is missing', () => {
-    const program = parseAliasableTransitionValue(
+    const result = parseAliasableTransitionValue(
       {
         duration: '100ms',
         timingFunction: [0, 0, 1, 1],
@@ -190,18 +150,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
     );
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Value',
@@ -214,7 +163,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
     ]);
   });
   it('should fail when the timingFunction property is missing', () => {
-    const program = parseAliasableTransitionValue(
+    const result = parseAliasableTransitionValue(
       {
         duration: '100ms',
         delay: '0ms',
@@ -228,18 +177,7 @@ describe.concurrent('parseAliasableTransitionValue', () => {
     );
 
     expect(
-      Exit.match(Effect.runSyncExit(program), {
-        onSuccess: (result) => result,
-        onFailure: (cause) =>
-          Cause.match(cause, {
-            onEmpty: undefined,
-            onFail: (errors) => JSON.parse(JSON.stringify(errors)),
-            onDie: () => undefined,
-            onInterrupt: () => undefined,
-            onSequential: () => undefined,
-            onParallel: () => undefined,
-          }),
-      }),
+      JSON.parse(JSON.stringify(Option.getOrThrow(Either.getLeft(result)))),
     ).toStrictEqual([
       {
         type: 'Value',
