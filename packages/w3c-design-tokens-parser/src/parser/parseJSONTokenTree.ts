@@ -1,9 +1,9 @@
 import { Either } from 'effect';
 import {
-  matchIsToken,
-  matchIsGroup,
   ALIAS_PATH_SEPARATOR,
   JSON as JSONTypes,
+  matchIsGroup,
+  matchIsToken,
 } from 'design-tokens-format-module';
 
 import { traverseJSONValue } from '../utils/traverseJSONValue.js';
@@ -15,11 +15,7 @@ import { AnalyzedGroup } from './group/AnalyzedGroup.js';
 import { parseTreeNode } from './tree/parseTreeNode.js';
 import { makeUniqueId } from '../utils/uniqueId.js';
 import { AnalyzerContext } from './utils/AnalyzerContext.js';
-
-function endsWith(arr: Array<string | number>, end: string | number): boolean {
-  if (arr.length === 0) return false;
-  return arr[arr.length - 1] === end;
-}
+import { arrayEndsWith } from '../utils/arrayEndsWith.js';
 
 function parseRawInput(
   input: unknown,
@@ -68,8 +64,8 @@ export const parseJSONTokenTree: (input: unknown) => Either.Either<
 
       traverseJSONValue(jsonTokenTree, (value, rawPath) => {
         if (
-          endsWith(rawPath, '$description') ||
-          endsWith(rawPath, '$extensions')
+          arrayEndsWith(rawPath, '$description') ||
+          arrayEndsWith(rawPath, '$extensions')
         ) {
           return false;
         }
