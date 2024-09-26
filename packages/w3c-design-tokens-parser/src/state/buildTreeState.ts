@@ -5,22 +5,19 @@ import { TokenState } from './TokenState.js';
 import { TreeState } from './TreeState.js';
 import { GroupState } from './GroupState.js';
 import { Reference } from './Reference.js';
-import { captureAnalyzedTokensReferenceErrors } from '../parser/token/captureAnalyzedTokensReferenceErrors.js';
 
 export function buildTreeState(value: unknown) {
   const treeState = new TreeState();
   return Either.match(parseJSONTokenTree(value), {
     onRight: ({ analyzedTokens, analyzedGroups, tokenErrors, groupErrors }) => {
-      if (tokenErrors.length > 0 || groupErrors.length > 0) {
+      if (tokenErrors.length > 0) {
         treeState.validationErrors.add(...tokenErrors);
       }
+      if (groupErrors.length > 0) {
+        treeState.validationErrors.add(...groupErrors);
+      }
 
-      const { referenceErrors, referenceErrorsFreeAnalyzedTokens } =
-        captureAnalyzedTokensReferenceErrors(analyzedTokens);
-
-      treeState.validationErrors.add(...referenceErrors);
-
-      for (const analyzedToken of referenceErrorsFreeAnalyzedTokens) {
+      for (const analyzedToken of analyzedTokens) {
         const tokenState = new TokenState(
           analyzedToken.id,
           analyzedToken.path,
