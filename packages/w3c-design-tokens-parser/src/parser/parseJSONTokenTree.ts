@@ -16,6 +16,7 @@ import { parseTreeNode } from './tree/parseTreeNode.js';
 import { makeUniqueId } from '../utils/uniqueId.js';
 import { AnalyzerContext } from './utils/AnalyzerContext.js';
 import { arrayEndsWith } from '../utils/arrayEndsWith.js';
+import { captureAnalyzedTokensReferenceErrors } from './token/captureAnalyzedTokensReferenceErrors.js';
 
 function parseRawInput(
   input: unknown,
@@ -132,11 +133,14 @@ export const parseJSONTokenTree: (input: unknown) => Either.Either<
         },
       );
 
+      const { referenceErrors, referenceErrorsFreeAnalyzedTokens } =
+        captureAnalyzedTokensReferenceErrors(tokenResults.analyzedTokens);
+
       return Either.right({
         tokenTree: jsonTokenTree,
-        analyzedTokens: tokenResults.analyzedTokens,
+        analyzedTokens: referenceErrorsFreeAnalyzedTokens,
         analyzedGroups: groupResults.analyzedGroups,
-        tokenErrors: tokenResults.tokenErrors,
+        tokenErrors: [...tokenResults.tokenErrors, ...referenceErrors],
         groupErrors: groupResults.groupErrors,
       });
     },
