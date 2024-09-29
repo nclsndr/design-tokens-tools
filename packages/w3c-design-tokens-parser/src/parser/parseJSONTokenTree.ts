@@ -12,32 +12,10 @@ import { ValidationError } from '../utils/validationError.js';
 import { parseRawGroup } from './group/parseRawGroup.js';
 import { AnalyzedToken } from './token/AnalyzedToken.js';
 import { AnalyzedGroup } from './group/AnalyzedGroup.js';
-import { parseTreeNode } from './tree/parseTreeNode.js';
 import { makeUniqueId } from '../utils/uniqueId.js';
-import { AnalyzerContext } from './utils/AnalyzerContext.js';
 import { arrayEndsWith } from '../utils/arrayEndsWith.js';
 import { captureAnalyzedTokensReferenceErrors } from './token/captureAnalyzedTokensReferenceErrors.js';
-
-function parseRawInput(
-  input: unknown,
-  ctx: AnalyzerContext,
-): Either.Either<JSONTypes.Object, Array<ValidationError>> {
-  if (typeof input === 'string') {
-    try {
-      return Either.right(JSON.parse(input) as JSONTypes.Object);
-    } catch (error) {
-      return Either.left([
-        new ValidationError({
-          nodeId: '',
-          type: 'Computation',
-          message: 'Failed to parse JSON string',
-          treePath: [],
-        }),
-      ]);
-    }
-  }
-  return parseTreeNode(input, ctx);
-}
+import { parseRawInput } from './utils/parseRawInput.js';
 
 export const parseJSONTokenTree: (input: unknown) => Either.Either<
   {
