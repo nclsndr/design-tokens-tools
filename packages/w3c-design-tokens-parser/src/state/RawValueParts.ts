@@ -1,5 +1,5 @@
 import { Option } from 'effect';
-import { type JSON } from 'design-tokens-format-module';
+import { type Json } from 'design-tokens-format-module';
 
 import { RawValuePart } from './RawValuePart.js';
 
@@ -18,7 +18,7 @@ export class RawValueParts {
     return this.#nodes.size;
   }
 
-  get(path: JSON.ValuePath): Option.Option<RawValuePart> {
+  get(path: Json.ValuePath): Option.Option<RawValuePart> {
     const found = Array.from(this.#nodes).find((node) =>
       node.path.equals(path),
     );

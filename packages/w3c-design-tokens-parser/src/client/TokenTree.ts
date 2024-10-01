@@ -1,5 +1,5 @@
 import {
-  type JSON,
+  type Json,
   JSONTokenTree,
   TokenTypeName,
 } from 'design-tokens-format-module';
@@ -62,7 +62,7 @@ export class TokenTree {
    * Get a token by its path
    * @param path
    */
-  getToken(path: JSON.ValuePath) {
+  getToken(path: Json.ValuePath) {
     return Option.match(this.#treeState.getTokenByPath(path), {
       onSome: (tokenState) => new Token(tokenState),
       onNone: () => undefined,
@@ -76,7 +76,7 @@ export class TokenTree {
    */
   getTokenOfType<T extends TokenTypeName>(
     type: T,
-    path: JSON.ValuePath,
+    path: Json.ValuePath,
   ): Token<T> | undefined {
     return Option.match(this.#treeState.getTokenOfTypeByPath(type, path), {
       onSome: (tokenState) =>
@@ -117,7 +117,7 @@ export class TokenTree {
    * Get a group by its path
    * @param path
    */
-  getGroup(path: JSON.ValuePath) {
+  getGroup(path: Json.ValuePath) {
     return Option.match(this.#treeState.groupStates.getOneByPath(path), {
       onSome: (groupState) => new Group(groupState),
       onNone: () => undefined,

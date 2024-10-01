@@ -1,5 +1,5 @@
 import { Option } from 'effect';
-import { type JSON, TokenTypeName } from 'design-tokens-format-module';
+import { type Json, TokenTypeName } from 'design-tokens-format-module';
 
 import { JSONPath } from '../utils/JSONPath.js';
 import { TreeState } from './TreeState.js';
@@ -15,9 +15,9 @@ export class Reference {
 
   constructor(
     fromId: string,
-    fromValuePath: JSON.ValuePath,
+    fromValuePath: Json.ValuePath,
     toId: string | undefined,
-    toTreePathFallback: JSON.ValuePath | undefined,
+    toTreePathFallback: Json.ValuePath | undefined,
     toType: TokenTypeName | undefined,
     treeState: TreeState,
   ) {

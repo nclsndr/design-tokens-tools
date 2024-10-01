@@ -93,8 +93,8 @@ importers:
   packages/w3c-design-tokens-parser:
     dependencies:
       design-tokens-format-module:
-        specifier: ^0.9.10
-        version: 0.9.10
+        specifier: ^0.10.1
+        version: 0.10.1
       effect:
         specifier: ^3.8.3
         version: 3.8.3
@@ -1713,8 +1713,8 @@ packages:
   des.js@1.1.0:
     resolution: {integrity: sha512-r17GxjhUCjSRy8aiJpr8/UadFIzMzJGexI3Nmz4ADi9LYSFx4gTBp80+NaX/YsXWWLhpZ7v/v/ubEc/bCNfKwg==}
 
-  design-tokens-format-module@0.9.10:
-    resolution: {integrity: sha512-VejNFGreIiDVlMevrec2X9gYF3P1BpvpDH/+jVkNPcwwdhqXsjUXG6qPVzFIi/mIvVJl/NapGgl7SCt9VtOb+Q==}
+  design-tokens-format-module@0.10.1:
+    resolution: {integrity: sha512-Z3U4qmukYHSWttFun/LjeFqz2egLBg2ku8sPTHPDO/0up6OcA3Rht1Py4QnfahH8aj4NGIcwr2ceIQtvx62bgA==}
 
   detect-node-es@1.1.0:
     resolution: {integrity: sha512-ypdmJU/TbBby2Dxibuv7ZLW3Bs1QEmM7nHjEANfohJLvE0XVujisn1qPJcZxg+qDucsr+bP6fLD1rPS3AhJ7EQ==}
@@ -4940,7 +4940,7 @@ snapshots:
       inherits: 2.0.4
       minimalistic-assert: 1.0.1
 
-  design-tokens-format-module@0.9.10: {}
+  design-tokens-format-module@0.10.1: {}
 
   detect-node-es@1.1.0: {}
 

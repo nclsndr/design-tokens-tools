@@ -1,5 +1,5 @@
 import { Either } from 'effect';
-import { type JSON } from 'design-tokens-format-module';
+import { type Json } from 'design-tokens-format-module';
 
 import { ValidationError } from '../../utils/validationError.js';
 import { parseTreeNodeExtensions } from '../tree/parseTreeNodeExtensions.js';
@@ -10,9 +10,9 @@ import { parseTreeNodeDescription } from '../tree/parseTreeNodeDescription.js';
 import { getTokenValueParser } from '../../definitions/getTokenValueParser.js';
 
 export function parseRawToken(
-  rawJsonToken: JSON.Object,
+  rawJsonToken: Json.Object,
   ctx: {
-    jsonTokenTree: JSON.Object;
+    jsonTokenTree: Json.Object;
   } & AnalyzerContext,
 ): Either.Either<AnalyzedToken, Array<ValidationError>> {
   const {

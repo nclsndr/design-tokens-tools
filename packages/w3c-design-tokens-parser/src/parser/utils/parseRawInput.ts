@@ -1,6 +1,6 @@
 import { AnalyzerContext } from './AnalyzerContext.js';
 import { Either } from 'effect';
-import { JSON as JSONTypes } from 'design-tokens-format-module';
+import { Json as JSONTypes } from 'design-tokens-format-module';
 import { ValidationError } from '../../utils/validationError.js';
 import { parseTreeNode } from '../tree/parseTreeNode.js';
 

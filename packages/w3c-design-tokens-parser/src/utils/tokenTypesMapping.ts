@@ -1,5 +1,5 @@
 import { Either } from 'effect';
-import { type JSON } from 'design-tokens-format-module';
+import { type Json } from 'design-tokens-format-module';
 
 type TokenTypeMapping = {
   _tokenType: string;
@@ -101,10 +101,10 @@ export type MatchTokenTypeAgainstMappingResult = Either.Either<
 export function matchTypeAgainstMapping(
   input: unknown,
   mapping: TokenTypesMapping,
-  treePath: JSON.ValuePath,
-  valuePath: JSON.ValuePath,
+  treePath: Json.ValuePath,
+  valuePath: Json.ValuePath,
   getDiscriminatorValue: (
-    discriminatorKeyPath: JSON.ValuePath,
+    discriminatorKeyPath: Json.ValuePath,
   ) => string | undefined = () => undefined,
   initialMapping: TokenTypesMapping = mapping,
 ): MatchTokenTypeAgainstMappingResult {

@@ -1,7 +1,7 @@
 import { Either } from 'effect';
 import {
   ALIAS_PATH_SEPARATOR,
-  JSON as JSONTypes,
+  Json as JSONTypes,
   matchIsGroup,
   matchIsToken,
 } from 'design-tokens-format-module';

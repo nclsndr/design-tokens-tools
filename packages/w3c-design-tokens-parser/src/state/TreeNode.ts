@@ -1,16 +1,16 @@
-import { ALIAS_PATH_SEPARATOR, type JSON } from 'design-tokens-format-module';
+import { ALIAS_PATH_SEPARATOR, type Json } from 'design-tokens-format-module';
 import { JSONPath } from '../utils/JSONPath.js';
 
 export class TreeNode {
   #id: string;
-  #arrayPath: JSON.ValuePath;
+  #arrayPath: Json.ValuePath;
   #stringPath: string;
   #description: string | undefined;
   #extensions: Record<string, any> | undefined;
 
   constructor(
     id: string,
-    path: JSON.ValuePath,
+    path: Json.ValuePath,
     description?: string,
     extensions?: Record<string, any>,
   ) {
@@ -25,7 +25,7 @@ export class TreeNode {
   get id() {
     return this.#id;
   }
-  get path(): JSON.ValuePath {
+  get path(): Json.ValuePath {
     return this.#arrayPath;
   }
   get name() {
@@ -45,11 +45,11 @@ export class TreeNode {
     return this.#arrayPath.length === 0;
   }
 
-  matchPath(path: JSON.ValuePath) {
+  matchPath(path: Json.ValuePath) {
     return this.#stringPath === path.join(ALIAS_PATH_SEPARATOR);
   }
 
-  equalsPath(path: JSON.ValuePath) {
+  equalsPath(path: Json.ValuePath) {
     return this.#stringPath === path.join(ALIAS_PATH_SEPARATOR);
   }
 

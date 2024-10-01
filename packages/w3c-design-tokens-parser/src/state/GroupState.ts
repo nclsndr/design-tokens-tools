@@ -1,6 +1,6 @@
 import { TreeNode } from './TreeNode.js';
 import {
-  type JSON,
+  type Json,
   TokenTypeName,
   GroupProperties,
 } from 'design-tokens-format-module';
@@ -12,7 +12,7 @@ export class GroupState extends TreeNode {
 
   constructor(
     id: string,
-    path: JSON.ValuePath,
+    path: Json.ValuePath,
     tokenType: TokenTypeName | undefined,
     description: string | undefined,
     extensions: Record<string, any> | undefined,

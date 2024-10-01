@@ -2,7 +2,7 @@ import { Option } from 'effect';
 import type {
   DesignToken,
   TokenTypeName,
-  JSON as JSONTypes,
+  Json as JSONTypes,
 } from 'design-tokens-format-module';
 
 import type { TreeState } from './TreeState.js';

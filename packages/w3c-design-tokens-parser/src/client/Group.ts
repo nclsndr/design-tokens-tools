@@ -1,4 +1,4 @@
-import { type JSON, TokenTypeName } from 'design-tokens-format-module';
+import { type Json, TokenTypeName } from 'design-tokens-format-module';
 
 import { GroupState } from '../state/GroupState.js';
 
@@ -12,7 +12,7 @@ export class Group {
   /**
    * The group path in the tree
    */
-  get path(): JSON.ValuePath {
+  get path(): Json.ValuePath {
     return this.#state.path;
   }
 
@@ -48,7 +48,7 @@ export class Group {
    * The group main data
    */
   get summary(): {
-    path: JSON.ValuePath;
+    path: Json.ValuePath;
     type: TokenTypeName | undefined;
     description: string | undefined;
     extensions: Record<string, any> | undefined;

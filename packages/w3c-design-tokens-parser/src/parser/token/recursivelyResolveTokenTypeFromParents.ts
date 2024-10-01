@@ -1,7 +1,7 @@
 import { Either } from 'effect';
 import {
   TokenTypeName,
-  type JSON,
+  type Json,
   tokenTypeNames,
   matchIsTokenTypeName,
   ALIAS_PATH_SEPARATOR,
@@ -11,13 +11,13 @@ import { ValidationError } from '../../utils/validationError.js';
 import { getJSONValue } from '../../utils/getJSONValue.js';
 
 export function recursivelyResolveTokenTypeFromParents(
-  tokenTree: JSON.Object,
-  path: JSON.ValuePath,
-  originalPath: JSON.ValuePath = path,
+  tokenTree: Json.Object,
+  path: Json.ValuePath,
+  originalPath: Json.ValuePath = path,
 ): Either.Either<
   {
     resolvedType: TokenTypeName;
-    paths: Array<JSON.ValuePath>;
+    paths: Array<Json.ValuePath>;
   },
   Array<ValidationError>
 > {

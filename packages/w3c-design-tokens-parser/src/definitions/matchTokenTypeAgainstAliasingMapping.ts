@@ -1,5 +1,5 @@
 import {
-  JSON,
+  type Json,
   TokenTypeName,
   tokenTypeNamesMapping,
   strokeStyleLineCapValues,
@@ -140,8 +140,8 @@ export const tokenTypesAliasingMapping: Record<
 export function matchTokenTypeAgainstAliasingMapping(
   type: TokenTypeName,
   input: unknown,
-  treePath: JSON.ValuePath,
-  valuePath: JSON.ValuePath,
+  treePath: Json.ValuePath,
+  valuePath: Json.ValuePath,
 ) {
   return matchTypeAgainstMapping(
     input,
