@@ -14,4 +14,8 @@ export class ValidationErrorsSet {
   add(...errors: Array<ValidationError>) {
     this.#errors.push(...errors);
   }
+
+  toString() {
+    return this.#errors.map((error) => error.toString()).join('\n');
+  }
 }

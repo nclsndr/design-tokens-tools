@@ -10,7 +10,7 @@ export function parseRawInput(
 ): Either.Either<JSONTypes.Object, Array<ValidationError>> {
   if (typeof input === 'string') {
     try {
-      return Either.right(JSON.parse(input) as JSONTypes.Object);
+      return parseTreeNode(JSON.parse(input), ctx);
     } catch (error) {
       return Either.left([
         new ValidationError({
