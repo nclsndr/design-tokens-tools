@@ -1,9 +1,9 @@
-import { type JSON } from 'design-tokens-format-module';
+import { type Json } from 'design-tokens-format-module';
 
 export function getJSONValue(
-  object: JSON.Array | JSON.Object,
-  path: JSON.ValuePath,
-): JSON.Value | undefined {
+  object: Json.Array | Json.Object,
+  path: Json.ValuePath,
+): Json.Value | undefined {
   for (let p = 0; p < path.length; p++) {
     try {
       // @ts-expect-error

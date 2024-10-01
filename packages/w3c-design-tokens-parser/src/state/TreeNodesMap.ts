@@ -1,5 +1,5 @@
 import { Option } from 'effect';
-import { type JSON } from 'design-tokens-format-module';
+import { type Json } from 'design-tokens-format-module';
 
 import { TreeNode } from './TreeNode.js';
 import { JSONPath } from '../utils/JSONPath.js';
@@ -38,7 +38,7 @@ export class TreeNodesMap<T extends TreeNode> {
    * Use `getOneById` for better performance
    * @param path
    */
-  getOneByPath(path: JSON.ValuePath | JSONPath | string): Option.Option<T> {
+  getOneByPath(path: Json.ValuePath | JSONPath | string): Option.Option<T> {
     for (const [id, node] of this.#nodes) {
       if (path instanceof JSONPath) {
         if (node.equalsJSONPath(path)) {
@@ -61,7 +61,7 @@ export class TreeNodesMap<T extends TreeNode> {
    *
    * @param path
    */
-  hasOneByPath(path: JSON.ValuePath | JSONPath | string): boolean {
+  hasOneByPath(path: Json.ValuePath | JSONPath | string): boolean {
     for (const [id, node] of this.#nodes) {
       if (path instanceof JSONPath) {
         if (node.equalsJSONPath(path)) {

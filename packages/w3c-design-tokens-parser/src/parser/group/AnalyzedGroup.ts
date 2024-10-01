@@ -1,8 +1,8 @@
-import { type JSON, TokenTypeName } from 'design-tokens-format-module';
+import { type Json, TokenTypeName } from 'design-tokens-format-module';
 
 export type AnalyzedGroup = {
   id: string;
-  path: JSON.ValuePath;
+  path: Json.ValuePath;
   childrenCount: number;
   tokenType: TokenTypeName | undefined;
   description: string | undefined;

@@ -1,5 +1,5 @@
 import {
-  type JSON,
+  type Json,
   ALIAS_PATH_SEPARATOR,
   AliasValue,
 } from 'design-tokens-format-module';
@@ -8,20 +8,20 @@ import {
  * A path is a sequence of strings and numbers that represent a path to a value in a JSON object.
  */
 export class JSONPath {
-  #array: JSON.ValuePath;
+  #array: Json.ValuePath;
   #string: string;
   #isRoot = false;
-  constructor(path: JSON.ValuePath) {
+  constructor(path: Json.ValuePath) {
     this.#array = path;
     this.#string = path.join(ALIAS_PATH_SEPARATOR);
     this.#isRoot = path.length === 0;
   }
 
-  static fromJSONValuePath(path: JSON.ValuePath) {
+  static fromJSONValuePath(path: Json.ValuePath) {
     return new JSONPath(path);
   }
 
-  get array(): JSON.ValuePath {
+  get array(): Json.ValuePath {
     return this.#array;
   }
   get string() {
@@ -45,7 +45,7 @@ export class JSONPath {
   get tail() {
     return JSONPath.fromJSONValuePath(this.#array.slice(1));
   }
-  // set value(path: JSON.ValuePath) {
+  // set value(path: Json.ValuePath) {
   //   this.#array = path;
   //   this.#string = path.join('__');
   //   this.#isRoot = path.length === 0;
@@ -59,7 +59,7 @@ export class JSONPath {
     return this.#array.join(separator);
   }
 
-  equals(path: JSON.ValuePath) {
+  equals(path: Json.ValuePath) {
     return this.#string === path.join(ALIAS_PATH_SEPARATOR);
   }
 
@@ -75,7 +75,7 @@ export class JSONPath {
     return new JSONPath([...this.#array, ...values]);
   }
 
-  concat(...paths: Array<JSON.ValuePath>) {
+  concat(...paths: Array<Json.ValuePath>) {
     return new JSONPath([...this.#array, ...paths.flat()]);
   }
 
@@ -90,7 +90,7 @@ export class JSONPath {
     });
   }
   toJSON(): {
-    array: JSON.ValuePath;
+    array: Json.ValuePath;
     string: string;
   } {
     return {

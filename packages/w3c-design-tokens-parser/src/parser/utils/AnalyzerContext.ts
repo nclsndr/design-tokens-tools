@@ -1,9 +1,9 @@
-import { type JSON } from 'design-tokens-format-module';
+import { type Json } from 'design-tokens-format-module';
 
 export type AnalyzerContext = {
   varName: string;
   nodeId: string;
-  path: JSON.ValuePath;
-  valuePath?: JSON.ValuePath | undefined;
+  path: Json.ValuePath;
+  valuePath?: Json.ValuePath | undefined;
   nodeKey?: '$type' | '$value' | '$description' | '$extensions';
 };

@@ -1,6 +1,6 @@
 import { Either, Option } from 'effect';
 import {
-  type JSON,
+  type Json,
   ALIAS_PATH_SEPARATOR,
   matchIsToken,
 } from 'design-tokens-format-module';
@@ -15,13 +15,13 @@ import { parseTokenTypeName } from '../../definitions/parseTokenTypeName.js';
 export type ResolutionType = 'explicit' | 'alias' | 'parent';
 
 export function recursivelyResolveTokenType(
-  jsonTokenTree: JSON.Object,
-  path: JSON.ValuePath,
+  jsonTokenTree: Json.Object,
+  path: Json.ValuePath,
 ): Either.Either<
   {
     resolution: ResolutionType;
     resolvedType: TokenTypeName;
-    paths: Array<JSON.ValuePath>;
+    paths: Array<Json.ValuePath>;
   },
   Array<ValidationError>
 > {

@@ -1,11 +1,11 @@
 import { JSONPath } from '../utils/JSONPath.js';
-import { type JSON } from 'design-tokens-format-module';
+import { type Json } from 'design-tokens-format-module';
 
-export class RawValuePart<Value extends JSON.Primitive = JSON.Primitive> {
+export class RawValuePart<Value extends Json.Primitive = Json.Primitive> {
   #path: JSONPath;
   #value: Value;
 
-  constructor(path: JSON.ValuePath, value: Value) {
+  constructor(path: Json.ValuePath, value: Value) {
     this.#path = JSONPath.fromJSONValuePath(path);
     this.#value = value;
   }

@@ -1,5 +1,5 @@
 import {
-  type JSON,
+  type Json,
   TokenTypeName,
   ALIAS_PATH_SEPARATOR,
 } from 'design-tokens-format-module';
@@ -8,9 +8,9 @@ import { ResolutionType } from './recursivelyResolveTokenType.js';
 export type AnalyzedValue<Raw = unknown> = {
   raw: Raw;
   toReferences: Array<{
-    fromTreePath: JSON.ValuePath;
-    fromValuePath: JSON.ValuePath;
-    toTreePath: JSON.ValuePath;
+    fromTreePath: Json.ValuePath;
+    fromValuePath: Json.ValuePath;
+    toTreePath: Json.ValuePath;
   }>;
 };
 
@@ -19,7 +19,7 @@ export class AnalyzedToken<
   Value = unknown,
 > {
   readonly #id: string;
-  readonly #path: JSON.ValuePath;
+  readonly #path: Json.ValuePath;
   readonly #stringPath: string;
   readonly #typeResolution: ResolutionType;
   readonly #type: Type;
@@ -29,7 +29,7 @@ export class AnalyzedToken<
 
   constructor(
     id: string,
-    path: JSON.ValuePath,
+    path: Json.ValuePath,
     type: Type,
     value: AnalyzedValue<Value>,
     typeResolution: ResolutionType,
@@ -49,7 +49,7 @@ export class AnalyzedToken<
   get id() {
     return this.#id;
   }
-  get path(): JSON.ValuePath {
+  get path(): Json.ValuePath {
     return this.#path;
   }
   get stringPath() {
@@ -71,7 +71,7 @@ export class AnalyzedToken<
     return this.#extensions;
   }
 
-  matchPath(path: JSON.ValuePath) {
+  matchPath(path: Json.ValuePath) {
     return this.#stringPath === path.join(ALIAS_PATH_SEPARATOR);
   }
 

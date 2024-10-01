@@ -1,7 +1,7 @@
 import { Either, Option } from 'effect';
 import {
   ALIAS_PATH_SEPARATOR,
-  JSON,
+  type Json,
   TokenTypeName,
 } from 'design-tokens-format-module';
 
@@ -15,9 +15,9 @@ type SyntheticRef = {
   tokenType: TokenTypeName;
   fromTreeStringPath: string;
   toTreeStringPath: string;
-  fromTreePath: JSON.ValuePath;
-  fromValuePath: JSON.ValuePath;
-  toTreePath: JSON.ValuePath;
+  fromTreePath: Json.ValuePath;
+  fromValuePath: Json.ValuePath;
+  toTreePath: Json.ValuePath;
 };
 
 export function captureAnalyzedTokensReferenceErrors(

@@ -1,9 +1,9 @@
 import { Option } from 'effect';
-import { ALIAS_PATH_SEPARATOR, type JSON } from 'design-tokens-format-module';
+import { ALIAS_PATH_SEPARATOR, type Json } from 'design-tokens-format-module';
 
 export function captureAliasPath(
   value: unknown,
-): Option.Option<JSON.ValuePath> {
+): Option.Option<Json.ValuePath> {
   if (typeof value !== 'string') {
     return Option.none();
   }

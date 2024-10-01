@@ -1,7 +1,7 @@
 import {
   AliasValue,
   DesignToken,
-  type JSON,
+  type Json,
   TokenTypeName,
 } from 'design-tokens-format-module';
 import { Option } from 'effect';
@@ -29,7 +29,7 @@ export type SwapValueSignature<
       }>
     : Value extends Array<infer A>
       ? ArrayValue<Array<ValueMapper<SwapValueSignature<`${Key}.0`, A>>>>
-      : Value extends JSON.Primitive
+      : Value extends Json.Primitive
         ? ScalarValue<Value>
         : never;
 
@@ -186,7 +186,7 @@ ${indentLines(2, content)}
  * Represents the scalar token values
  */
 export class ScalarValue<
-  Value extends JSON.Primitive = JSON.Primitive,
+  Value extends Json.Primitive = Json.Primitive,
 > extends BaseValue {
   #value: Value;
 

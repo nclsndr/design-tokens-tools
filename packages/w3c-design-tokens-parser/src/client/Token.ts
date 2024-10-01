@@ -1,6 +1,6 @@
 import {
   DesignToken,
-  type JSON,
+  type Json,
   type TokenTypeName,
   type PickTokenByType,
 } from 'design-tokens-format-module';
@@ -18,7 +18,7 @@ export class Token<Type extends TokenTypeName = TokenTypeName> {
   /**
    * The token path in the tree
    */
-  get path(): JSON.ValuePath {
+  get path(): Json.ValuePath {
     return this.#state.path;
   }
 
@@ -58,7 +58,7 @@ export class Token<Type extends TokenTypeName = TokenTypeName> {
    * The token main data
    */
   get summary(): {
-    path: JSON.ValuePath;
+    path: Json.ValuePath;
     type: TokenTypeName;
     description: string | undefined;
     extensions: Record<string, any> | undefined;

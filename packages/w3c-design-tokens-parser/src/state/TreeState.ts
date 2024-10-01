@@ -1,5 +1,5 @@
 import {
-  JSON as JSONTypes,
+  Json as JSONTypes,
   TokenTypeName,
   ALIAS_PATH_SEPARATOR,
 } from 'design-tokens-format-module';
