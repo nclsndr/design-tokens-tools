@@ -1,10 +1,9 @@
+import { Option } from 'effect';
 import type {
   DesignToken,
   TokenTypeName,
-  JSON,
-  PickTokenByType,
+  JSON as JSONTypes,
 } from 'design-tokens-format-module';
-import { Option } from 'effect';
 
 import type { TreeState } from './TreeState.js';
 import { TreeNode } from './TreeNode.js';
@@ -30,9 +29,10 @@ export class TokenState<
   #typeResolution: ResolutionType;
   #treeState: TreeState;
   #rawValueParts: RawValueParts;
+
   constructor(
     id: string,
-    path: JSON.ValuePath,
+    path: JSONTypes.ValuePath,
     type: Type,
     typeResolution: ResolutionType,
     description: string | undefined,
@@ -73,19 +73,24 @@ export class TokenState<
   }
 
   getValueMapper(options?: {
-    resolveAtDepth?: number;
+    resolveAtDepth?: number | 'infinity';
   }): PickSwappedValueSignature<Type> {
     const { resolveAtDepth } = options ?? {};
-    if (typeof resolveAtDepth === 'number' && resolveAtDepth < 0) {
-      throw new Error('Depth must be greater or equal to 0');
+    if (
+      (typeof resolveAtDepth === 'number' && resolveAtDepth < 0) ||
+      (typeof resolveAtDepth === 'string' && resolveAtDepth !== 'infinity')
+    ) {
+      throw new Error('resolveAtDepth must be "infinity" or greater than 0');
     }
 
     const aliasReferences: Array<AliasReference> = [];
     const scalarValues: Array<ScalarValue> = [];
 
-    if (resolveAtDepth !== undefined && resolveAtDepth > 0) {
+    if (resolveAtDepth !== undefined) {
+      const computedResolutionAtDepth =
+        resolveAtDepth === 'infinity' ? Infinity : resolveAtDepth;
       for (const ref of this.referencesSet) {
-        const { raws, refs } = ref.resolve(resolveAtDepth ?? Infinity);
+        const { raws, refs } = ref.resolve(computedResolutionAtDepth);
         scalarValues.push(
           ...raws.map((r) => new ScalarValue(r.value, r.path, this)),
         );
@@ -241,5 +246,3 @@ export class TokenState<
 }`;
   }
 }
-
-type TT = PickTokenByType<'color'>;

@@ -63,7 +63,7 @@ export class TokenTree {
    * @param path
    */
   getToken(path: JSON.ValuePath) {
-    return Option.match(this.#treeState.tokenStates.getOneByPath(path), {
+    return Option.match(this.#treeState.getTokenByPath(path), {
       onSome: (tokenState) => new Token(tokenState),
       onNone: () => undefined,
     });
@@ -74,14 +74,18 @@ export class TokenTree {
    * @param type
    * @param path
    */
-  getTokenOfType<T extends TokenTypeName>(type: T, path: JSON.ValuePath) {
-    return this.#treeState.tokenStates.getOneByPath(path).pipe(
-      Option.filter((tokenState) => tokenState.type === type),
-      Option.match({
-        onSome: (tokenState) => new Token(tokenState),
-        onNone: () => undefined,
-      }),
-    );
+  getTokenOfType<T extends TokenTypeName>(
+    type: T,
+    path: JSON.ValuePath,
+  ): Token<T> | undefined {
+    return Option.match(this.#treeState.getTokenOfTypeByPath(type, path), {
+      onSome: (tokenState) =>
+        new Token<T>(
+          // @ts-expect-error - filter can't infer the narrowed type
+          tokenState,
+        ),
+      onNone: () => undefined,
+    });
   }
 
   /**

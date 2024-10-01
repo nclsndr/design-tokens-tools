@@ -38,14 +38,18 @@ export class TreeNodesMap<T extends TreeNode> {
    * Use `getOneById` for better performance
    * @param path
    */
-  getOneByPath(path: JSON.ValuePath | JSONPath): Option.Option<T> {
+  getOneByPath(path: JSON.ValuePath | JSONPath | string): Option.Option<T> {
     for (const [id, node] of this.#nodes) {
       if (path instanceof JSONPath) {
         if (node.equalsJSONPath(path)) {
           return Option.some(node);
         }
-      } else {
+      } else if (Array.isArray(path)) {
         if (node.matchPath(path)) {
+          return Option.some(node);
+        }
+      } else {
+        if (node.stringPath === path) {
           return Option.some(node);
         }
       }
@@ -57,14 +61,18 @@ export class TreeNodesMap<T extends TreeNode> {
    *
    * @param path
    */
-  hasOneByPath(path: JSON.ValuePath | JSONPath): boolean {
+  hasOneByPath(path: JSON.ValuePath | JSONPath | string): boolean {
     for (const [id, node] of this.#nodes) {
       if (path instanceof JSONPath) {
         if (node.equalsJSONPath(path)) {
           return true;
         }
-      } else {
+      } else if (Array.isArray(path)) {
         if (node.matchPath(path)) {
+          return true;
+        }
+      } else {
+        if (node.stringPath === path) {
           return true;
         }
       }
