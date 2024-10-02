@@ -4,7 +4,8 @@ node_modules
 **/.vscode
 
 **/dist
-coverage
+**/coverage
 **/benchmark/output
+**/tsconfig.tsbuildinfo
 
 **/.DS_Store

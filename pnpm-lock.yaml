@@ -90,8 +90,14 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.16.1)
 
-  packages/w3c-design-tokens-parser:
+  packages/design-tokens-library:
     dependencies:
+      '@nclsndr/design-tokens-utils':
+        specifier: workspace:^
+        version: link:../design-tokens-utils
+      '@nclsndr/w3c-design-tokens-parser':
+        specifier: workspace:^
+        version: link:../w3c-design-tokens-parser
       change-case:
         specifier: ^5.4.4
         version: 5.4.4
@@ -108,12 +114,74 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0
     devDependencies:
-      0x:
-        specifier: ^5.7.0
-        version: 5.7.0
       '@types/mustache':
         specifier: ^4.2.5
         version: 4.2.5
+      '@types/node':
+        specifier: ^20.14.10
+        version: 20.16.1
+      '@vitest/coverage-v8':
+        specifier: ^1.6.0
+        version: 1.6.0(vitest@1.6.0(@types/node@20.16.1))
+      prettier:
+        specifier: ^3.3.2
+        version: 3.3.3
+      typescript:
+        specifier: ^5.5.3
+        version: 5.5.4
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.0(@types/node@20.16.1)
+
+  packages/design-tokens-utils:
+    dependencies:
+      '@nclsndr/w3c-design-tokens-parser':
+        specifier: workspace:^
+        version: link:../w3c-design-tokens-parser
+      design-tokens-format-module:
+        specifier: ^0.10.1
+        version: 0.10.1
+      effect:
+        specifier: ^3.8.3
+        version: 3.8.3
+      hyperid:
+        specifier: ^3.3.0
+        version: 3.3.0
+    devDependencies:
+      '@types/node':
+        specifier: ^20.14.10
+        version: 20.16.1
+      '@vitest/coverage-v8':
+        specifier: ^1.6.0
+        version: 1.6.0(vitest@1.6.0(@types/node@20.16.1))
+      prettier:
+        specifier: ^3.3.2
+        version: 3.3.3
+      typescript:
+        specifier: ^5.5.3
+        version: 5.5.4
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.0(@types/node@20.16.1)
+
+  packages/w3c-design-tokens-parser:
+    dependencies:
+      '@nclsndr/design-tokens-utils':
+        specifier: workspace:^
+        version: link:../design-tokens-utils
+      design-tokens-format-module:
+        specifier: ^0.10.1
+        version: 0.10.1
+      effect:
+        specifier: ^3.8.3
+        version: 3.8.3
+      hyperid:
+        specifier: ^3.3.0
+        version: 3.3.0
+    devDependencies:
+      0x:
+        specifier: ^5.7.0
+        version: 5.7.0
       '@types/node':
         specifier: ^20.14.10
         version: 20.16.1
