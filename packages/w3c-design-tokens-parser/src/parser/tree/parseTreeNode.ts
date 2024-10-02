@@ -2,7 +2,7 @@ import { Either } from 'effect';
 import { type Json } from 'design-tokens-format-module';
 
 import { AnalyzerContext } from '../utils/AnalyzerContext.js';
-import { ValidationError } from '../../utils/validationError.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 
 export function parseTreeNode(
   value: unknown,

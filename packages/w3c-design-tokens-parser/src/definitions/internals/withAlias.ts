@@ -1,11 +1,11 @@
 import { Either, Option } from 'effect';
 import { AliasValue } from 'design-tokens-format-module';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 
-import { AnalyzedValue } from '../parser/token/AnalyzedToken.js';
-import { ValidationError } from '../utils/validationError.js';
-import { AnalyzerContext } from '../parser/utils/AnalyzerContext.js';
-import { captureAliasPath } from '../parser/alias/captureAliasPath.js';
-import { parseAliasValue } from '../parser/alias/parseAliasValue.js';
+import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
+import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
+import { captureAliasPath } from '../../parser/alias/captureAliasPath.js';
+import { parseAliasValue } from '../../parser/alias/parseAliasValue.js';
 
 export function withAlias<
   I,

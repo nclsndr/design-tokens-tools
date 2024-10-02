@@ -15,9 +15,10 @@
   "scripts": {
     "test": "vitest",
     "build": "rm -rf dist && tsc --build",
-    "tsc": "tsc",
+    "typecheck": "tsc --noEmit && tsc --project tests/tsconfig.json --noEmit",
     "benchmark:flamegraph": "0x --output-dir benchmark/output benchmark/parse.js",
-    "benchmark:perf": "node benchmark/perf.js"
+    "benchmark:perf": "node benchmark/perf.js",
+    "tsc": "tsc"
   },
   "exports": {
     ".": "./dist/index.js"
@@ -27,15 +28,13 @@
     "docs"
   ],
   "dependencies": {
-    "change-case": "^5.4.4",
+    "@nclsndr/design-tokens-utils": "workspace:^",
     "design-tokens-format-module": "^0.10.1",
     "effect": "^3.8.3",
-    "hyperid": "^3.3.0",
-    "mustache": "^4.2.0"
+    "hyperid": "^3.3.0"
   },
   "devDependencies": {
     "0x": "^5.7.0",
-    "@types/mustache": "^4.2.5",
     "@types/node": "^20.14.10",
     "@vitest/coverage-v8": "^1.6.0",
     "prettier": "^3.3.2",

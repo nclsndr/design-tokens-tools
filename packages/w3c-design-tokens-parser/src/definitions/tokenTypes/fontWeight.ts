@@ -3,8 +3,8 @@ import { FontWeight } from 'design-tokens-format-module';
 
 import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
 import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
-import { ValidationError } from '../../utils/validationError.js';
-import { withAlias } from '../withAlias.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
+import { withAlias } from '../internals/withAlias.js';
 
 export const fontWeightValues = [
   100,

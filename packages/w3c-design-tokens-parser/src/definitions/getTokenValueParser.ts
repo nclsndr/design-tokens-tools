@@ -4,7 +4,7 @@ import {
   tokenTypeNamesMapping,
 } from 'design-tokens-format-module';
 
-import { ValidationError } from '../utils/validationError.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 import { AnalyzerContext } from '../parser/utils/AnalyzerContext.js';
 import { AnalyzedValue } from '../parser/token/AnalyzedToken.js';
 

@@ -1,10 +1,10 @@
 import { Either } from 'effect';
 import { Duration } from 'design-tokens-format-module';
 
-import { ValidationError } from '../../utils/validationError.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
 import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
-import { withAlias } from '../withAlias.js';
+import { withAlias } from '../internals/withAlias.js';
 
 export const durationValuePattern = '^(?:\\d+(?:\\.\\d*)?|\\.\\d+)ms$';
 

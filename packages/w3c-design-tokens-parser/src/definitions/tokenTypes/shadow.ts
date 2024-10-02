@@ -3,11 +3,11 @@ import { Shadow } from 'design-tokens-format-module';
 
 import { parseAliasableColorValue } from './color.js';
 import { parseAliasableDimensionValue } from './dimension.js';
-import { ValidationError } from '../../utils/validationError.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
 import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
 import { makeParseObject } from '../../parser/utils/parseObject.js';
-import { withAlias } from '../withAlias.js';
+import { withAlias } from '../internals/withAlias.js';
 import { mergeEitherItems } from '../../parser/utils/mergeEithers.js';
 
 const parseShadowSingleRawValue = makeParseObject({

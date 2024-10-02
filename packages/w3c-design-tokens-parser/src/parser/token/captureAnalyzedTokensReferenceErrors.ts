@@ -5,10 +5,10 @@ import {
   TokenTypeName,
 } from 'design-tokens-format-module';
 
-import { ValidationError } from '../../utils/validationError.js';
-import { matchTokenTypeAgainstAliasingMapping } from '../../definitions/matchTokenTypeAgainstAliasingMapping.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 import { AnalyzedToken } from './AnalyzedToken.js';
 import { findAnalyzedTokenByPath } from './findAnalyzedTokenByPath.js';
+import { matchTokenTypeAgainstAliasingMapping } from './matchTokenTypeAgainstAliasingMapping.js';
 
 type SyntheticRef = {
   tokenId: string;

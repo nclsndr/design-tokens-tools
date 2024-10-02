@@ -3,7 +3,7 @@ import { Effect, Exit } from 'effect';
 
 import { parseJSONTokenTree } from '../../../src/parser/parseJSONTokenTree';
 
-import { recursivelyResolveAnalyzedToken } from '../../../src/state/internals/recursivelyResolveAnalyzedToken';
+import { recursivelyResolveAnalyzedToken } from '../../../src/parser/token/recursivelyResolveAnalyzedToken';
 
 describe('recursivelyResolveAnalyzedToken', () => {
   it('should list a top level linked reference', () => {

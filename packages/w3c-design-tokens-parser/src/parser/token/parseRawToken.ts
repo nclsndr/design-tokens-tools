@@ -1,7 +1,7 @@
 import { Either } from 'effect';
 import { type Json } from 'design-tokens-format-module';
 
-import { ValidationError } from '../../utils/validationError.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 import { parseTreeNodeExtensions } from '../tree/parseTreeNodeExtensions.js';
 import { AnalyzedToken } from './AnalyzedToken.js';
 import { AnalyzerContext } from '../utils/AnalyzerContext.js';

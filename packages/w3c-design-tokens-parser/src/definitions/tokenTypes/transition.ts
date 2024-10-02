@@ -3,11 +3,11 @@ import { Transition } from 'design-tokens-format-module';
 
 import { parseAliasableDurationValue } from './duration.js';
 import { parseAliasableCubicBezierValue } from './cubicBezier.js';
-import { ValidationError } from '../../utils/validationError.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
 import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
 import { makeParseObject } from '../../parser/utils/parseObject.js';
-import { withAlias } from '../withAlias.js';
+import { withAlias } from '../internals/withAlias.js';
 
 const parseTransitionRawValue = makeParseObject({
   duration: { parser: parseAliasableDurationValue },

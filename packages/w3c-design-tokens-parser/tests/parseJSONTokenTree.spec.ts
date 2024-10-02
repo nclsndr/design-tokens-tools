@@ -17,10 +17,9 @@ import {
   strokeStyleToken,
   transitionToken,
   typographyToken,
-} from '../_fixtures/tokens';
+} from './_fixtures/tokens';
 
-import { parseJSONTokenTree } from '../../src/parser/parseJSONTokenTree';
-import { captureAnalyzedTokensReferenceErrors } from '../../src/parser/token/captureAnalyzedTokensReferenceErrors';
+import { parseJSONTokenTree } from '../src/parser/parseJSONTokenTree';
 
 describe('parseJSONTokenTree', () => {
   it('should parse a token tree embedded in a string', () => {

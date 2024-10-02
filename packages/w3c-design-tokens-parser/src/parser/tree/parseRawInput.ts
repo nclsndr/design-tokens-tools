@@ -1,8 +1,9 @@
-import { AnalyzerContext } from './AnalyzerContext.js';
 import { Either } from 'effect';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 import { Json as JSONTypes } from 'design-tokens-format-module';
-import { ValidationError } from '../../utils/validationError.js';
-import { parseTreeNode } from '../tree/parseTreeNode.js';
+
+import { AnalyzerContext } from '../utils/AnalyzerContext.js';
+import { parseTreeNode } from './parseTreeNode.js';
 
 export function parseRawInput(
   input: unknown,

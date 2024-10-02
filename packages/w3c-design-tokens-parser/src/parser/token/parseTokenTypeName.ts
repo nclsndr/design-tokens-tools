@@ -4,9 +4,9 @@ import {
   tokenTypeNames,
   matchIsTokenTypeName,
 } from 'design-tokens-format-module';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 
-import { AnalyzerContext } from '../parser/utils/AnalyzerContext.js';
-import { ValidationError } from '../utils/validationError.js';
+import { AnalyzerContext } from '../utils/AnalyzerContext.js';
 
 export function parseTokenTypeName<AllowUndefined extends boolean = false>(
   value: unknown,

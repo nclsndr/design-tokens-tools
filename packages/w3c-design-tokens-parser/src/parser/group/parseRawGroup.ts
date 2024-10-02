@@ -1,12 +1,12 @@
 import { Either } from 'effect';
 
 import { parseTreeNodeExtensions } from '../tree/parseTreeNodeExtensions.js';
-import { ValidationError } from '../../utils/validationError.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 import { AnalyzedGroup } from './AnalyzedGroup.js';
 import { AnalyzerContext } from '../utils/AnalyzerContext.js';
 import { parseTreeNode } from '../tree/parseTreeNode.js';
 import { parseTreeNodeDescription } from '../tree/parseTreeNodeDescription.js';
-import { parseTokenTypeName } from '../../definitions/parseTokenTypeName.js';
+import { parseTokenTypeName } from '../token/parseTokenTypeName.js';
 
 export function parseRawGroup(
   value: object,

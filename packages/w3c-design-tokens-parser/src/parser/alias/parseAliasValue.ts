@@ -1,7 +1,7 @@
 import { Either } from 'effect';
 import { AliasValue } from 'design-tokens-format-module';
 
-import { ValidationError } from '../../utils/validationError.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 import { AnalyzerContext } from '../utils/AnalyzerContext.js';
 
 export function parseAliasValue(

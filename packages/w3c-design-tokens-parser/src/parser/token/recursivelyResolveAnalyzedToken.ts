@@ -1,10 +1,26 @@
-import { type Json } from 'design-tokens-format-module';
-
-import { AnalyzedToken } from '../../parser/token/AnalyzedToken.js';
-import { findAnalyzedTokenByPath } from '../../parser/token/findAnalyzedTokenByPath.js';
-import { ReferenceResolutionTrace } from './ReferenceResolutionTrace.js';
-import { JSONPath } from '../../utils/JSONPath.js';
 import { Option } from 'effect';
+import { type Json, TokenTypeName } from 'design-tokens-format-module';
+import { JSONPath } from '@nclsndr/design-tokens-utils';
+
+import { AnalyzedToken } from './AnalyzedToken.js';
+import { findAnalyzedTokenByPath } from './findAnalyzedTokenByPath.js';
+
+export type LinkedReferenceResolutionTrace = {
+  status: 'linked';
+  fromTreePath: JSONPath;
+  fromValuePath: JSONPath;
+  toTreePath: JSONPath;
+  targetType: TokenTypeName;
+};
+export type UnlinkedReferenceResolutionTrace = {
+  status: 'unlinked';
+  fromTreePath: JSONPath;
+  fromValuePath: JSONPath;
+  toTreePath: JSONPath;
+};
+export type ReferenceResolutionTrace =
+  | LinkedReferenceResolutionTrace
+  | UnlinkedReferenceResolutionTrace;
 
 export function recursivelyResolveAnalyzedToken(
   analyzedTokens: Array<AnalyzedToken>,

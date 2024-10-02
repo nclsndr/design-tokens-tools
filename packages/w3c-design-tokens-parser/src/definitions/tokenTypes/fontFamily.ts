@@ -1,10 +1,10 @@
 import { Either } from 'effect';
 import { FontFamily } from 'design-tokens-format-module';
 
-import { ValidationError } from '../../utils/validationError.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
 import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
-import { withAlias } from '../withAlias.js';
+import { withAlias } from '../internals/withAlias.js';
 
 export function parseRawFontFamilyValue(
   value: unknown,

@@ -1,13 +1,9 @@
 import {
-  type Json,
+  strokeStyleLineCapValues,
   TokenTypeName,
   tokenTypeNamesMapping,
-  strokeStyleLineCapValues,
 } from 'design-tokens-format-module';
-import {
-  matchTypeAgainstMapping,
-  TokenTypesMapping,
-} from '../utils/tokenTypesMapping.js';
+import { TokenTypesMapping } from '@nclsndr/design-tokens-utils';
 
 /* ------------------------------------------
    Types mapping
@@ -118,6 +114,7 @@ const typographyTokenTypeMapping = {
     },
   ],
 } satisfies TokenTypesMapping;
+
 export const tokenTypesAliasingMapping: Record<
   TokenTypeName,
   TokenTypesMapping
@@ -136,17 +133,3 @@ export const tokenTypesAliasingMapping: Record<
   gradient: gradientTokenTypeMapping,
   typography: typographyTokenTypeMapping,
 };
-
-export function matchTokenTypeAgainstAliasingMapping(
-  type: TokenTypeName,
-  input: unknown,
-  treePath: Json.ValuePath,
-  valuePath: Json.ValuePath,
-) {
-  return matchTypeAgainstMapping(
-    input,
-    tokenTypesAliasingMapping[type],
-    treePath,
-    valuePath,
-  );
-}

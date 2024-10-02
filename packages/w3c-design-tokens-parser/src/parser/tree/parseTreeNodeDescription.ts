@@ -1,7 +1,7 @@
 import { Either } from 'effect';
 
 import { AnalyzerContext } from '../utils/AnalyzerContext.js';
-import { ValidationError } from '../../utils/validationError.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 
 export function parseTreeNodeDescription(
   value: unknown,

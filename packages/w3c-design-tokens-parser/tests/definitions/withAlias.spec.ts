@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { Cause, Effect, Either, Exit, Option } from 'effect';
+import { Either, Option } from 'effect';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 
-import { ValidationError } from '../../src/utils/validationError';
 import { AnalyzedValue } from '../../src/parser/token/AnalyzedToken';
 import { AnalyzerContext } from '../../src/parser/utils/AnalyzerContext';
-import { withAlias } from '../../src/definitions/withAlias';
+import { withAlias } from '../../src/definitions/internals/withAlias';
 
 describe.concurrent('withAlias', () => {
   it('should wrap a parser to allow the union with alias signature', () => {
