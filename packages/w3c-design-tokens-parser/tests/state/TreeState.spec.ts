@@ -249,7 +249,36 @@ describe('TreeState', () => {
         'color.red.500',
       ]);
     });
-    it('should select the tokens into a group based on wildcard match', () => {
+    it('should select the tokens into a shallow group based on trailing wildcard match', () => {
+      const tokens: JSONTokenTree = {
+        dimension: {
+          $type: 'dimension',
+          base: {
+            $value: '4px',
+          },
+          double: {
+            $value: '8px',
+          },
+          nested: {
+            alt: {
+              $value: '4px',
+            },
+          },
+        },
+      };
+
+      const treeState = buildTreeState(tokens);
+
+      const tokenStates = treeState.selectTokens({
+        where: [['dimension', '*']],
+      });
+
+      expect(tokenStates.map((t) => t.stringPath)).toStrictEqual([
+        'dimension.base',
+        'dimension.double',
+      ]);
+    });
+    it('should select none of the tokens into a deep group based on trailing wildcard match', () => {
       const tokens: JSONTokenTree = {
         color: {
           $type: 'color',
@@ -257,15 +286,16 @@ describe('TreeState', () => {
             500: {
               $value: '#0000FF',
             },
+            600: {
+              $value: '#3232FF',
+            },
           },
           red: {
             500: {
               $value: '#FF0000',
             },
-          },
-          green: {
-            500: {
-              $value: '#00FF00',
+            600: {
+              $value: '#FF3232',
             },
           },
         },
@@ -283,10 +313,48 @@ describe('TreeState', () => {
         where: [['color', '*']],
       });
 
+      expect(tokenStates.map((t) => t.stringPath)).toStrictEqual([]);
+    });
+    it('should select the tokens based on a double trailing wildcard match', () => {
+      const tokens: JSONTokenTree = {
+        color: {
+          $type: 'color',
+          blue: {
+            500: {
+              $value: '#0000FF',
+            },
+            600: {
+              $value: '#3232FF',
+            },
+          },
+          red: {
+            500: {
+              $value: '#FF0000',
+            },
+            600: {
+              $value: '#FF3232',
+            },
+          },
+        },
+        dimension: {
+          $type: 'dimension',
+          base: {
+            $value: '4px',
+          },
+        },
+      };
+
+      const treeState = buildTreeState(tokens);
+
+      const tokenStates = treeState.selectTokens({
+        where: [['color', '**']],
+      });
+
       expect(tokenStates.map((t) => t.stringPath)).toStrictEqual([
         'color.blue.500',
+        'color.blue.600',
         'color.red.500',
-        'color.green.500',
+        'color.red.600',
       ]);
     });
   });

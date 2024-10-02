@@ -27,13 +27,15 @@
     "docs"
   ],
   "dependencies": {
-    "design-tokens-format-module": "^0.9.10",
+    "change-case": "^5.4.4",
     "design-tokens-format-module": "^0.10.1",
     "effect": "^3.8.3",
-    "hyperid": "^3.3.0"
+    "hyperid": "^3.3.0",
+    "mustache": "^4.2.0"
   },
   "devDependencies": {
     "0x": "^5.7.0",
+    "@types/mustache": "^4.2.5",
     "@types/node": "^20.14.10",
     "@vitest/coverage-v8": "^1.6.0",
     "prettier": "^3.3.2",

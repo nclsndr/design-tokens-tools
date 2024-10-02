@@ -1,8 +1,4 @@
-import {
-  Json as JSONTypes,
-  TokenTypeName,
-  ALIAS_PATH_SEPARATOR,
-} from 'design-tokens-format-module';
+import { Json as JSONTypes, TokenTypeName } from 'design-tokens-format-module';
 import { Option } from 'effect';
 
 import { ReferencesSet } from './ReferencesSet.js';
@@ -10,13 +6,8 @@ import { TreeNodesMap } from './TreeNodesMap.js';
 import { TokenState } from './TokenState.js';
 import { GroupState } from './GroupState.js';
 import { ValidationErrorsSet } from './ValidationErrorsSet.js';
-
-function stringToRegex(input: string): RegExp {
-  if (input === '*') {
-    return new RegExp('.*');
-  }
-  return new RegExp(input);
-}
+import { matchTokenStateAgainstSelectToken } from './utils/matchTokenStateAgainstSelectToken.js';
+import { SelectToken } from '../library/internals/Select.js';
 
 export class TreeState {
   #tokens: TreeNodesMap<TokenState>;
@@ -60,50 +51,11 @@ export class TreeState {
     );
   }
 
-  selectTokens(options: {
-    tokenTypes?: Array<TokenTypeName>;
-    where?: Array<Array<string>>;
-  }) {
-    return this.#tokens.nodes.reduce<Array<TokenState>>((acc, node) => {
-      if (options.tokenTypes && !options.tokenTypes.includes(node.type)) {
-        return acc;
+  selectTokens(options: SelectToken) {
+    return this.#tokens.nodes.reduce<Array<TokenState>>((acc, tokenState) => {
+      if (matchTokenStateAgainstSelectToken(tokenState, options)) {
+        acc.push(tokenState);
       }
-
-      const matchesWhere = !options.where
-        ? true
-        : options.where.some((where) => {
-            const whereStringPath = where.join(ALIAS_PATH_SEPARATOR);
-
-            // strict match
-            if (whereStringPath === node.stringPath) {
-              return true;
-            }
-
-            // matches a group
-            if (
-              Option.getOrUndefined(this.#groups.getOneByPath(whereStringPath))
-            ) {
-              return false;
-            }
-
-            // can match only if `where` is a subset of `node.path`
-            if (where.length > node.path.length) {
-              return false;
-            }
-            const subPath = node.path.slice(0, where.length);
-
-            return where.every((item, i) => {
-              const p = subPath[i];
-              return typeof p === 'string'
-                ? p.match(stringToRegex(item))
-                : false;
-            });
-          });
-
-      if (matchesWhere) {
-        acc.push(node);
-      }
-
       return acc;
     }, []);
   }

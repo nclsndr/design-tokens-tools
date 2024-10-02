@@ -92,6 +92,9 @@ importers:
 
   packages/w3c-design-tokens-parser:
     dependencies:
+      change-case:
+        specifier: ^5.4.4
+        version: 5.4.4
       design-tokens-format-module:
         specifier: ^0.10.1
         version: 0.10.1
@@ -101,10 +104,16 @@ importers:
       hyperid:
         specifier: ^3.3.0
         version: 3.3.0
+      mustache:
+        specifier: ^4.2.0
+        version: 4.2.0
     devDependencies:
       0x:
         specifier: ^5.7.0
         version: 5.7.0
+      '@types/mustache':
+        specifier: ^4.2.5
+        version: 4.2.5
       '@types/node':
         specifier: ^20.14.10
         version: 20.16.1
@@ -1222,6 +1231,9 @@ packages:
   '@types/estree@1.0.5':
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
 
+  '@types/mustache@4.2.5':
+    resolution: {integrity: sha512-PLwiVvTBg59tGFL/8VpcGvqOu3L4OuveNvPi0EYbWchRdEVP++yRUXJPFl+CApKEq13017/4Nf7aQ5lTtHUNsA==}
+
   '@types/node@20.16.1':
     resolution: {integrity: sha512-zJDo7wEadFtSyNz5QITDfRcrhqDvQI1xQNQ0VoizPjM/dVAODqqIUWbJPkvsxmTI0MYRGRikcdjMPhOssnPejQ==}
 
@@ -1527,6 +1539,9 @@ packages:
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
+
+  change-case@5.4.4:
+    resolution: {integrity: sha512-HRQyTk2/YPEkt9TnUPbOpr64Uw3KOicFWPVBb+xiHvd6eBx/qPr9xqfBFDT8P2vWsvvz4jbEkfDe71W3VyNu2w==}
 
   check-error@1.0.3:
     resolution: {integrity: sha512-iKEoDYaRmd1mxM90a2OEfWhjsjPpYPuQ+lMYsoxB126+t8fw7ySEO48nmDg5COTjxDI65/Y2OWpeEHk3ZOe8zg==}
@@ -2347,6 +2362,10 @@ packages:
 
   ms@2.1.2:
     resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
+
+  mustache@4.2.0:
+    resolution: {integrity: sha512-71ippSywq5Yb7/tVYyGbkBggbU8H3u5Rz56fH60jGFgr8uHwxs+aSKeqmluIVzM0m0kB7xQjKS6qPfd0b2ZoqQ==}
+    hasBin: true
 
   mutexify@1.4.0:
     resolution: {integrity: sha512-pbYSsOrSB/AKN5h/WzzLRMFgZhClWccf2XIB4RSMC8JbquiB0e0/SH5AIfdQMdyHmYtv4seU7yV/TvAwPLJ1Yg==}
@@ -4243,6 +4262,8 @@ snapshots:
 
   '@types/estree@1.0.5': {}
 
+  '@types/mustache@4.2.5': {}
+
   '@types/node@20.16.1':
     dependencies:
       undici-types: 6.19.6
@@ -4699,6 +4720,8 @@ snapshots:
     dependencies:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
+
+  change-case@5.4.4: {}
 
   check-error@1.0.3:
     dependencies:
@@ -5609,6 +5632,8 @@ snapshots:
   morphdom@2.7.4: {}
 
   ms@2.1.2: {}
+
+  mustache@4.2.0: {}
 
   mutexify@1.4.0:
     dependencies:
