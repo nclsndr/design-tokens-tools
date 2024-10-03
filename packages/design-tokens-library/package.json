@@ -1,12 +1,12 @@
 {
   "name": "@nclsndr/design-tokens-library",
   "version": "0.0.1",
-  "description": "a tool-belt to work with W3C design tokens",
+  "description": "Parse, assemble, manipulate many W3C design tokens files and generate code for other platforms",
   "keywords": [
-    "design token format module",
     "design tokens",
     "design system",
-    "dtcg"
+    "design token format module",
+    "codegen"
   ],
   "homepage": "https://github.com/nclsndr/design-tokens-tools/tree/main/packages/design-tokens-library",
   "license": "MIT",

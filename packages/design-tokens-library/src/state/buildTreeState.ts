@@ -1,13 +1,18 @@
 import { Either, Option } from 'effect';
 import { parseJSONTokenTree, parser } from '@nclsndr/w3c-design-tokens-parser';
-import { TokenState } from './TokenState.js';
-import { TreeState } from './TreeState.js';
-import { GroupState } from './GroupState.js';
-import { Reference } from './Reference.js';
+import { TokenState } from './token/TokenState.js';
+import { TreeState } from './tree/TreeState.js';
+import { GroupState } from './group/GroupState.js';
+import { Reference } from './token/Reference.js';
 
-export function buildTreeState(value: unknown) {
-  const treeState = new TreeState();
-  return Either.match(parseJSONTokenTree(value), {
+export function buildTreeState(
+  jsonTokenTree: unknown,
+  options?: { name?: string; throwOnError?: boolean },
+) {
+  const treeState = new TreeState({
+    name: options?.name ?? 'default',
+  });
+  Either.match(parseJSONTokenTree(jsonTokenTree), {
     onRight: ({ analyzedTokens, analyzedGroups, tokenErrors, groupErrors }) => {
       if (tokenErrors.length > 0) {
         treeState.validationErrors.add(...tokenErrors);
@@ -79,12 +84,17 @@ export function buildTreeState(value: unknown) {
           ),
         );
       }
-
-      return treeState;
     },
     onLeft: (errors) => {
       treeState.validationErrors.add(...errors);
-      return treeState;
     },
   });
+
+  if (options?.throwOnError && treeState.validationErrors.size > 0) {
+    throw new Error(
+      `Tree "${options?.name}" has errors:\n  - ${treeState.validationErrors.nodes.map((e) => e.message).join('\n  - ')}`,
+    );
+  }
+
+  return treeState;
 }

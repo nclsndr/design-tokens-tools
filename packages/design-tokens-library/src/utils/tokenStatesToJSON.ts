@@ -1,7 +1,7 @@
 import { JSONTokenTree } from 'design-tokens-format-module';
 import { deepSetJSONValue } from '@nclsndr/design-tokens-utils';
 
-import { TokenState } from '../state/TokenState.js';
+import { TokenState } from '../state/token/TokenState.js';
 
 export function tokenStatesToJSON(tokenStates: TokenState[]): JSONTokenTree {
   const acc: JSONTokenTree = {};

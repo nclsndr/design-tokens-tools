@@ -6,7 +6,7 @@ import {
 } from 'design-tokens-format-module';
 import { deepSetJSONValue } from '@nclsndr/design-tokens-utils';
 
-import { TreeState } from '../state/TreeState.js';
+import { TreeState } from '../state/tree/TreeState.js';
 import { Token } from './Token.js';
 import { Group } from './Group.js';
 
@@ -63,7 +63,7 @@ export class TokenTree {
    * @param path
    */
   getToken(path: Json.ValuePath) {
-    return Option.match(this.#treeState.getTokenByPath(path), {
+    return Option.match(this.#treeState.getTokenStateByPath(path), {
       onSome: (tokenState) => new Token(tokenState),
       onNone: () => undefined,
     });

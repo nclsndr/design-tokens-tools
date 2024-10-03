@@ -5,8 +5,8 @@ import {
   type PickTokenByType,
 } from 'design-tokens-format-module';
 
-import { TokenState } from '../state/TokenState.js';
-import { PickSwappedValueSignature } from '../state/ValueMapper.js';
+import { TokenState } from '../state/token/TokenState.js';
+import { PickSwappedValueSignature } from '../state/token/ValueMapper.js';
 
 export class Token<Type extends TokenTypeName = TokenTypeName> {
   readonly #state: TokenState;
@@ -76,7 +76,7 @@ export class Token<Type extends TokenTypeName = TokenTypeName> {
       type: this.#state.type,
       description: this.#state.description,
       extensions: this.#state.extensions,
-      references: this.#state.referencesArray.map((r) => ({
+      references: this.#state.references.map((r) => ({
         fromTreePath: r.fromTreePath.string,
         fromValuePath: r.fromValuePath.string,
         toTreePath: r.toTreePath.string,
@@ -96,7 +96,7 @@ export class Token<Type extends TokenTypeName = TokenTypeName> {
    * @param options
    */
   getValueMapper<T extends TokenTypeName = Type>(options?: {
-    resolveAtDepth?: number;
+    resolveAtDepth?: number | 'infinity';
   }): PickSwappedValueSignature<T> {
     // @ts-expect-error
     return this.#state.getValueMapper(options);
@@ -111,7 +111,7 @@ export class Token<Type extends TokenTypeName = TokenTypeName> {
    * @param options
    */
   getJSONValue(options?: {
-    resolveToDepth?: number;
+    resolveAtDepth?: number | 'infinity';
   }): PickTokenByType<Type>['$value'] {
     return this.#state.getJSONValue(options);
   }
@@ -122,7 +122,7 @@ export class Token<Type extends TokenTypeName = TokenTypeName> {
    */
   getJSONToken(options?: {
     withExplicitType?: boolean;
-    resolveToDepth?: number;
+    resolveAtDepth?: number | 'infinity';
   }): PickTokenByType<Type> {
     //  @ts-expect-error - TokenState returns a broader type for performance reasons
     return this.#state.getJSONToken(options);
@@ -137,8 +137,8 @@ export class Token<Type extends TokenTypeName = TokenTypeName> {
 
   // Override console.log in Node.js environment
   [Symbol.for('nodejs.util.inspect.custom')](_depth: unknown, _opts: unknown) {
-    const rawValues = this.#state.rawValueParts.nodes;
-    const references = this.#state.referencesArray;
+    const rawValues = this.#state.rawValuePartsSet.nodes;
+    const references = this.#state.references;
     return `Token {
   path: ${this.#state.stringPath},
   type: "${this.#state.type}",${

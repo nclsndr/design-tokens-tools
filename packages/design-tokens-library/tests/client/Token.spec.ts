@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { JSONTokenTree } from 'design-tokens-format-module';
-import { parseDesignTokens } from '../../src';
+import { parseJSONTokenTree } from '../../src';
 
 describe('Token', () => {
   describe('Getters', () => {
@@ -28,7 +28,7 @@ describe('Token', () => {
           },
         },
       };
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const blueToken = tokenTree.getToken(['color', 'blue']);
       expect(blueToken?.path).toStrictEqual(['color', 'blue']);
@@ -130,7 +130,7 @@ describe('Token', () => {
           },
         },
       };
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const blueToken = tokenTree.getToken(['color', 'blue']);
       expect(blueToken?.getJSONValue()).toBe('#cfd5e6');
@@ -145,7 +145,7 @@ describe('Token', () => {
         style: 'solid',
       });
     });
-    it('should get the fully resolved value with `resolveToDepth: -1`', () => {
+    it('should get the fully resolved value with `resolveAtDepth: "infinity"`', () => {
       const tokens: JSONTokenTree = {
         color: {
           blue: {
@@ -165,19 +165,23 @@ describe('Token', () => {
           },
         },
       };
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const cyanToken = tokenTree.getToken(['color', 'cyan']);
-      expect(cyanToken?.getJSONValue({ resolveToDepth: -1 })).toBe('#cfd5e6');
+      expect(cyanToken?.getJSONValue({ resolveAtDepth: 'infinity' })).toBe(
+        '#cfd5e6',
+      );
 
       const borderToken = tokenTree.getToken(['border']);
-      expect(borderToken?.getJSONValue({ resolveToDepth: -1 })).toStrictEqual({
+      expect(
+        borderToken?.getJSONValue({ resolveAtDepth: 'infinity' }),
+      ).toStrictEqual({
         color: '#cfd5e6',
         width: '1px',
         style: 'solid',
       });
     });
-    it('should get the partially resolved value with `resolveToDepth: 1`', () => {
+    it('should get the partially resolved value with `resolveAtDepth: 1`', () => {
       const tokens: JSONTokenTree = {
         color: {
           blue: {
@@ -197,19 +201,19 @@ describe('Token', () => {
           },
         },
       };
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const cyanToken = tokenTree.getToken(['color', 'cyan']);
-      expect(cyanToken?.getJSONValue({ resolveToDepth: 1 })).toBe('#cfd5e6');
+      expect(cyanToken?.getJSONValue({ resolveAtDepth: 1 })).toBe('#cfd5e6');
 
       const borderToken = tokenTree.getToken(['border']);
-      expect(borderToken?.getJSONValue({ resolveToDepth: 1 })).toStrictEqual({
+      expect(borderToken?.getJSONValue({ resolveAtDepth: 1 })).toStrictEqual({
         color: '{color.blue}',
         width: '1px',
         style: 'solid',
       });
     });
-    it('should get the non-resolved value with `resolveToDepth: 0`', () => {
+    it('should get the non-resolved value with `resolveAtDepth: 0`', () => {
       const tokens: JSONTokenTree = {
         color: {
           blue: {
@@ -229,15 +233,15 @@ describe('Token', () => {
           },
         },
       };
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const cyanToken = tokenTree.getToken(['color', 'cyan']);
-      expect(cyanToken?.getJSONValue({ resolveToDepth: 0 })).toBe(
+      expect(cyanToken?.getJSONValue({ resolveAtDepth: 0 })).toBe(
         '{color.blue}',
       );
 
       const borderToken = tokenTree.getToken(['border']);
-      expect(borderToken?.getJSONValue({ resolveToDepth: 0 })).toStrictEqual({
+      expect(borderToken?.getJSONValue({ resolveAtDepth: 0 })).toStrictEqual({
         color: '{color.cyan}',
         width: '1px',
         style: 'solid',
@@ -266,7 +270,7 @@ describe('Token', () => {
         },
       };
 
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const blueToken = tokenTree.getToken(['color', 'blue']);
       expect(blueToken?.getJSONToken()).toStrictEqual({
@@ -309,7 +313,7 @@ describe('Token', () => {
         },
       };
 
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const blueToken = tokenTree.getToken(['color', 'blue']);
       expect(blueToken?.getJSONToken({ withExplicitType: true })).toStrictEqual(
@@ -354,21 +358,27 @@ describe('Token', () => {
         },
       };
 
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const blueToken = tokenTree.getToken(['color', 'blue']);
-      expect(blueToken?.getJSONToken({ resolveToDepth: -1 })).toStrictEqual({
+      expect(
+        blueToken?.getJSONToken({ resolveAtDepth: 'infinity' }),
+      ).toStrictEqual({
         $value: '#cfd5e6',
         $type: 'color',
       });
 
       const cyanToken = tokenTree.getToken(['color', 'cyan']);
-      expect(cyanToken?.getJSONToken({ resolveToDepth: -1 })).toStrictEqual({
+      expect(
+        cyanToken?.getJSONToken({ resolveAtDepth: 'infinity' }),
+      ).toStrictEqual({
         $value: '#cfd5e6',
       });
 
       const indigoToken = tokenTree.getToken(['color', 'indigo']);
-      expect(indigoToken?.getJSONToken({ resolveToDepth: -1 })).toStrictEqual({
+      expect(
+        indigoToken?.getJSONToken({ resolveAtDepth: 'infinity' }),
+      ).toStrictEqual({
         $value: '#cfd5e6',
       });
     });
@@ -402,7 +412,7 @@ describe('Token', () => {
           },
         },
       };
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const blueToken = tokenTree.getToken(['color', 'blue']);
       const valueMapper = blueToken?.getValueMapper();
@@ -460,7 +470,7 @@ describe('Token', () => {
           },
         },
       };
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const blueToken = tokenTree.getTokenOfType('color', ['color', 'blue']);
 
@@ -484,7 +494,7 @@ describe('Token', () => {
           },
         },
       };
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const cyanToken = tokenTree.getToken(['color', 'cyan']);
 
@@ -507,7 +517,7 @@ describe('Token', () => {
           },
         },
       };
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const borderToken = tokenTree.getToken(['border']);
 
@@ -568,7 +578,7 @@ describe('Token', () => {
           },
         },
       };
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const borderToken = tokenTree.getToken(['border']);
 

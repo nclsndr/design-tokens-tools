@@ -1,6 +1,6 @@
 import { type Json, TokenTypeName } from 'design-tokens-format-module';
 
-import { GroupState } from '../state/GroupState.js';
+import { GroupState } from '../state/group/GroupState.js';
 
 export class Group {
   readonly #state: GroupState;

@@ -4,7 +4,7 @@ import { buildTreeState } from '../../src/state/buildTreeState';
 import { Option } from 'effect';
 
 describe('TreeState', () => {
-  describe.concurrent('getTokenByPath', () => {
+  describe.concurrent('getTokenStateByPath', () => {
     const tokens: JSONTokenTree = {
       color: {
         $type: 'color',
@@ -25,13 +25,13 @@ describe('TreeState', () => {
 
     it('should return the correct token by path', () => {
       const token = Option.getOrThrow(
-        treeState.getTokenByPath(['color', 'blue', '500']),
+        treeState.getTokenStateByPath(['color', 'blue', '500']),
       );
       expect(token?.getJSONValue()).toBe('#0000FF');
     });
     it('should return undefined for a non-existent path', () => {
       const token = Option.getOrUndefined(
-        treeState.getTokenByPath(['color', 'red', '500']),
+        treeState.getTokenStateByPath(['color', 'red', '500']),
       );
       expect(token).toBeUndefined();
     });
@@ -74,7 +74,7 @@ describe('TreeState', () => {
       expect(token).toBeUndefined();
     });
   });
-  describe.concurrent('selectTokens', () => {
+  describe.concurrent('selectTokenStates', () => {
     it('should select any token when no options are provided', () => {
       const tokens: JSONTokenTree = {
         color: {
@@ -100,7 +100,7 @@ describe('TreeState', () => {
 
       const treeState = buildTreeState(tokens);
 
-      const tokenStates = treeState.selectTokens({});
+      const tokenStates = treeState.selectTokenStates({});
 
       expect(tokenStates.map((t) => t.stringPath)).toStrictEqual([
         'color.blue.500',
@@ -145,7 +145,7 @@ describe('TreeState', () => {
 
       expect(treeState.tokenStates.nodes).toHaveLength(4);
 
-      const tokenStates = treeState.selectTokens({
+      const tokenStates = treeState.selectTokenStates({
         tokenTypes: ['color', 'dimension'],
       });
 
@@ -175,7 +175,7 @@ describe('TreeState', () => {
 
       const treeState = buildTreeState(tokens);
 
-      const tokenStates = treeState.selectTokens({
+      const tokenStates = treeState.selectTokenStates({
         where: [['color', 'blue', '500']],
       });
 
@@ -203,7 +203,7 @@ describe('TreeState', () => {
 
       const treeState = buildTreeState(tokens);
 
-      const tokenStates = treeState.selectTokens({
+      const tokenStates = treeState.selectTokenStates({
         where: [['color', 'blue']],
       });
 
@@ -240,7 +240,7 @@ describe('TreeState', () => {
 
       const treeState = buildTreeState(tokens);
 
-      const tokenStates = treeState.selectTokens({
+      const tokenStates = treeState.selectTokenStates({
         where: [['color', '*', '500']],
       });
 
@@ -269,7 +269,7 @@ describe('TreeState', () => {
 
       const treeState = buildTreeState(tokens);
 
-      const tokenStates = treeState.selectTokens({
+      const tokenStates = treeState.selectTokenStates({
         where: [['dimension', '*']],
       });
 
@@ -309,7 +309,7 @@ describe('TreeState', () => {
 
       const treeState = buildTreeState(tokens);
 
-      const tokenStates = treeState.selectTokens({
+      const tokenStates = treeState.selectTokenStates({
         where: [['color', '*']],
       });
 
@@ -346,7 +346,7 @@ describe('TreeState', () => {
 
       const treeState = buildTreeState(tokens);
 
-      const tokenStates = treeState.selectTokens({
+      const tokenStates = treeState.selectTokenStates({
         where: [['color', '**']],
       });
 

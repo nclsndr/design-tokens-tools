@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { JSONTokenTree } from 'design-tokens-format-module';
 
-import { parseDesignTokens } from '../../src/parseDesignTokens';
+import { parseJSONTokenTree } from '../../src/parseJSONTokenTree';
 
 describe('TokenTree', () => {
   describe('getErrors', () => {
@@ -23,7 +23,7 @@ describe('TokenTree', () => {
         },
       };
 
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const errors = tokenTree.getErrors();
       expect(errors).toHaveLength(0);
@@ -48,7 +48,7 @@ describe('TokenTree', () => {
         },
       };
 
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const errors = tokenTree.getErrors();
       expect(errors).toHaveLength(2);
@@ -100,7 +100,7 @@ describe('TokenTree', () => {
         },
       };
 
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
       expect(tokenTree).toBeDefined();
 
       expect(tokenTree.getAllTokens()).toHaveLength(0);
@@ -174,7 +174,7 @@ describe('TokenTree', () => {
         },
       };
 
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const results = tokenTree.getAllTokens();
 
@@ -204,7 +204,7 @@ describe('TokenTree', () => {
         },
       };
 
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const results = tokenTree.getAllTokensByType('color');
 
@@ -225,7 +225,7 @@ describe('TokenTree', () => {
         },
       };
 
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const result = tokenTree.getToken(['color', 'blue', '100']);
 
@@ -245,7 +245,7 @@ describe('TokenTree', () => {
           },
         },
       };
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const result = tokenTree.getTokenOfType('color', [
         'color',
@@ -266,7 +266,7 @@ describe('TokenTree', () => {
           },
         },
       };
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const result = tokenTree.getTokenOfType('dimension', [
         'color',
@@ -296,7 +296,7 @@ describe('TokenTree', () => {
         },
       };
 
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const results = tokenTree.mapTokensByType('color', (token) => {
         return token.stringPath;
@@ -326,7 +326,7 @@ describe('TokenTree', () => {
         },
       };
 
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const results = tokenTree.getAllGroups();
 
@@ -352,7 +352,7 @@ describe('TokenTree', () => {
         },
       };
 
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const result = tokenTree.getGroup(['color', 'blue']);
 
@@ -379,7 +379,7 @@ describe('TokenTree', () => {
         },
       };
 
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const result = tokenTree.toJSON();
 
@@ -403,7 +403,7 @@ describe('TokenTree', () => {
         },
       };
 
-      const tokenTree = parseDesignTokens(tokens);
+      const tokenTree = parseJSONTokenTree(tokens);
 
       const result = tokenTree.toJSON();
 

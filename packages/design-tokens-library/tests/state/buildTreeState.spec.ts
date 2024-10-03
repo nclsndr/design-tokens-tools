@@ -59,11 +59,11 @@ describe('buildTreeState', () => {
     const results = buildTreeState(tokenTree).tokenStates.map((t) => ({
       stringPath: t.stringPath,
       type: t.type,
-      rawValues: t.rawValueParts.nodes.map((v) => ({
+      rawValues: t.rawValuePartsSet.nodes.map((v) => ({
         stringPath: v.path.string,
         value: v.value,
       })),
-      references: t.referencesArray.map((_) => ({})),
+      references: t.references.map((_) => ({})),
     }));
 
     expect(results).toStrictEqual([
@@ -202,11 +202,11 @@ describe('buildTreeState', () => {
     const results = buildTreeState(tokenTree).tokenStates.map((t) => ({
       stringPath: t.stringPath,
       type: t.type,
-      rawValues: t.rawValueParts.nodes.map((v) => ({
+      rawValues: t.rawValuePartsSet.nodes.map((v) => ({
         stringPath: v.path.string,
         value: v.value,
       })),
-      references: t.referencesArray.map((r) => ({
+      references: t.references.map((r) => ({
         fromValuePath: r.fromValuePath.string,
         fromId: expect.any(String),
         toId: r.toId,
@@ -323,11 +323,11 @@ describe('buildTreeState', () => {
     const results = buildTreeState(tokenTree).tokenStates.map((t) => ({
       stringPath: t.stringPath,
       type: t.type,
-      rawValues: t.rawValueParts.nodes.map((v) => ({
+      rawValues: t.rawValuePartsSet.nodes.map((v) => ({
         stringPath: v.path.string,
         value: v.value,
       })),
-      references: t.referencesArray.map((r) => ({
+      references: t.references.map((r) => ({
         fromValuePath: r.fromValuePath.string,
         fromId: r.fromId,
         toId: r.toId,
