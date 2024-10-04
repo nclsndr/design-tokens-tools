@@ -44,7 +44,7 @@ const tokens = {
   },
 };
 
-const tokenTree = parseDesignTokens();
+const tokenTree = parseDesignTokens(tokens);
 ```
 
 The `TokenTree` exposes various methods to either get the parse errors, the tokens, or work with the values of the tokens.
