@@ -10,7 +10,13 @@ import { TreeNodesMap } from './TreeNodesMap.js';
 import { TokenState } from './TokenState.js';
 import { GroupState } from './GroupState.js';
 import { ValidationErrorsSet } from './ValidationErrorsSet.js';
-import { stringToRegex } from '../utils/regex.js';
+
+function stringToRegex(input: string): RegExp {
+  if (input === '*') {
+    return new RegExp('.*');
+  }
+  return new RegExp(input);
+}
 
 export class TreeState {
   #tokens: TreeNodesMap<TokenState>;
