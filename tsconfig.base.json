@@ -15,6 +15,6 @@
     "sourceMap": true,
     "declaration": true,
 
-    "lib": ["es2022"]
+    "lib": ["es2022", "DOM"]
   }
 }
