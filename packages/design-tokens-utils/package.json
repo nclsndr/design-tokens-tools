@@ -1,7 +1,7 @@
 {
   "name": "@nclsndr/design-tokens-utils",
   "version": "0.0.1",
-  "description": "Internal tooling for @nclsndr/design-tokens-* packages",
+  "description": "Internal tooling for @nclsndr/*-design-tokens-* packages",
   "homepage": "https://github.com/nclsndr/design-tokens-tools/tree/main/packages/design-tokens-utils",
   "license": "MIT",
   "author": "Nico Andre <hello@nclsndr.com>",
