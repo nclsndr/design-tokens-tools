@@ -1,5 +1,7 @@
 # Design Tokens Library
 
+[![npm version](https://badge.fury.io/js/@nclsndr%2Fdesign-tokens-library.svg)](https://www.npmjs.com/package/@nclsndr/design-tokens-library)
+
 The Design Tokens Library provides two main APIs to work with design tokens:
 
 - The `TokensLibrary` API articulates design tokens from many sources (e.g: light/dark color values) in collections. Then, it offers a code generation feature to convert design tokens in various languages and flavours (CSS, SCSS, JSON...).

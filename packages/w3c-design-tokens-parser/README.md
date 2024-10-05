@@ -2,6 +2,8 @@
 
 <img src="https://github.com/nclsndr/design-tokens-tools/blob/main/packages/w3c-design-tokens-parser/docs/_assets/tokens-parser.jpg?raw=true" width="400" />
 
+[![npm version](https://badge.fury.io/js/@nclsndr%2Fw3c-design-tokens-parser.svg)](https://www.npmjs.com/package/@nclsndr/w3c-design-tokens-parser)
+
 This package provides a TypeScript implementation of the parser for the [W3C Design Tokens Format Module](https://tr.designtokens.org/format) specification. It returns a structured object containing the parsed design tokens, groups and the potential errors found during the parsing and validation processes.
 
 ## Installation
