@@ -1,7 +1,7 @@
 {
   "name": "@nclsndr/design-tokens-library",
   "version": "0.0.1",
-  "description": "Parse, assemble, manipulate many W3C design tokens files and generate code for other platforms",
+  "description": "Parse, assemble, manipulate multiple W3C design tokens JSON files and generate code for other platforms",
   "keywords": [
     "design tokens",
     "design system",
