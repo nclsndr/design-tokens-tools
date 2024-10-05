@@ -5,10 +5,10 @@ import { parseAliasableFontFamilyValue } from './fontFamily.js';
 import { parseAliasableNumberValue } from './number.js';
 import { parseAliasableFontWeightValue } from './fontWeight.js';
 import { parseAliasableDimensionValue } from './dimension.js';
-import { ValidationError } from '../../utils/validationError.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
 import { makeParseObject } from '../../parser/utils/parseObject.js';
-import { withAlias } from '../withAlias.js';
+import { withAlias } from '../internals/withAlias.js';
 
 const parseTypographyRawValue = makeParseObject({
   fontFamily: { parser: parseAliasableFontFamilyValue },

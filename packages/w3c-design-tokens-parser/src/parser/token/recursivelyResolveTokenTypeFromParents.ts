@@ -6,9 +6,9 @@ import {
   matchIsTokenTypeName,
   ALIAS_PATH_SEPARATOR,
 } from 'design-tokens-format-module';
+import { getJSONValue } from '@nclsndr/design-tokens-utils';
 
-import { ValidationError } from '../../utils/validationError.js';
-import { getJSONValue } from '../../utils/getJSONValue.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 
 export function recursivelyResolveTokenTypeFromParents(
   tokenTree: Json.Object,

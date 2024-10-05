@@ -5,10 +5,10 @@ import { parseAliasableColorValue } from './color.js';
 import { parseAliasableStrokeStyleValue } from './strokeStyle.js';
 import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
 import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
-import { ValidationError } from '../../utils/validationError.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 import { parseAliasableDimensionValue } from './dimension.js';
 import { makeParseObject } from '../../parser/utils/parseObject.js';
-import { withAlias } from '../withAlias.js';
+import { withAlias } from '../internals/withAlias.js';
 
 const parseBorderRawValue = makeParseObject({
   color: { parser: parseAliasableColorValue },

@@ -2,7 +2,7 @@ import { Either } from 'effect';
 import { ALIAS_PATH_SEPARATOR } from 'design-tokens-format-module';
 
 import type { AnalyzerContext } from './AnalyzerContext.js';
-import { ValidationError } from '../../utils/validationError.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 
 export function makeParseObject<
   R extends Either.Either<any, Array<ValidationError>>,

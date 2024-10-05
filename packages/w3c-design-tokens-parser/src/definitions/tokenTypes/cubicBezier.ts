@@ -1,10 +1,10 @@
 import { Either } from 'effect';
 import { CubicBezier } from 'design-tokens-format-module';
 
-import { ValidationError } from '../../utils/validationError.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
 import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
-import { withAlias } from '../withAlias.js';
+import { withAlias } from '../internals/withAlias.js';
 
 export type CubicBezierRawValue = [number, number, number, number];
 

@@ -4,13 +4,13 @@ import {
   ALIAS_PATH_SEPARATOR,
   matchIsToken,
 } from 'design-tokens-format-module';
+import { getJSONValue } from '@nclsndr/design-tokens-utils';
 
 import { TokenTypeName } from 'design-tokens-format-module';
-import { ValidationError } from '../../utils/validationError.js';
-import { getJSONValue } from '../../utils/getJSONValue.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 import { captureAliasPath } from '../alias/captureAliasPath.js';
 import { recursivelyResolveTokenTypeFromParents } from './recursivelyResolveTokenTypeFromParents.js';
-import { parseTokenTypeName } from '../../definitions/parseTokenTypeName.js';
+import { parseTokenTypeName } from './parseTokenTypeName.js';
 
 export type ResolutionType = 'explicit' | 'alias' | 'parent';
 

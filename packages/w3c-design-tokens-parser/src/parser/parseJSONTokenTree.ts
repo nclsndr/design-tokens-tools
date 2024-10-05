@@ -5,19 +5,21 @@ import {
   matchIsGroup,
   matchIsToken,
 } from 'design-tokens-format-module';
+import {
+  traverseJSONValue,
+  makeUniqueId,
+  arrayEndsWith,
+  ValidationError,
+} from '@nclsndr/design-tokens-utils';
 
-import { traverseJSONValue } from '../utils/traverseJSONValue.js';
 import { parseRawToken } from './token/parseRawToken.js';
-import { ValidationError } from '../utils/validationError.js';
 import { parseRawGroup } from './group/parseRawGroup.js';
 import { AnalyzedToken } from './token/AnalyzedToken.js';
 import { AnalyzedGroup } from './group/AnalyzedGroup.js';
-import { makeUniqueId } from '../utils/uniqueId.js';
-import { arrayEndsWith } from '../utils/arrayEndsWith.js';
 import { captureAnalyzedTokensReferenceErrors } from './token/captureAnalyzedTokensReferenceErrors.js';
-import { parseRawInput } from './utils/parseRawInput.js';
+import { parseRawInput } from './tree/parseRawInput.js';
 
-export const parseJSONTokenTree: (input: unknown) => Either.Either<
+export type ParsedJSONTokenTree = Either.Either<
   {
     tokenTree: JSONTypes.Object;
     analyzedTokens: Array<AnalyzedToken>;
@@ -26,8 +28,14 @@ export const parseJSONTokenTree: (input: unknown) => Either.Either<
     groupErrors: Array<ValidationError>;
   },
   ValidationError[]
-> = (input) =>
-  Either.flatMap(
+>;
+
+/**
+ * Parse a Design Token JSON tree.
+ * @param input - Accepts both object literal and string input.
+ */
+export function parseJSONTokenTree(input: unknown): ParsedJSONTokenTree {
+  return Either.flatMap(
     parseRawInput(input, {
       varName: '[root]',
       nodeId: '',
@@ -123,3 +131,4 @@ export const parseJSONTokenTree: (input: unknown) => Either.Either<
       });
     },
   );
+}

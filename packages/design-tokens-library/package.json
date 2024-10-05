@@ -1,0 +1,44 @@
+{
+  "name": "@nclsndr/design-tokens-library",
+  "version": "0.0.1",
+  "description": "Parse, assemble, manipulate many W3C design tokens files and generate code for other platforms",
+  "keywords": [
+    "design tokens",
+    "design system",
+    "design token format module",
+    "codegen"
+  ],
+  "homepage": "https://github.com/nclsndr/design-tokens-tools/tree/main/packages/design-tokens-library",
+  "license": "MIT",
+  "author": "Nico Andre <hello@nclsndr.com>",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "build": "rm -rf dist && tsc --build",
+    "typecheck": "tsc --noEmit && tsc --project tests/tsconfig.json --noEmit",
+    "tsc": "tsc"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "docs"
+  ],
+  "dependencies": {
+    "@nclsndr/design-tokens-utils": "workspace:^",
+    "@nclsndr/w3c-design-tokens-parser": "workspace:^",
+    "change-case": "^5.4.4",
+    "design-tokens-format-module": "^0.10.1",
+    "effect": "^3.8.3",
+    "hyperid": "^3.3.0",
+    "mustache": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/mustache": "^4.2.5",
+    "@vitest/coverage-v8": "^1.6.0",
+    "prettier": "^3.3.2",
+    "typescript": "^5.5.3",
+    "vitest": "^1.6.0"
+  }
+}

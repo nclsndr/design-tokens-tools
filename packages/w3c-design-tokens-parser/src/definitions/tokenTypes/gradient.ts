@@ -1,14 +1,14 @@
 import { Either } from 'effect';
+import { Gradient } from 'design-tokens-format-module';
+import { clamp } from '@nclsndr/design-tokens-utils';
 
 import { parseAliasableColorValue } from './color.js';
 import { AnalyzerContext } from '../../parser/utils/AnalyzerContext.js';
 import { AnalyzedValue } from '../../parser/token/AnalyzedToken.js';
-import { ValidationError } from '../../utils/validationError.js';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 import { makeParseObject } from '../../parser/utils/parseObject.js';
 import { parseAliasableNumberValue } from './number.js';
-import { clamp } from '../../utils/clamp.js';
-import { withAlias } from '../withAlias.js';
-import { Gradient } from 'design-tokens-format-module';
+import { withAlias } from '../internals/withAlias.js';
 import { mergeEitherItems } from '../../parser/utils/mergeEithers.js';
 
 const parseSingleGradientRawValue = makeParseObject({

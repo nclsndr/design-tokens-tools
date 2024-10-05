@@ -1,9 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { Cause, Effect, Either, Exit, Option } from 'effect';
+import { Either, Option } from 'effect';
+import { ValidationError } from '@nclsndr/design-tokens-utils';
 
 import { makeParseObject } from '../../src/parser/utils/parseObject';
-
-import { ValidationError } from '../../src/utils/validationError';
 
 describe.concurrent('makeParseObject', () => {
   const validateObjectMock = makeParseObject({
