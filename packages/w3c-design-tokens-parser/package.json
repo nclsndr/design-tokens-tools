@@ -1,6 +1,6 @@
 {
   "name": "@nclsndr/w3c-design-tokens-parser",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "a TypeScript implementation of the parser for the W3C Design Tokens Format Module specification",
   "keywords": [
     "design token format module",
@@ -24,8 +24,7 @@
     ".": "./dist/index.js"
   },
   "files": [
-    "dist",
-    "docs"
+    "dist"
   ],
   "dependencies": {
     "@nclsndr/design-tokens-utils": "workspace:^",
