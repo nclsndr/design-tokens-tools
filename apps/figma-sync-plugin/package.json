@@ -1,0 +1,44 @@
+{
+  "name": "design-tokens-sync",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm run watch",
+    "dev:ui": "vite --config ./vite.config.ui.ts",
+    "watch": "pnpm run watch:ui & pnpm run watch:plugin",
+    "watch:ui": "pnpm run build:ui --watch --mode=development",
+    "watch:plugin": "pnpm run build:plugin --watch --mode=development",
+    "clean": "rm -rf dist/*",
+    "types": "pnpm run types:src && pnpm run types:node",
+    "types:src": "tsc",
+    "types:node": "tsc -P tsconfig.node.json",
+    "build": "pnpm run prebuild && pnpm run build:plugin && pnpm run build:ui",
+    "prebuild": "pnpm run types:src && pnpm run types:node && pnpm run clean",
+    "build:ui": "vite build --config ./vite.config.ui.ts",
+    "build:plugin": "vite build --config ./vite.config.plugin.ts"
+  },
+  "dependencies": {
+    "monorepo-networker": "^1.5.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@figma/eslint-plugin-figma-plugins": "*",
+    "@figma/plugin-typings": "*",
+    "@types/postcss-url": "^10.0.4",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "eslint": "^8.57.1",
+    "postcss": "^8.4.47",
+    "postcss-url": "^10.1.3",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.1",
+    "vite-plugin-generate-file": "^0.2.0",
+    "vite-plugin-react-rich-svg": "^1.1.2",
+    "vite-plugin-singlefile": "^2.0.2"
+  }
+}
