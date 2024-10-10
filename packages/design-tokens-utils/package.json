@@ -21,8 +21,7 @@
   "dependencies": {
     "@nclsndr/w3c-design-tokens-parser": "workspace:^",
     "design-tokens-format-module": "^0.10.1",
-    "effect": "^3.8.3",
-    "hyperid": "^3.3.0"
+    "effect": "^3.8.3"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^1.6.0",

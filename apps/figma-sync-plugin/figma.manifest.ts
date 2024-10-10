@@ -12,4 +12,5 @@ export default {
   networkAccess: {
     allowedDomains: ['none'],
   },
+  permissions: ['teamlibrary'],
 };
